@@ -1,4 +1,5 @@
 ParkourVolume = (50, 50, 50)
+MaxParkourLength = 1000
 Difficulty = 0.5
 Flow = 0.5
 ParkourType = "UpwardSpiral"
