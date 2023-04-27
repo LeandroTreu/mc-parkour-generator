@@ -1,5 +1,6 @@
 import config
 from classes import JumpType
+from classes import Block
 from jumptypes import list_of_jumptypes
 from typing import List
 import numpy as np
@@ -12,36 +13,51 @@ list_of_directions = ["Xpos", "Xneg", "Zpos", "Zneg"]
 
 def compute_abs_coordinates_of_start_block(jumptype: JumpType, absolut_pos_of_last_block, forward_direction):
 
-    Y = absolut_pos_of_last_block[1] + jumptype.rel_start[1]
+    Y = absolut_pos_of_last_block[1] + jumptype.rel_start_block.rel_position[1]
 
     if forward_direction == "Xpos":
-        X = absolut_pos_of_last_block[0] + jumptype.rel_start[0]
-        Z = absolut_pos_of_last_block[2] + jumptype.rel_start[2]
+        X = absolut_pos_of_last_block[0] + jumptype.rel_start_block.rel_position[0]
+        Z = absolut_pos_of_last_block[2] + jumptype.rel_start_block.rel_position[2]
     elif forward_direction == "Xneg":
-        X = absolut_pos_of_last_block[0] - jumptype.rel_start[0]
-        Z = absolut_pos_of_last_block[2] - jumptype.rel_start[2]
+        X = absolut_pos_of_last_block[0] - jumptype.rel_start_block.rel_position[0]
+        Z = absolut_pos_of_last_block[2] - jumptype.rel_start_block.rel_position[2]
     elif forward_direction == "Zpos":
-        X = absolut_pos_of_last_block[0] + jumptype.rel_start[2]
-        Z = absolut_pos_of_last_block[2] + jumptype.rel_start[0]
+        X = absolut_pos_of_last_block[0] + jumptype.rel_start_block.rel_position[2]
+        Z = absolut_pos_of_last_block[2] + jumptype.rel_start_block.rel_position[0]
     elif forward_direction == "Zneg":
-        X = absolut_pos_of_last_block[0] - jumptype.rel_start[2]
-        Z = absolut_pos_of_last_block[2] - jumptype.rel_start[0]
+        X = absolut_pos_of_last_block[0] - jumptype.rel_start_block.rel_position[2]
+        Z = absolut_pos_of_last_block[2] - jumptype.rel_start_block.rel_position[0]
     
     return (X, Y, Z)
 
-def shortcut_possible(new_block: tuple, earlier_structure: JumpType):
+def shortcut_possible(new_block: Block, earlier_structure: JumpType):
 
-    new_block_abs = new_block[2]
-    rel_zone_of_invalid_blocks = []
-    abs_zone_of_invalid_blocks = []
-
-    for rel_tuple in rel_zone_of_invalid_blocks:
-        abs_tuple = (rel_tuple[0]+new_block_abs[0], rel_tuple[1]+new_block_abs[1], rel_tuple[2]+new_block_abs[2])
-        abs_zone_of_invalid_blocks.append(abs_tuple)
-
+    new_block_abs = new_block.abs_position
 
     for block in earlier_structure.blocks:
-        if block[2] in abs_zone_of_invalid_blocks:
+
+        old_X = block.abs_position[0]
+        old_Y = block.abs_position[1]
+        old_Z = block.abs_position[2]
+
+        new_X = new_block_abs[0]
+        new_Y = new_block_abs[1]
+        new_Z = new_block_abs[2]
+
+        # First zone, one y-level below
+        if old_Y == new_Y - 1 and (old_X <= new_X + 2 and old_X >= new_X - 2) and (old_Z <= new_Z + 2 and old_Z >= new_Z - 2):
+            return True
+        
+        # Same height
+        if old_Y == new_Y and (old_X <= new_X + 4 and old_X >= new_X - 4) and (old_Z <= new_Z + 4 and old_Z >= new_Z - 4):
+            return True
+
+        # One y-level up
+        if old_Y == new_Y + 1 and (old_X <= new_X + 6 and old_X >= new_X - 6) and (old_Z <= new_Z + 6 and old_Z >= new_Z - 6):
+            return True
+
+        # Rest of the volume above the block in a 16x10x16 volume
+        if (old_Y <= new_Y + 12 and old_Y >= new_Y + 2) and (old_X <= new_X + 8 and old_X >= new_X - 8) and (old_Z <= new_Z + 8 and old_Z >= new_Z - 8):
             return True
     
     return False
