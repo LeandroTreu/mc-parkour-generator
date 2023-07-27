@@ -1,7 +1,7 @@
-ParkourVolume = (50, 50, 50)
-MaxParkourLength = 1000
-Difficulty = 0.5
-Flow = 0.5
+ParkourVolume = (100, 100, 100)
+MaxParkourLength = 10
+Difficulty = 1.0
+Flow = 0.0
 ParkourType = "UpwardSpiral"
 BlockType = "minecraft:bedrock"
 FillParkourVolumeWithAirFirst = True

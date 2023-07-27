@@ -10,6 +10,8 @@ list_of_placed_jumps: List[JumpType] = []
 list_of_candidates: List[JumpType] = []
 list_of_allowed_structure_types = ["SingleBlock"]
 list_of_directions = ["Xpos", "Xneg", "Zpos", "Zneg"]
+# TODO: randomise seed
+rng = default_rng(283457)
 
 def compute_abs_coordinates_of_start_block(jumptype: JumpType, absolut_pos_of_last_block, forward_direction):
 
@@ -62,11 +64,13 @@ def shortcut_possible(new_block: Block, earlier_structure: JumpType):
     
     return False
 
-def can_be_placed(jumptype: JumpType, current_block_position, current_forward_direction):
+def can_be_placed(jumptype: JumpType, current_block_position: tuple, current_forward_direction: str):
 
     abs_position = compute_abs_coordinates_of_start_block(jumptype, current_block_position, current_forward_direction)
 
-    jumptype.set_absolut_coordinates(abs_position)
+    jumptype.set_absolut_coordinates(abs_position, current_forward_direction)
+
+    # TODO: Check if new Structure is in bounds of the config.ParkourVolume
 
     for block in jumptype.blocks:
         for earlier_jump in list_of_placed_jumps[:len(list_of_placed_jumps)-1]:
@@ -82,7 +86,7 @@ def can_be_placed(jumptype: JumpType, current_block_position, current_forward_di
 current_block_position = (0, 0, 0)
 current_forward_direction = "Xpos"
 
-for iteration in config.MaxParkourLength:
+for iteration in range(config.MaxParkourLength):
 
     for jumptype in list_of_jumptypes:
 
@@ -96,12 +100,30 @@ for iteration in config.MaxParkourLength:
 
                         list_of_candidates.append(jumptype)
     
+    # for j in list_of_candidates:
+    #     print(j.name)
     
-    rng = default_rng(12345)
-    random_index = rng.integers(low=0, high=len(list_of_candidates), size=1)
-    print(random_index)
+    # Choose randomly from list of candidates
+    random_index = rng.integers(low=0, high=len(list_of_candidates))
+    # print(random_index)
+    next_jump = list_of_candidates[random_index]
 
-    list_of_placed_jumps.append(list_of_candidates[random_index])
+    list_of_placed_jumps.append(next_jump)
+
+    # Set new absolute coordinates for next iteration
+    current_block_position = next_jump.rel_finish_block.abs_position
+
+    # TODO: Set new forward direction for next iteration
+    current_forward_direction = "Xpos"
+
+    # Clear list of candidates for next iteration
+    list_of_candidates = []
+
+    
+
+
+for placed_jump in list_of_placed_jumps:
+    print(placed_jump.name)
 
 
     

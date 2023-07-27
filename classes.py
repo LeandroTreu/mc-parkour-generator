@@ -14,13 +14,13 @@ class Block:
 
 class JumpType:
 
-    def __init__(self, name: str, structure_type: str, rel_start_block: Block, rel_finish_block: Block, blocks: list[Block], difficulty: float, flow: float) -> None:
+    def __init__(self, name: str, structure_type: str, rel_start_block: Block, rel_finish_block: Block, blocks: list, difficulty: float, flow: float) -> None:
         
         self.name = name                            # Name of the jump type
         self.structure_type = structure_type        # Name of the structure type
         self.rel_start_block = rel_start_block      # Start block of the JumpType: Its relative position is defined relative to the last jump block in the parkour
         self.rel_finish_block = rel_finish_block    # Finish block of the JumpType, defined relative to the start block of this JumpType
-        self.blocks = blocks                        # List of all blocks in the structure, except the rel_start_block, defined relative to the start block of this JumpType
+        self.blocks = blocks                        # List of all remaining blocks in the structure (excluding the rel_start_block and the rel_finish_block) defined relative to the start block of this JumpType
         
         self.difficulty = difficulty
         self.flow = flow
@@ -28,6 +28,10 @@ class JumpType:
     def set_absolut_coordinates(self, abs_tuple: tuple, forward_direction: str):
 
         self.rel_start_block.set_abs_position(abs_tuple)
+
+        # For finish block
+        abs_coordinates = self.compute_abs_coordinates(self.rel_start_block.abs_position, self.rel_finish_block, forward_direction)
+        self.rel_finish_block.set_abs_position(abs_coordinates)
 
         for block in self.blocks:
 
