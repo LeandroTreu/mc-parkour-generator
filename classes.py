@@ -7,6 +7,16 @@ class Block:
         self.name = name                    # Minecraft block name
         self.rel_position = rel_position    # Relative position to last jump block in parkour
         self.abs_position = (0, 0, 0)       # Absolute coordinates in the minecraft world
+
+    def __str__(self) -> str:
+        
+        printstr = {
+            "name": self.name,
+            "rel_position": self.rel_position,
+            "abs_position": self.abs_position
+        }
+
+        return str(printstr)
     
     def set_abs_position(self, abs_coordinates: tuple):
 
@@ -24,6 +34,13 @@ class JumpType:
         
         self.difficulty = difficulty
         self.flow = flow
+    
+    def __str__(self) -> str:
+        
+        printstr = f"name: {self.name} \nstructure_type: {self.structure_type} \nrel_start_block: {str(self.rel_start_block)} \nrel_finish_block: {str(self.rel_finish_block)} \nblocks: {[str(b) for b in self.blocks]}"
+                    
+
+        return "\n"+str(printstr)
     
     def set_absolut_coordinates(self, abs_tuple: tuple, forward_direction: str):
 

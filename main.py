@@ -8,6 +8,7 @@ from numpy.random import default_rng
 from copy import deepcopy
 import matplotlib.pyplot as plt
 import numpy as np
+import math
 
 list_of_placed_jumps: List[JumpType] = []
 list_of_candidates: List[JumpType] = []
@@ -86,8 +87,12 @@ def can_be_placed(jumptype: JumpType, current_block_position: tuple, current_for
     return True
 
 
-current_block_position = (0, 0, 0)
-current_forward_direction = "Xpos"
+# Place Start Structure of the Parkour
+current_block_position = config.StartPosition
+current_forward_direction = config.StartForwardDirection
+StartBlock = deepcopy(config.StartBlock)
+StartBlock.set_absolut_coordinates(current_block_position, current_forward_direction)
+list_of_placed_jumps.append(StartBlock)
 
 for iteration in range(config.MaxParkourLength):
 
@@ -124,22 +129,84 @@ for iteration in range(config.MaxParkourLength):
     # Clear list of candidates for next iteration
     list_of_candidates = []
 
+# Place Finish Structure of the Parkour
+FinishBlock = deepcopy(config.FinishBlock)
+FinishBlock.set_absolut_coordinates(current_block_position, current_forward_direction)
+list_of_placed_jumps.append(FinishBlock)
+
     
 print("Filling 3D array")
-array_3d = np.zeros(config.ParkourVolume, dtype=int)
+if config.EnforceParkourVolume:
+
+    array_3d = np.zeros(config.ParkourVolume, dtype=int)
+else:
+
+    furthest_block = (0, 0, 0)
+    longest_distance = 0
+    first_jump = list_of_placed_jumps[0]
+    origin = (first_jump.rel_start_block.abs_position)
+    # print(origin)
+    for placed_jump in list_of_placed_jumps:
+
+        x = placed_jump.rel_start_block.abs_position[0]
+        y = placed_jump.rel_start_block.abs_position[1]
+        z = placed_jump.rel_start_block.abs_position[2]
+
+        distance = math.sqrt((x-origin[0])**2 + (y-origin[1]**2) + (z-origin[2])**2)
+
+        if distance > longest_distance:
+            distance = longest_distance
+            furthest_block = (x, y, z)
+
+        x = placed_jump.rel_finish_block.abs_position[0]
+        y = placed_jump.rel_finish_block.abs_position[1]
+        z = placed_jump.rel_finish_block.abs_position[2]
+
+        distance = math.sqrt((x-origin[0])**2 + (y-origin[1]**2) + (z-origin[2])**2)
+
+        if distance > longest_distance:
+            distance = longest_distance
+            furthest_block = (x, y, z)
+        
+
+        for block in placed_jump.blocks:
+
+            x = block.abs_position[0]
+            y = block.abs_position[1]
+            z = block.abs_position[2]
+
+            distance = math.sqrt((x-origin[0])**2 + (y-origin[1]**2) + (z-origin[2])**2)
+
+            if distance > longest_distance:
+                distance = longest_distance
+                furthest_block = (x, y, z)
+    
+    max_axis_distance = max(furthest_block) + 10
+    # print(max_axis_distance)
+    array_3d = np.zeros((max_axis_distance, max_axis_distance, max_axis_distance), dtype=int)
+
+
+
+fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
 
 for placed_jump in list_of_placed_jumps:
-    # print(placed_jump.name)
+    print(placed_jump)
 
     # print(placed_jump.rel_start_block.abs_position)
     # print(placed_jump.rel_finish_block.abs_position)
     
-    array_3d[placed_jump.rel_start_block.abs_position[0]][placed_jump.rel_start_block.abs_position[2]][placed_jump.rel_start_block.abs_position[1]] = 1
-    array_3d[placed_jump.rel_finish_block.abs_position[0]][placed_jump.rel_finish_block.abs_position[2]][placed_jump.rel_finish_block.abs_position[1]] = 1
+    # array_3d[placed_jump.rel_start_block.abs_position[0]][placed_jump.rel_start_block.abs_position[2]][placed_jump.rel_start_block.abs_position[1]] = 1
+    # array_3d[placed_jump.rel_finish_block.abs_position[0]][placed_jump.rel_finish_block.abs_position[2]][placed_jump.rel_finish_block.abs_position[1]] = 1
+    
+    ax.scatter(placed_jump.rel_start_block.abs_position[0], placed_jump.rel_start_block.abs_position[2], placed_jump.rel_start_block.abs_position[1])
+    ax.scatter(placed_jump.rel_finish_block.abs_position[0], placed_jump.rel_finish_block.abs_position[2], placed_jump.rel_finish_block.abs_position[1])
 
     for block in placed_jump.blocks:
 
-        array_3d[block.abs_position[0]][block.abs_position[2]][block.abs_position[1]] = 1
+        # array_3d[block.abs_position[0]][block.abs_position[2]][block.abs_position[1]] = 1
+
+        ax.scatter(block.abs_position[0], block.abs_position[2], block.abs_position[1])
 
 
 
@@ -148,8 +215,6 @@ for placed_jump in list_of_placed_jumps:
 
 
 print("Generating plot")
-ax = plt.figure().add_subplot(projection='3d')
-ax.voxels(array_3d, facecolors="green", edgecolor='k')
 plt.savefig("parkour_plot.png")
 
 
