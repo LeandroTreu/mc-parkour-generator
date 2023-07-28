@@ -5,6 +5,9 @@ from jumptypes import list_of_jumptypes
 from typing import List
 import numpy as np
 from numpy.random import default_rng
+from copy import deepcopy
+import matplotlib.pyplot as plt
+import numpy as np
 
 list_of_placed_jumps: List[JumpType] = []
 list_of_candidates: List[JumpType] = []
@@ -96,9 +99,11 @@ for iteration in range(config.MaxParkourLength):
 
                 if jumptype.flow >= config.Flow:
 
-                    if can_be_placed(jumptype, current_block_position, current_forward_direction):
+                    jumptype_instance = deepcopy(jumptype)
 
-                        list_of_candidates.append(jumptype)
+                    if can_be_placed(jumptype_instance, current_block_position, current_forward_direction):
+
+                        list_of_candidates.append(jumptype_instance)
     
     # for j in list_of_candidates:
     #     print(j.name)
@@ -120,10 +125,32 @@ for iteration in range(config.MaxParkourLength):
     list_of_candidates = []
 
     
-
+print("Filling 3D array")
+array_3d = np.zeros(config.ParkourVolume, dtype=int)
 
 for placed_jump in list_of_placed_jumps:
-    print(placed_jump.name)
+    # print(placed_jump.name)
+
+    # print(placed_jump.rel_start_block.abs_position)
+    # print(placed_jump.rel_finish_block.abs_position)
+    
+    array_3d[placed_jump.rel_start_block.abs_position[0]][placed_jump.rel_start_block.abs_position[2]][placed_jump.rel_start_block.abs_position[1]] = 1
+    array_3d[placed_jump.rel_finish_block.abs_position[0]][placed_jump.rel_finish_block.abs_position[2]][placed_jump.rel_finish_block.abs_position[1]] = 1
+
+    for block in placed_jump.blocks:
+
+        array_3d[block.abs_position[0]][block.abs_position[2]][block.abs_position[1]] = 1
+
+
+
+
+
+
+
+print("Generating plot")
+ax = plt.figure().add_subplot(projection='3d')
+ax.voxels(array_3d, facecolors="green", edgecolor='k')
+plt.savefig("parkour_plot.png")
 
 
     
