@@ -75,7 +75,33 @@ def can_be_placed(jumptype: JumpType, current_block_position: tuple, current_for
     jumptype.set_absolut_coordinates(abs_position, current_forward_direction)
 
     # TODO: Check if new Structure is in bounds of the config.ParkourVolume
+    x_upper_bound = config.StartPosition[0]+config.ParkourVolume[0]
+    y_upper_bound = config.StartPosition[1]+config.ParkourVolume[1]
+    z_upper_bound = config.StartPosition[2]+config.ParkourVolume[2]
+    
+    if jumptype.rel_start_block.abs_position[0] >= config.StartPosition[0] and jumptype.rel_start_block.abs_position[0] <= x_upper_bound:
+        if jumptype.rel_start_block.abs_position[1] >= config.StartPosition[1] and jumptype.rel_start_block.abs_position[1] <= y_upper_bound:
+            if jumptype.rel_start_block.abs_position[2] >= config.StartPosition[2] and jumptype.rel_start_block.abs_position[2] <= z_upper_bound:
+                pass
+            else:
+                return False
+        else:
+            return False
+    else:
+        return False
 
+
+    # For start and finish blocks
+    for earlier_jump in list_of_placed_jumps[:len(list_of_placed_jumps)-1]:
+
+            if shortcut_possible(jumptype.rel_start_block, earlier_jump):
+                
+                return False
+            if shortcut_possible(jumptype.rel_finish_block, earlier_jump):
+                
+                return False
+    
+    # For rest of the structure
     for block in jumptype.blocks:
         for earlier_jump in list_of_placed_jumps[:len(list_of_placed_jumps)-1]:
 
@@ -199,14 +225,14 @@ for placed_jump in list_of_placed_jumps:
     # array_3d[placed_jump.rel_start_block.abs_position[0]][placed_jump.rel_start_block.abs_position[2]][placed_jump.rel_start_block.abs_position[1]] = 1
     # array_3d[placed_jump.rel_finish_block.abs_position[0]][placed_jump.rel_finish_block.abs_position[2]][placed_jump.rel_finish_block.abs_position[1]] = 1
     
-    ax.scatter(placed_jump.rel_start_block.abs_position[0], placed_jump.rel_start_block.abs_position[2], placed_jump.rel_start_block.abs_position[1])
-    ax.scatter(placed_jump.rel_finish_block.abs_position[0], placed_jump.rel_finish_block.abs_position[2], placed_jump.rel_finish_block.abs_position[1])
+    ax.scatter(placed_jump.rel_start_block.abs_position[0], placed_jump.rel_start_block.abs_position[2], placed_jump.rel_start_block.abs_position[1], c=["black"], marker="s")
+    ax.scatter(placed_jump.rel_finish_block.abs_position[0], placed_jump.rel_finish_block.abs_position[2], placed_jump.rel_finish_block.abs_position[1], c=["black"], marker="s")
 
     for block in placed_jump.blocks:
 
         # array_3d[block.abs_position[0]][block.abs_position[2]][block.abs_position[1]] = 1
 
-        ax.scatter(block.abs_position[0], block.abs_position[2], block.abs_position[1])
+        ax.scatter(block.abs_position[0], block.abs_position[2], block.abs_position[1], c=["black"], marker="s")
 
 
 
@@ -215,7 +241,16 @@ for placed_jump in list_of_placed_jumps:
 
 
 print("Generating plot")
-plt.savefig("parkour_plot.png")
+ax.set_xticks(np.arange(0, max_axis_distance, max_axis_distance//10))
+ax.set_yticks(np.arange(0, max_axis_distance, max_axis_distance//10))
+ax.set_zticks(np.arange(0, max_axis_distance, max_axis_distance//10))
+
+if config.PlotFileType == "jpg":
+
+    plt.savefig("parkour_plot.jpg")
+else:
+
+    plt.savefig("parkour_plot.png")
 
 
     

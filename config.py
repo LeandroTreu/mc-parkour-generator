@@ -27,3 +27,8 @@ FinishBlock = JumpType(name="Parkour Finish Structure", structure_type="Finish",
 
 
 Stages = 1
+
+
+
+PlotFileType = "jpg"  # "jpg" or "png"
+
