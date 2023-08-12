@@ -29,3 +29,27 @@ list_of_jumptypes.append(JumpType(name="4 blocks gap straight", structure_type="
                                   rel_finish_block=Block("minecraft:bedrock", (0, 0, 0)), 
                                   blocks=[], 
                                   difficulty=0.8, flow=1.0))
+
+list_of_jumptypes.append(JumpType(name="2 blocks gap displaced left", structure_type="SingleBlock", 
+                                  rel_start_block=Block("minecraft:bedrock", (3, 0, -1)), 
+                                  rel_finish_block=Block("minecraft:bedrock", (0, 0, 0)), 
+                                  blocks=[], 
+                                  difficulty=0.3, flow=0.8))
+
+list_of_jumptypes.append(JumpType(name="2 blocks gap displaced right", structure_type="SingleBlock", 
+                                  rel_start_block=Block("minecraft:bedrock", (3, 0, 1)), 
+                                  rel_finish_block=Block("minecraft:bedrock", (0, 0, 0)), 
+                                  blocks=[], 
+                                  difficulty=0.3, flow=0.8))
+
+list_of_jumptypes.append(JumpType(name="2 blocks gap diagonal left", structure_type="SingleBlock",  #
+                                  rel_start_block=Block("minecraft:bedrock", (3, 0, -2)),           #  #
+                                  rel_finish_block=Block("minecraft:bedrock", (0, 0, 0)),           #
+                                  blocks=[],                                                        #    
+                                  difficulty=0.6, flow=0.8))                                        #    #
+
+list_of_jumptypes.append(JumpType(name="2 blocks gap diagonal right", structure_type="SingleBlock",  #
+                                  rel_start_block=Block("minecraft:bedrock", (3, 0, 2)),             #       #
+                                  rel_finish_block=Block("minecraft:bedrock", (0, 0, 0)),            #    
+                                  blocks=[],                                                         #     
+                                  difficulty=0.6, flow=0.8))                                         #     #

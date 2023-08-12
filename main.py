@@ -13,7 +13,7 @@ import math
 list_of_placed_jumps: List[JumpType] = []
 list_of_candidates: List[JumpType] = []
 list_of_allowed_structure_types = ["SingleBlock"]
-list_of_directions = ["Xpos", "Xneg", "Zpos", "Zneg"]
+list_of_directions = ["Xpos", "Zneg", "Xneg", "Zpos"]
 # TODO: randomise seed
 rng = default_rng(283457)
 
@@ -120,21 +120,31 @@ StartBlock = deepcopy(config.StartBlock)
 StartBlock.set_absolut_coordinates(current_block_position, current_forward_direction)
 list_of_placed_jumps.append(StartBlock)
 
-for iteration in range(config.MaxParkourLength):
 
-    for jumptype in list_of_jumptypes:
+# Pre-filter allowed jumptypes
+list_of_jumptypes_filtered = []
+for jumptype in list_of_jumptypes:
 
         if jumptype.structure_type in list_of_allowed_structure_types:
             
-            if jumptype.difficulty <= config.Difficulty:
+            if jumptype.difficulty >= config.Difficulty - 0.2 and jumptype.difficulty <= config.Difficulty + 0.2:
 
-                if jumptype.flow >= config.Flow:
+                if jumptype.flow >= config.Flow - 0.2 and jumptype.flow <= config.Flow + 0.2:
 
-                    jumptype_instance = deepcopy(jumptype)
+                    list_of_jumptypes_filtered.append(jumptype)
 
-                    if can_be_placed(jumptype_instance, current_block_position, current_forward_direction):
+SlopesDirection = 0
+SpiralTurnCounter = 0
+# Search for candidates
+for iteration in range(config.MaxParkourLength):
 
-                        list_of_candidates.append(jumptype_instance)
+    for jumptype in list_of_jumptypes_filtered:
+
+        jumptype_instance = deepcopy(jumptype)
+
+        if can_be_placed(jumptype_instance, current_block_position, current_forward_direction):
+
+            list_of_candidates.append(jumptype_instance)
     
     # for j in list_of_candidates:
     #     print(j.name)
@@ -150,7 +160,96 @@ for iteration in range(config.MaxParkourLength):
     current_block_position = next_jump.rel_finish_block.abs_position
 
     # TODO: Set new forward direction for next iteration
-    current_forward_direction = "Xpos"
+
+    if config.ParkourType == "Random":
+        # Choose possible other directions at random
+        random_bit = rng.integers(low=0, high=2)
+        old_direction_index = list_of_directions.index(current_forward_direction)
+
+        if random_bit == 0:
+            if old_direction_index == 0:
+                new_direction_index = 3
+            else:
+                new_direction_index = old_direction_index - 1
+        else:
+            new_direction_index = (old_direction_index + 1) % 4
+
+        current_forward_direction = list_of_directions[new_direction_index]
+
+    elif config.ParkourType == "Straight" or config.ParkourType == "StraightAscending":
+
+        current_forward_direction = current_forward_direction  # Keep same direction
+    
+    elif config.ParkourType == "StraightSlopes":
+
+        if config.StraightSlopesSize < 1 or config.StraightSlopesSize > 10:
+            raise Exception("Invalid input for StraightSlopesSize: must be between 1 and 10 (inclusive)")
+        
+        random_bit = rng.integers(low=0, high=config.StraightSlopesSize+1)
+
+        # Only change direction with probability 1/(config.StraightSlopesSize+1)
+        if random_bit == 1:
+
+            old_direction_index = list_of_directions.index(current_forward_direction)
+            
+            if SlopesDirection == -1:
+                SlopesDirection = 0
+                new_direction_index = (old_direction_index + 1) % 4
+            elif SlopesDirection == 0:
+                random_bit = rng.integers(low=0, high=2)
+                if random_bit == 0:
+                    SlopesDirection = -1
+                    new_direction_index = (old_direction_index - 1)
+                else: 
+                    SlopesDirection = 1
+                    new_direction_index = (old_direction_index + 1) % 4
+            elif SlopesDirection == 1:
+                SlopesDirection = 0
+                new_direction_index = (old_direction_index - 1)
+            
+            if new_direction_index < 0:
+                new_direction_index = 3
+        
+            current_forward_direction = list_of_directions[new_direction_index]
+        else:
+            current_forward_direction = current_forward_direction
+
+    elif config.ParkourType == "UpwardSpiral":
+
+        if config.SpiralType == "Even":
+
+            if config.EnforceParkourVolume:
+
+                random_bit = rng.integers(low=0, high=2)   # TODO: adjust probability to have a spiral tight to bounds
+            else:
+
+                if SpiralTurnCounter >= config.SpiralTurnRate:
+                    random_bit = 1
+                    SpiralTurnCounter = 0
+                else:
+                    random_bit = 0
+                    SpiralTurnCounter += 1
+        else:
+            h_bound = config.SpiralTurnProbability+1
+            random_bit = rng.integers(low=0, high=h_bound)
+
+        if random_bit == 1:
+
+            old_direction_index = list_of_directions.index(current_forward_direction)
+
+            if config.SpiralRotation == "clockwise":
+
+                new_direction_index = (old_direction_index + 1) % 4
+            else:
+                new_direction_index = old_direction_index - 1
+
+            if new_direction_index < 0:
+                    new_direction_index = 3
+            
+            current_forward_direction = list_of_directions[new_direction_index]
+        else:
+            current_forward_direction = current_forward_direction
+
 
     # Clear list of candidates for next iteration
     list_of_candidates = []
