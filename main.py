@@ -374,59 +374,50 @@ if config.EnforceParkourVolume:
 
     min_axis_distance = min(config.ParkourVolume[0][0], config.ParkourVolume[1][0], config.ParkourVolume[2][0])
     max_axis_distance = max(config.ParkourVolume[0][1], config.ParkourVolume[1][1], config.ParkourVolume[2][1])
-    stepsize = (max_axis_distance - min_axis_distance) // 10
+    stepsize = max((abs(max_axis_distance - min_axis_distance)) // 10, 1)
     
     ax.set_xticks(np.arange(min_axis_distance, max_axis_distance+1, stepsize))
     ax.set_yticks(np.arange(min_axis_distance, max_axis_distance+1, stepsize))
     ax.set_zticks(np.arange(min_axis_distance, max_axis_distance+1, stepsize))
 else:
 
-    furthest_block = (0, 0, 0)
-    longest_distance = 0
-    first_jump = list_of_placed_jumps[0]
-    origin = (first_jump.rel_start_block.abs_position)
-    # print(origin)
+    
+
+    x_list = []
+    y_list = []
+    z_list = []
+    
     for placed_jump in list_of_placed_jumps:
 
-        x = placed_jump.rel_start_block.abs_position[0]
-        y = placed_jump.rel_start_block.abs_position[1]
-        z = placed_jump.rel_start_block.abs_position[2]
+        x_list.append(placed_jump.rel_start_block.abs_position[0])
+        y_list.append(placed_jump.rel_start_block.abs_position[2])  # Here the y value (for height) is the minecraft z value
+        z_list.append(placed_jump.rel_start_block.abs_position[1])
 
-        distance = math.sqrt((x-origin[0])**2 + (y-origin[1]**2) + (z-origin[2])**2)
-
-        if distance > longest_distance:
-            distance = longest_distance
-            furthest_block = (x, y, z)
-
-        x = placed_jump.rel_finish_block.abs_position[0]
-        y = placed_jump.rel_finish_block.abs_position[1]
-        z = placed_jump.rel_finish_block.abs_position[2]
-
-        distance = math.sqrt((x-origin[0])**2 + (y-origin[1]**2) + (z-origin[2])**2)
-
-        if distance > longest_distance:
-            distance = longest_distance
-            furthest_block = (x, y, z)
+        x_list.append(placed_jump.rel_finish_block.abs_position[0])
+        y_list.append(placed_jump.rel_finish_block.abs_position[2])  # Here the y value (for height) is the minecraft z value
+        z_list.append(placed_jump.rel_finish_block.abs_position[1])
         
 
         for block in placed_jump.blocks:
 
-            x = block.abs_position[0]
-            y = block.abs_position[1]
-            z = block.abs_position[2]
-
-            distance = math.sqrt((x-origin[0])**2 + (y-origin[1]**2) + (z-origin[2])**2)
-
-            if distance > longest_distance:
-                distance = longest_distance
-                furthest_block = (x, y, z)
+            x_list.append(block.abs_position[0])
+            y_list.append(block.abs_position[2])  # Here the y value (for height) is the minecraft z value
+            z_list.append(block.abs_position[1])
     
+    x_min = min(x_list)
+    x_max = max(x_list)
+    y_min = min(y_list)
+    y_max = max(y_list)
+    z_min = min(z_list)
+    z_max = max(z_list)
 
-    max_axis_distance = max(furthest_block) + 10
-    stepsize = max_axis_distance//10
-    ax.set_xticks(np.arange(0, max_axis_distance+stepsize, stepsize))
-    ax.set_yticks(np.arange(0, max_axis_distance+stepsize, stepsize))
-    ax.set_zticks(np.arange(0, max_axis_distance+stepsize, stepsize))
+    max_axis_distance = max(x_max, y_max, z_max)
+    min_axis_distance = min(x_min, y_min, z_min)
+    
+    stepsize = max(abs(max_axis_distance-min_axis_distance)//10, 1)
+    ax.set_xticks(np.arange(min_axis_distance, max_axis_distance+1, stepsize))
+    ax.set_yticks(np.arange(min_axis_distance, max_axis_distance+1, stepsize))
+    ax.set_zticks(np.arange(min_axis_distance, max_axis_distance+1, stepsize))
 
 
 

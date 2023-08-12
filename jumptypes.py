@@ -82,3 +82,33 @@ list_of_jumptypes.append(JumpType(name="2 blocks gap diagonal right", structure_
                                   rel_finish_block=Block("minecraft:bedrock", (0, 0, 0)),            #  +
                                   blocks=[],                                                         #
                                   difficulty=0.6, flow=0.8))                                         #       +
+
+list_of_jumptypes.append(JumpType(name="1 block gap one up", structure_type="SingleBlock",           #
+                                  rel_start_block=Block("minecraft:bedrock", (2, 1, 0)),             #
+                                  rel_finish_block=Block("minecraft:bedrock", (0, 0, 0)),            #  +  +
+                                  blocks=[],                                                         #
+                                  difficulty=0.2, flow=0.5))                                         #
+
+list_of_jumptypes.append(JumpType(name="2 block gap one up", structure_type="SingleBlock",           #
+                                  rel_start_block=Block("minecraft:bedrock", (3, 1, 0)),             #
+                                  rel_finish_block=Block("minecraft:bedrock", (0, 0, 0)),            #  +    +
+                                  blocks=[],                                                         #
+                                  difficulty=0.9, flow=0.7))                                         #
+
+list_of_jumptypes.append(JumpType(name="1 block gap one up displaced left", structure_type="SingleBlock",  #
+                                  rel_start_block=Block("minecraft:bedrock", (2, 1, -1)),                  #     +
+                                  rel_finish_block=Block("minecraft:bedrock", (0, 0, 0)),                  #  +
+                                  blocks=[],                                                               #
+                                  difficulty=0.3, flow=0.5))                                               #
+
+list_of_jumptypes.append(JumpType(name="1 block gap one up displaced right", structure_type="SingleBlock", #
+                                  rel_start_block=Block("minecraft:bedrock", (2, 1, 1)),                   #
+                                  rel_finish_block=Block("minecraft:bedrock", (0, 0, 0)),                  #  +
+                                  blocks=[],                                                               #     +
+                                  difficulty=0.3, flow=0.5))                                               #
+
+
+
+# 2Block Structures
+
+
