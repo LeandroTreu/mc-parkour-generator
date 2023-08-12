@@ -39,21 +39,10 @@ def compute_abs_coordinates_of_start_block(jumptype: JumpType, absolut_pos_of_la
     
     return (X, Y, Z)
 
-def shortcut_possible(new_block: Block, earlier_structure: JumpType):
 
-    new_block_abs = new_block.abs_position
+def shortcut_possible_checker(old_X, old_Y, old_Z, new_X, new_Y, new_Z):
 
-    for block in earlier_structure.blocks:
-
-        old_X = block.abs_position[0]
-        old_Y = block.abs_position[1]
-        old_Z = block.abs_position[2]
-
-        new_X = new_block_abs[0]
-        new_Y = new_block_abs[1]
-        new_Z = new_block_abs[2]
-
-        # First zone, one y-level below
+     # First zone, one y-level below
         if old_Y == new_Y - 1 and (old_X <= new_X + 2 and old_X >= new_X - 2) and (old_Z <= new_Z + 2 and old_Z >= new_Z - 2):
             return True
         
@@ -67,6 +56,39 @@ def shortcut_possible(new_block: Block, earlier_structure: JumpType):
 
         # Rest of the volume above the block in a 16x10x16 volume
         if (old_Y <= new_Y + 12 and old_Y >= new_Y + 2) and (old_X <= new_X + 8 and old_X >= new_X - 8) and (old_Z <= new_Z + 8 and old_Z >= new_Z - 8):
+            return True
+
+def shortcut_possible(new_block: Block, earlier_structure: JumpType):
+
+    new_block_abs = new_block.abs_position
+
+    new_X = new_block_abs[0]
+    new_Y = new_block_abs[1]
+    new_Z = new_block_abs[2]
+
+    # Check for the rel start block
+    old_X = earlier_structure.rel_start_block.abs_position[0]
+    old_Y = earlier_structure.rel_start_block.abs_position[1]
+    old_Z = earlier_structure.rel_start_block.abs_position[2]
+
+    if shortcut_possible_checker(old_X, old_Y, old_Z, new_X, new_Y, new_Z):
+        return True
+    
+    # Check for the rel finish block
+    old_X = earlier_structure.rel_finish_block.abs_position[0]
+    old_Y = earlier_structure.rel_finish_block.abs_position[1]
+    old_Z = earlier_structure.rel_finish_block.abs_position[2]
+
+    if shortcut_possible_checker(old_X, old_Y, old_Z, new_X, new_Y, new_Z):
+        return True
+
+    for block in earlier_structure.blocks:
+
+        old_X = block.abs_position[0]
+        old_Y = block.abs_position[1]
+        old_Z = block.abs_position[2]
+
+        if shortcut_possible_checker(old_X, old_Y, old_Z, new_X, new_Y, new_Z):
             return True
     
     return False

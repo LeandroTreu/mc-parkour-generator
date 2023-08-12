@@ -1,7 +1,7 @@
 
 
 ParkourVolume = [(0, 50), (0, 50), (0, 50)]  # Absolute X, Y, Z coordinate ranges in the minecraft world.
-EnforceParkourVolume = True
+EnforceParkourVolume = False
 FillParkourVolumeWithAirFirst = True  # Only works when EnforceParkourVolume is set to True
 MaxParkourLength = 100
 
@@ -14,19 +14,20 @@ Difficulty = 0.3  # Choose parkour difficulty in range [0.0, 1.0]. 0.0 - very ea
 Flow = 0.8        # Choose how fast/flowing/fluent the parkour is to traverse in range [0.0, 1.0]. 0.0 - slow/ahlting, 1.0 - fast/fluent
 
 
-ParkourType = "Straight"  # UpwardSpiral, StraightAscending, Straight, StraightSlopes, StraightSlopesAscending, Random
+ParkourType = "StraightSlopes"  # Spiral, Straight, StraightSlopes, Random  TODO: implement all types
+ParkourAscending = True         # Set to True if the parkour should have an upwards elevation change. Set to False for the parkour to stay on the same height/y-level.
 
-StraightSlopesSize = 5  # Values: 1 - 10, Changes how frequently the parkour direction changes: 1 - very often, 10 - rarely
+StraightSlopesSize = 1  # Values: 1 - 10, Changes how frequently the parkour direction changes: 1 - very often, 10 - rarely
 
 SpiralRotation = "counterclockwise"  # clockwise, counterclockwise
 SpiralType = "Even"  # Random, Even
-SpiralTurnRate = 5  # After how many jumps the Spiral will change direction. Only works with SpiralType = "Even"
-SpiralTurnProbability = 5  # Values: 1 - high prob, 10 - low prob. Probability for changing direction for SpiralType = "Random"
+SpiralTurnRate = 10  # After how many jumps the Spiral will change direction. Only works with SpiralType = "Even"
+SpiralTurnProbability = 10  # Values: 1 - high prob, 10 - low prob. Probability for changing direction for SpiralType = "Random"
 
 
 BlockType = "minecraft:bedrock"
 
-StartPosition = (0, 0, 50)  # Absolute X, Y, Z coordinates in the minecraft world. Must be within the ParkourVolume defined above if EnforceParkourVolume is set to True.
+StartPosition = (25, 0, 25)  # Absolute X, Y, Z coordinates in the minecraft world. Must be within the ParkourVolume defined above if EnforceParkourVolume is set to True.
 StartForwardDirection = "Xpos"
 
 
