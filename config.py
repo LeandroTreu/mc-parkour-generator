@@ -4,14 +4,17 @@ ParkourVolume = (200, 200, 200)
 EnforceParkourVolume = True
 FillParkourVolumeWithAirFirst = True  # Only works when EnforceParkourVolume is set to True
 MaxParkourLength = 100
+
 CheckPointsEnabled = False
 CheckPointsPeriod = 5  # After 5 normal jumptypes follows one checkpoint
 
-Difficulty = 0.4  # Choose parkour difficulty in range [0.0, 1.0]. 0.0 - very easy, 1.0 - very hard
+UseAllBlocks = True  # Set to False for the below settings to take effect. Set to True to use all JumpTypes for generation.
+AllowedStructureTypes = ["SingleBlock"]
+Difficulty = 0.3  # Choose parkour difficulty in range [0.0, 1.0]. 0.0 - very easy, 1.0 - very hard
 Flow = 0.8        # Choose how fast/flowing/fluent the parkour is to traverse in range [0.0, 1.0]. 0.0 - slow/ahlting, 1.0 - fast/fluent
 
 ParkourType = "StraightSlopes"  # UpwardSpiral, StraightAscending, Straight, StraightSlopes, Random
-StraightSlopesSize = 1  # Values: 1 - 10, Changes how frequently the parkour direction changes: 1 - very often, 10 - rarely
+StraightSlopesSize = 5  # Values: 1 - 10, Changes how frequently the parkour direction changes: 1 - very often, 10 - rarely
 SpiralRotation = "counterclockwise"  # clockwise, counterclockwise
 SpiralType = "Even"  # Random, Even
 SpiralTurnRate = 5  # After how many jumps the Spiral will change direction. Only works with SpiralType = "Even"
