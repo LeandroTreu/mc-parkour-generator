@@ -2,6 +2,9 @@ import config
 from classes import JumpType
 from classes import Block
 from jumptypes import list_of_jumptypes
+from jumptypes import StartBlock
+from jumptypes import FinishBlock
+from jumptypes import CheckpointBlock
 from typing import List
 import numpy as np
 from numpy.random import default_rng
@@ -70,14 +73,13 @@ def shortcut_possible(new_block: Block, earlier_structure: JumpType):
 
 # Returns True only if the Block is in the config defined Parkour bounds, else False
 def in_bounds(block: Block):
-
-    x_upper_bound = config.StartPosition[0]+config.ParkourVolume[0]
-    y_upper_bound = config.StartPosition[1]+config.ParkourVolume[1]
-    z_upper_bound = config.StartPosition[2]+config.ParkourVolume[2]
     
-    if block.abs_position[0] >= config.StartPosition[0] and block.abs_position[0] <= x_upper_bound:
-        if block.abs_position[1] >= config.StartPosition[1] and block.abs_position[1] <= y_upper_bound:
-            if block.abs_position[2] >= config.StartPosition[2] and block.abs_position[2] <= z_upper_bound:
+    # X coordinate
+    if block.abs_position[0] >= config.ParkourVolume[0][0] and block.abs_position[0] <= config.ParkourVolume[0][1]:
+        # Y coordinate
+        if block.abs_position[1] >= config.ParkourVolume[1][0] and block.abs_position[1] <= config.ParkourVolume[1][1]:
+            # Z coordinate
+            if block.abs_position[2] >= config.ParkourVolume[2][0] and block.abs_position[2] <= config.ParkourVolume[2][1]:
                 return True
             else:
                 return False
@@ -131,9 +133,10 @@ def can_be_placed(jumptype: JumpType, current_block_position: tuple, current_for
 # Place Start Structure of the Parkour
 current_block_position = config.StartPosition
 current_forward_direction = config.StartForwardDirection
-StartBlock = deepcopy(config.StartBlock)
-StartBlock.set_absolut_coordinates(current_block_position, current_forward_direction)
-list_of_placed_jumps.append(StartBlock)
+startblock_instance = deepcopy(StartBlock)
+startblock_instance.set_absolut_coordinates(current_block_position, current_forward_direction)
+# print(startblock_instance)
+list_of_placed_jumps.append(startblock_instance)
 
 
 # Pre-filter allowed jumptypes
@@ -172,9 +175,10 @@ for iteration in range(config.MaxParkourLength):
             list_of_candidates.append(jumptype_instance)
     
 
+    # No placable JumpTypes found  TODO: define behaviour for different ParkourTypes
     if len(list_of_candidates) == 0:
 
-        if try_again_counter >= 10:
+        if try_again_counter >= 4:
             break
         else:
             try_again_counter += 1
@@ -183,6 +187,8 @@ for iteration in range(config.MaxParkourLength):
             new_direction_index = (old_direction_index + 1) % 4
             current_forward_direction = list_of_directions[new_direction_index]
             continue
+    else:
+        try_again_counter = 0
         
     
     # Choose randomly from list of candidates
@@ -289,16 +295,68 @@ for iteration in range(config.MaxParkourLength):
     # Clear list of candidates for next iteration
     list_of_candidates = []
 
-# Place Finish Structure of the Parkour
-FinishBlock = deepcopy(config.FinishBlock)
-FinishBlock.set_absolut_coordinates(current_block_position, current_forward_direction)
-list_of_placed_jumps.append(FinishBlock)
+# Place Finish Structure of the Parkour  TODO: Maybe try to place in bounds of Parkour Volume
+finishblock_instance = deepcopy(FinishBlock)
+finishblock_instance.set_absolut_coordinates(current_block_position, current_forward_direction)
+list_of_placed_jumps.append(finishblock_instance)
 
     
 print("Filling 3D array")
+fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
+
+x_axis = []
+y_axis = []
+z_axis = []
+
+for index, placed_jump in enumerate(list_of_placed_jumps):
+
+    # if index == 0:
+    #     marker_color = "green"
+    # elif index == len(list_of_placed_jumps) - 1:
+    #     marker_color = "red"
+    # else:
+    #     marker_color = "black"
+    
+    # ax.scatter(placed_jump.rel_start_block.abs_position[0], placed_jump.rel_start_block.abs_position[2], placed_jump.rel_start_block.abs_position[1], c=[marker_color], marker="s", s=1)
+    # ax.scatter(placed_jump.rel_finish_block.abs_position[0], placed_jump.rel_finish_block.abs_position[2], placed_jump.rel_finish_block.abs_position[1], c=[marker_color], marker="s", s=1)
+
+    x_axis.append(placed_jump.rel_start_block.abs_position[0])
+    y_axis.append(placed_jump.rel_start_block.abs_position[2])
+    z_axis.append(placed_jump.rel_start_block.abs_position[1])
+
+    x_axis.append(placed_jump.rel_finish_block.abs_position[0])
+    y_axis.append(placed_jump.rel_finish_block.abs_position[2])
+    z_axis.append(placed_jump.rel_finish_block.abs_position[1])
+
+    
+
+    for block in placed_jump.blocks:
+
+        # ax.scatter(block.abs_position[0], block.abs_position[2], block.abs_position[1], c=[marker_color], marker="s", s=1)
+
+        x_axis.append(block.abs_position[0])
+        y_axis.append(block.abs_position[2])
+        z_axis.append(block.abs_position[1])
+
+
+
+print("Generating plot")
+
+marker_color = "black"
+ax.plot(x_axis, y_axis, z_axis, 
+            linestyle="-", linewidth=0.5,
+            c=marker_color, marker="s", markersize=1)
+
 if config.EnforceParkourVolume:
 
-    max_axis_distance = max(config.ParkourVolume)
+    min_axis_distance = min(config.ParkourVolume[0][0], config.ParkourVolume[1][0], config.ParkourVolume[2][0])
+    max_axis_distance = max(config.ParkourVolume[0][1], config.ParkourVolume[1][1], config.ParkourVolume[2][1])
+    stepsize = (max_axis_distance - min_axis_distance) // 10
+    
+    ax.set_xticks(np.arange(min_axis_distance, max_axis_distance+1, stepsize))
+    ax.set_yticks(np.arange(min_axis_distance, max_axis_distance+1, stepsize))
+    ax.set_zticks(np.arange(min_axis_distance, max_axis_distance+1, stepsize))
 else:
 
     furthest_block = (0, 0, 0)
@@ -341,41 +399,21 @@ else:
                 distance = longest_distance
                 furthest_block = (x, y, z)
     
+
     max_axis_distance = max(furthest_block) + 10
-    # print(max_axis_distance)
+    stepsize = max_axis_distance//10
+    ax.set_xticks(np.arange(0, max_axis_distance+stepsize, stepsize))
+    ax.set_yticks(np.arange(0, max_axis_distance+stepsize, stepsize))
+    ax.set_zticks(np.arange(0, max_axis_distance+stepsize, stepsize))
 
 
-
-fig = plt.figure()
-ax = fig.add_subplot(projection='3d')
-
-for placed_jump in list_of_placed_jumps:
-    
-    ax.scatter(placed_jump.rel_start_block.abs_position[0], placed_jump.rel_start_block.abs_position[2], placed_jump.rel_start_block.abs_position[1], c=["black"], marker="s", s=1)
-    ax.scatter(placed_jump.rel_finish_block.abs_position[0], placed_jump.rel_finish_block.abs_position[2], placed_jump.rel_finish_block.abs_position[1], c=["black"], marker="s", s=1)
-
-    for block in placed_jump.blocks:
-
-        ax.scatter(block.abs_position[0], block.abs_position[2], block.abs_position[1], c=["black"], marker="s", s=1)
-
-
-
-
-
-
-
-print("Generating plot")
-stepsize = max_axis_distance//10
-ax.set_xticks(np.arange(0, max_axis_distance+stepsize, stepsize))
-ax.set_yticks(np.arange(0, max_axis_distance+stepsize, stepsize))
-ax.set_zticks(np.arange(0, max_axis_distance+stepsize, stepsize))
 
 if config.PlotFileType == "jpg":
 
     plt.savefig("parkour_plot.jpg")
 else:
 
-    plt.savefig("parkour_plot.png")
+    plt.savefig("parkour_plot.png", dpi=300)
 
 
     

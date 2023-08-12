@@ -1,6 +1,6 @@
-from classes import Block, JumpType
 
-ParkourVolume = (200, 200, 200)
+
+ParkourVolume = [(0, 50), (0, 50), (0, 50)]  # Absolute X, Y, Z coordinate ranges in the minecraft world.
 EnforceParkourVolume = True
 FillParkourVolumeWithAirFirst = True  # Only works when EnforceParkourVolume is set to True
 MaxParkourLength = 100
@@ -13,52 +13,28 @@ AllowedStructureTypes = ["SingleBlock"]
 Difficulty = 0.3  # Choose parkour difficulty in range [0.0, 1.0]. 0.0 - very easy, 1.0 - very hard
 Flow = 0.8        # Choose how fast/flowing/fluent the parkour is to traverse in range [0.0, 1.0]. 0.0 - slow/ahlting, 1.0 - fast/fluent
 
-ParkourType = "StraightSlopes"  # UpwardSpiral, StraightAscending, Straight, StraightSlopes, Random
+
+ParkourType = "Straight"  # UpwardSpiral, StraightAscending, Straight, StraightSlopes, StraightSlopesAscending, Random
+
 StraightSlopesSize = 5  # Values: 1 - 10, Changes how frequently the parkour direction changes: 1 - very often, 10 - rarely
+
 SpiralRotation = "counterclockwise"  # clockwise, counterclockwise
 SpiralType = "Even"  # Random, Even
 SpiralTurnRate = 5  # After how many jumps the Spiral will change direction. Only works with SpiralType = "Even"
 SpiralTurnProbability = 5  # Values: 1 - high prob, 10 - low prob. Probability for changing direction for SpiralType = "Random"
 
+
 BlockType = "minecraft:bedrock"
 
-StartPosition = (0, 0, 0)
+StartPosition = (0, 0, 50)  # Absolute X, Y, Z coordinates in the minecraft world. Must be within the ParkourVolume defined above if EnforceParkourVolume is set to True.
 StartForwardDirection = "Xpos"
-
-StartBlock = JumpType(name="Parkour Start Structure", structure_type="Start", 
-                      rel_start_block=Block(BlockType, (0, 0, 0)), 
-                      rel_finish_block=Block(BlockType, (1, 0, 0)),
-                      blocks=[Block(BlockType, (0, 0, -1)), Block(BlockType, (0, 0, 1)), 
-                              Block(BlockType, (1, 0, -1)), Block(BlockType, (1, 0, 1)), 
-                              Block(BlockType, (-1, 0, 1)), Block(BlockType, (-1, 0, -1)), 
-                              Block(BlockType, (-1, 0, 0))],
-                      difficulty=0.0, 
-                      flow=1.0)
-FinishBlock = JumpType(name="Parkour Finish Structure", structure_type="Finish", 
-                      rel_start_block=Block(BlockType, (0, 0, 0)), 
-                      rel_finish_block=Block(BlockType, (1, 0, 0)),
-                      blocks=[Block(BlockType, (0, 0, -1)), Block(BlockType, (0, 0, 1)), 
-                              Block(BlockType, (1, 0, -1)), Block(BlockType, (1, 0, 1)), 
-                              Block(BlockType, (-1, 0, 1)), Block(BlockType, (-1, 0, -1)), 
-                              Block(BlockType, (-1, 0, 0))],
-                      difficulty=0.0, 
-                      flow=1.0)
-FinishBlock = JumpType(name="Parkour Checkpoint Structure", structure_type="Checkpoint", 
-                      rel_start_block=Block(BlockType, (2, 0, 0)), 
-                      rel_finish_block=Block(BlockType, (2, 0, 0)),
-                      blocks=[Block(BlockType, (0, 0, -1)), Block(BlockType, (0, 0, 1)), 
-                              Block(BlockType, (1, 0, 0)), Block(BlockType, (1, 0, -1)), Block(BlockType, (1, 0, 1)), 
-                              Block(BlockType, (2, 0, 1)), Block(BlockType, (2, 0, -1)), 
-                              ],
-                      difficulty=0.0, 
-                      flow=1.0)
 
 
 Stages = 1
 
 
 
-PlotFileType = "jpg"  # "jpg" or "png"
+PlotFileType = "png"  # "jpg" or "png"
 
 
 
