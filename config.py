@@ -1,10 +1,10 @@
 
 
-ParkourVolume = [(0, 200), (0, 200), (0, 200)]  # Absolute X, Y, Z coordinate ranges in the minecraft world.
+ParkourVolume = [(0, 50), (0, 50), (0, 50)]  # Absolute X, Y, Z coordinate ranges in the minecraft world.
 EnforceParkourVolume = True                  # If True then the parkour will generate only inside the above defined Parkour Volume. If False it will generate to arbitrary coordinates, depending on the start block.
 FillParkourVolumeWithAirFirst = True         # Only works when EnforceParkourVolume is set to True
 MaxParkourLength = 100                       # Maximum length of the parkour including the Start, Checkpoint and Finish structures.
-StartPosition = (100, 0, 100)                    # Absolute X, Y, Z coordinates in the minecraft world. Must be within the ParkourVolume defined above if EnforceParkourVolume is set to True.
+StartPosition = (25, 0, 25)                    # Absolute X, Y, Z coordinates in the minecraft world. Must be within the ParkourVolume defined above if EnforceParkourVolume is set to True.
 StartForwardDirection = "Xpos"               # Sets the initial forward direction of the parkour for the first jump. Values: {Xpos, Xneg, Zpos, Zneg}
 BlockType = "minecraft:bedrock"              # Sets the default minecraft block type for all parkour structures, except for special structures like ladders and ice.
 
@@ -12,7 +12,7 @@ RandomSeed = True                            # Set True for a randomised seed. S
 Seed = 98360346                              # Sets a seed for the random number generetor throughout the parkour generation. Value range: [0, 2**63-1]
 
 CheckPointsEnabled = True                    # If True then a checkpoint structure will be placed periodically with the defined CheckPointsPeriod below.
-CheckPointsPeriod = 10                       # After how many normal jumptypes one checkpoint is placed.
+CheckPointsPeriod = 10                       # After this many normal jumptypes, one checkpoint is placed. If not possible the checkpoint is placed as soon as possible later in the parkour.
 
 UseAllBlocks = True                                      # Set to False for the below settings to take effect. Set to True to use all JumpTypes for generation.
 AllowedStructureTypes = ["SingleBlock", "TwoBlock"]
@@ -27,7 +27,7 @@ StraightCurvesSize = 1    # Values: 1 - 10, Changes how frequently the parkour d
 
 SpiralRotation = "counterclockwise"  # clockwise, counterclockwise
 SpiralType = "Even"                  # Random, Even
-SpiralTurnRate = 10                  # After how many jumps the Spiral will change direction. Only works with SpiralType = "Even"
+SpiralTurnRate = 40                  # After how many jumps the Spiral will change direction. Only works with SpiralType = "Even"
 SpiralTurnProbability = 10           # Values: 1 - high prob, 10 - low prob. Probability for changing direction for SpiralType = "Random"
 
 
@@ -35,7 +35,8 @@ SpiralTurnProbability = 10           # Values: 1 - high prob, 10 - low prob. Pro
 
 
 
-PlotFileType = "png"  # "jpg" or "png"
+PlotFileType = "png"      # "jpg" or "png"
+PlotColorMap = "winter"  # viridis, plasma, gray, hot, summer, winter, hsv, copper
 
 
 

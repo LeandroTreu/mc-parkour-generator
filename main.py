@@ -68,6 +68,7 @@ SlopesDirection = 0
 SpiralTurnCounter = 0
 CheckPointCounter = 0
 try_again_counter = 0
+tryToPlaceCheckpointHere = config.CheckPointsPeriod
 
 # Search for candidates
 print("[", end="")
@@ -78,20 +79,27 @@ for iteration in range(config.MaxParkourLength - 2):
     
     # print(f"Iteration: {iteration+1}/{config.MaxParkourLength}")
 
-    if config.CheckPointsEnabled and iteration % config.CheckPointsPeriod == 0 and iteration != 0:
 
-        next_jump = deepcopy(CheckpointBlock)
-        abs_position = util.compute_abs_coordinates_of_start_block(next_jump, current_block_position, current_forward_direction)
-        next_jump.set_absolut_coordinates(abs_position, current_forward_direction)
+    if config.CheckPointsEnabled:
+        
+        if tryToPlaceCheckpointHere == iteration:
 
-        list_of_placed_jumps.append(next_jump)
+            checkpoint_instance = deepcopy(CheckpointBlock)
 
-        CheckPointCounter += 1
+            if util.can_be_placed(checkpoint_instance, current_block_position, current_forward_direction, list_of_placed_jumps):
 
-        # Set new absolute coordinates for next iteration
-        current_block_position = next_jump.rel_finish_block.abs_position
+                list_of_candidates.append(checkpoint_instance)
+                CheckPointCounter += 1
 
-        continue
+                # Set new absolute coordinates for next iteration
+                current_block_position = next_jump.rel_finish_block.abs_position
+
+                tryToPlaceCheckpointHere = iteration + config.CheckPointsPeriod
+
+                continue
+            else:
+                tryToPlaceCheckpointHere = iteration + 2
+                continue
 
     # Search for candidates to be placed
     for jumptype in list_of_jumptypes_filtered:
@@ -286,10 +294,12 @@ for index, placed_jump in enumerate(list_of_placed_jumps):
 
 print("Generating plot")
 
-marker_color = "black"
+line_color = "black"
 ax.plot(x_axis, y_axis, z_axis, 
             linestyle="-", linewidth=0.5,
-            c=marker_color, marker="s", markersize=1)
+            c=line_color, marker="s", markersize=0)
+
+ax.scatter(x_axis, y_axis, z_axis, c=z_axis, cmap=config.PlotColorMap, marker="s", s=2, alpha=1)
 
 if config.EnforceParkourVolume:
 
