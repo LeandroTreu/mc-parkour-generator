@@ -1,4 +1,5 @@
 import config
+import util
 from classes import JumpType
 from classes import Block
 from jumptypes import list_of_jumptypes
@@ -17,139 +18,17 @@ list_of_placed_jumps: List[JumpType] = []
 list_of_candidates: List[JumpType] = []
 list_of_allowed_structure_types = config.AllowedStructureTypes
 list_of_directions = ["Xpos", "Zneg", "Xneg", "Zpos"]
-# TODO: randomise seed
-rng = default_rng(283457)
 
-def compute_abs_coordinates_of_start_block(jumptype: JumpType, absolut_pos_of_last_block, forward_direction):
+# Set seed for the RNG
+if config.RandomSeed:
 
-    Y = absolut_pos_of_last_block[1] + jumptype.rel_start_block.rel_position[1]
-
-    if forward_direction == "Xpos":
-        X = absolut_pos_of_last_block[0] + jumptype.rel_start_block.rel_position[0]
-        Z = absolut_pos_of_last_block[2] + jumptype.rel_start_block.rel_position[2]
-    elif forward_direction == "Xneg":
-        X = absolut_pos_of_last_block[0] - jumptype.rel_start_block.rel_position[0]
-        Z = absolut_pos_of_last_block[2] - jumptype.rel_start_block.rel_position[2]
-    elif forward_direction == "Zpos":
-        X = absolut_pos_of_last_block[0] + jumptype.rel_start_block.rel_position[2]
-        Z = absolut_pos_of_last_block[2] + jumptype.rel_start_block.rel_position[0]
-    elif forward_direction == "Zneg":
-        X = absolut_pos_of_last_block[0] - jumptype.rel_start_block.rel_position[2]
-        Z = absolut_pos_of_last_block[2] - jumptype.rel_start_block.rel_position[0]
-    
-    return (X, Y, Z)
-
-
-def shortcut_possible_checker(old_X, old_Y, old_Z, new_X, new_Y, new_Z):
-
-     # First zone, one y-level below
-        if old_Y == new_Y - 1 and (old_X <= new_X + 2 and old_X >= new_X - 2) and (old_Z <= new_Z + 2 and old_Z >= new_Z - 2):
-            return True
-        
-        # Same height
-        if old_Y == new_Y and (old_X <= new_X + 4 and old_X >= new_X - 4) and (old_Z <= new_Z + 4 and old_Z >= new_Z - 4):
-            return True
-
-        # One y-level up
-        if old_Y == new_Y + 1 and (old_X <= new_X + 6 and old_X >= new_X - 6) and (old_Z <= new_Z + 6 and old_Z >= new_Z - 6):
-            return True
-
-        # Rest of the volume above the block in a 16x10x16 volume
-        if (old_Y <= new_Y + 12 and old_Y >= new_Y + 2) and (old_X <= new_X + 8 and old_X >= new_X - 8) and (old_Z <= new_Z + 8 and old_Z >= new_Z - 8):
-            return True
-
-def shortcut_possible(new_block: Block, earlier_structure: JumpType):
-
-    new_block_abs = new_block.abs_position
-
-    new_X = new_block_abs[0]
-    new_Y = new_block_abs[1]
-    new_Z = new_block_abs[2]
-
-    # Check for the rel start block
-    old_X = earlier_structure.rel_start_block.abs_position[0]
-    old_Y = earlier_structure.rel_start_block.abs_position[1]
-    old_Z = earlier_structure.rel_start_block.abs_position[2]
-
-    if shortcut_possible_checker(old_X, old_Y, old_Z, new_X, new_Y, new_Z):
-        return True
-    
-    # Check for the rel finish block
-    old_X = earlier_structure.rel_finish_block.abs_position[0]
-    old_Y = earlier_structure.rel_finish_block.abs_position[1]
-    old_Z = earlier_structure.rel_finish_block.abs_position[2]
-
-    if shortcut_possible_checker(old_X, old_Y, old_Z, new_X, new_Y, new_Z):
-        return True
-
-    for block in earlier_structure.blocks:
-
-        old_X = block.abs_position[0]
-        old_Y = block.abs_position[1]
-        old_Z = block.abs_position[2]
-
-        if shortcut_possible_checker(old_X, old_Y, old_Z, new_X, new_Y, new_Z):
-            return True
-    
-    return False
-
-# Returns True only if the Block is in the config defined Parkour bounds, else False
-def in_bounds(block: Block):
-    
-    # X coordinate
-    if block.abs_position[0] >= config.ParkourVolume[0][0] and block.abs_position[0] <= config.ParkourVolume[0][1]:
-        # Y coordinate
-        if block.abs_position[1] >= config.ParkourVolume[1][0] and block.abs_position[1] <= config.ParkourVolume[1][1]:
-            # Z coordinate
-            if block.abs_position[2] >= config.ParkourVolume[2][0] and block.abs_position[2] <= config.ParkourVolume[2][1]:
-                return True
-            else:
-                return False
-        else:
-            return False
-    else:
-        return False
-
-def can_be_placed(jumptype: JumpType, current_block_position: tuple, current_forward_direction: str):
-
-    abs_position = compute_abs_coordinates_of_start_block(jumptype, current_block_position, current_forward_direction)
-
-    jumptype.set_absolut_coordinates(abs_position, current_forward_direction)
-
-    # Check if new Structure is in bounds of the config.ParkourVolume
-
-    if config.EnforceParkourVolume:
-
-        if not in_bounds(jumptype.rel_start_block):
-            return False
-        if not in_bounds(jumptype.rel_finish_block):
-            return False
-        for block in jumptype.blocks:
-
-            if not in_bounds(block):
-                return False
-
-
-    # For start and finish blocks
-    for earlier_jump in list_of_placed_jumps[:len(list_of_placed_jumps)-1]:
-
-            if shortcut_possible(jumptype.rel_start_block, earlier_jump):
-                
-                return False
-            if shortcut_possible(jumptype.rel_finish_block, earlier_jump):
-                
-                return False
-    
-    # For rest of the structure
-    for block in jumptype.blocks:
-        for earlier_jump in list_of_placed_jumps[:len(list_of_placed_jumps)-1]:
-
-            if shortcut_possible(block, earlier_jump):
-                
-                return False
-
-        
-    return True
+    rng_for_rng = default_rng()
+    seed = rng_for_rng.integers(low=0, high=2**63-1)
+    print(f"seed: {seed}")
+    rng = default_rng(seed)
+else:
+    print(f"seed: {config.Seed}")
+    rng = default_rng(config.Seed)
 
 
 # Place Start Structure of the Parkour
@@ -157,8 +36,10 @@ current_block_position = config.StartPosition
 current_forward_direction = config.StartForwardDirection
 startblock_instance = deepcopy(StartBlock)
 startblock_instance.set_absolut_coordinates(current_block_position, current_forward_direction)
-# print(startblock_instance)
 list_of_placed_jumps.append(startblock_instance)
+
+
+
 
 
 # Pre-filter allowed jumptypes
@@ -175,6 +56,9 @@ else:
 
                     if jumptype.flow >= config.Flow - 0.2 and jumptype.flow <= config.Flow + 0.2:
 
+                        if not config.ParkourAscending and util.is_Ascending(jumptype):
+                            continue
+
                         list_of_jumptypes_filtered.append(jumptype)
 
 
@@ -182,17 +66,42 @@ print(f"Number of filtered jumptypes: {len(list_of_jumptypes_filtered)}")
 
 SlopesDirection = 0
 SpiralTurnCounter = 0
+CheckPointCounter = 0
 try_again_counter = 0
+
 # Search for candidates
-for iteration in range(config.MaxParkourLength):
+print("[", end="")
+for iteration in range(config.MaxParkourLength - 2):
 
-    print(f"Iteration: {iteration+1}/{config.MaxParkourLength}")
+    if iteration > config.MaxParkourLength - 2 - CheckPointCounter:
+        break
 
+    if iteration % config.MaxParkourLength//10 == 0:
+        print("=", end="")
+    
+    # print(f"Iteration: {iteration+1}/{config.MaxParkourLength}")
+
+    if config.CheckPointsEnabled and iteration % config.CheckPointsPeriod == 0 and iteration != 0:
+
+        next_jump = deepcopy(CheckpointBlock)
+        abs_position = util.compute_abs_coordinates_of_start_block(next_jump, current_block_position, current_forward_direction)
+        next_jump.set_absolut_coordinates(abs_position, current_forward_direction)
+
+        list_of_placed_jumps.append(next_jump)
+
+        CheckPointCounter += 1
+
+        # Set new absolute coordinates for next iteration
+        current_block_position = next_jump.rel_finish_block.abs_position
+
+        continue
+
+    # Search for candidates to be placed
     for jumptype in list_of_jumptypes_filtered:
 
         jumptype_instance = deepcopy(jumptype)
 
-        if can_be_placed(jumptype_instance, current_block_position, current_forward_direction):
+        if util.can_be_placed(jumptype_instance, current_block_position, current_forward_direction, list_of_placed_jumps):
 
             list_of_candidates.append(jumptype_instance)
     
@@ -200,7 +109,7 @@ for iteration in range(config.MaxParkourLength):
     # No placable JumpTypes found  TODO: define behaviour for different ParkourTypes
     if len(list_of_candidates) == 0:
 
-        if try_again_counter >= 4:
+        if try_again_counter >= 10:
             break
         else:
             try_again_counter += 1
@@ -215,14 +124,21 @@ for iteration in range(config.MaxParkourLength):
     
     # Choose randomly from list of candidates
     random_index = rng.integers(low=0, high=len(list_of_candidates))
-    # print(random_index)
     next_jump = list_of_candidates[random_index]
-
     list_of_placed_jumps.append(next_jump)
 
     # Set new absolute coordinates for next iteration
     current_block_position = next_jump.rel_finish_block.abs_position
 
+    # Clear list of candidates for next iteration
+    list_of_candidates = []
+
+
+
+
+    ################################################################
+    # Direction changes according to the ParkourType set in config #
+    ################################################################
 
     if config.ParkourType == "Random":
         # Choose possible other directions at random
@@ -239,18 +155,18 @@ for iteration in range(config.MaxParkourLength):
 
         current_forward_direction = list_of_directions[new_direction_index]
 
-    elif config.ParkourType == "Straight" or config.ParkourType == "StraightAscending":
+    elif config.ParkourType == "Straight":
 
         current_forward_direction = current_forward_direction  # Keep same direction
     
-    elif config.ParkourType == "StraightSlopes":
+    elif config.ParkourType == "StraightCurves":
 
-        if config.StraightSlopesSize < 1 or config.StraightSlopesSize > 10:
-            raise Exception("Invalid input for StraightSlopesSize: must be between 1 and 10 (inclusive)")
+        if config.StraightCurvesSize < 1 or config.StraightCurvesSize > 10:
+            raise Exception("Invalid input for StraightCurvesSize: must be between 1 and 10 (inclusive)")
         
-        random_bit = rng.integers(low=0, high=config.StraightSlopesSize+1)
+        random_bit = rng.integers(low=0, high=config.StraightCurvesSize+1)
 
-        # Only change direction with probability 1/(config.StraightSlopesSize+1)
+        # Only change direction with probability 1/(config.StraightCurvesSize+1)
         if random_bit == 1:
 
             old_direction_index = list_of_directions.index(current_forward_direction)
@@ -277,7 +193,7 @@ for iteration in range(config.MaxParkourLength):
         else:
             current_forward_direction = current_forward_direction
 
-    elif config.ParkourType == "UpwardSpiral":
+    elif config.ParkourType == "Spiral":
 
         if config.SpiralType == "Even":
 
@@ -314,15 +230,23 @@ for iteration in range(config.MaxParkourLength):
             current_forward_direction = current_forward_direction
 
 
-    # Clear list of candidates for next iteration
-    list_of_candidates = []
+    
 
 # Place Finish Structure of the Parkour  TODO: Maybe try to place in bounds of Parkour Volume
 finishblock_instance = deepcopy(FinishBlock)
-finishblock_instance.set_absolut_coordinates(current_block_position, current_forward_direction)
+abs_position = util.compute_abs_coordinates_of_start_block(finishblock_instance, current_block_position, current_forward_direction)
+finishblock_instance.set_absolut_coordinates(abs_position, current_forward_direction)
 list_of_placed_jumps.append(finishblock_instance)
+print(f"] {len(list_of_placed_jumps)}/{config.MaxParkourLength}")
 
-    
+
+
+
+
+################################################################
+# Plotting                                                     #
+################################################################
+
 print("Filling 3D array")
 fig = plt.figure()
 ax = fig.add_subplot(projection='3d')
