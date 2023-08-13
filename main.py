@@ -73,10 +73,7 @@ try_again_counter = 0
 print("[", end="")
 for iteration in range(config.MaxParkourLength - 2):
 
-    if iteration > config.MaxParkourLength - 2 - CheckPointCounter:
-        break
-
-    if iteration % config.MaxParkourLength//10 == 0:
+    if iteration % (config.MaxParkourLength//10) == 0:
         print("=", end="")
     
     # print(f"Iteration: {iteration+1}/{config.MaxParkourLength}")

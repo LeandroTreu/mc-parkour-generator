@@ -27,7 +27,7 @@ StraightCurvesSize = 1    # Values: 1 - 10, Changes how frequently the parkour d
 
 SpiralRotation = "counterclockwise"  # clockwise, counterclockwise
 SpiralType = "Even"                  # Random, Even
-SpiralTurnRate = 50                  # After how many jumps the Spiral will change direction. Only works with SpiralType = "Even"
+SpiralTurnRate = 10                  # After how many jumps the Spiral will change direction. Only works with SpiralType = "Even"
 SpiralTurnProbability = 10           # Values: 1 - high prob, 10 - low prob. Probability for changing direction for SpiralType = "Random"
 
 
