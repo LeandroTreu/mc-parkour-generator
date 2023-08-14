@@ -13,6 +13,7 @@ from copy import deepcopy
 import matplotlib.pyplot as plt
 import numpy as np
 import math
+import time
 
 list_of_placed_jumps: List[JumpType] = []
 list_of_candidates: List[JumpType] = []
@@ -71,11 +72,13 @@ try_again_counter = 0
 tryToPlaceCheckpointHere = config.CheckPointsPeriod
 
 # Search for candidates
+start_time_generation = time.time()
 print("[", end="")
-for iteration in range(config.MaxParkourLength - 2):
+iteration = 0
+while iteration < config.MaxParkourLength - 2:
 
-    if iteration % (config.MaxParkourLength//10) == 0:
-        print("=", end="")
+    if iteration % max(config.MaxParkourLength//10, 1) == 0:
+        print("=", end="", flush=True)
     
     # print(f"Iteration: {iteration+1}/{config.MaxParkourLength}")
 
@@ -84,22 +87,26 @@ for iteration in range(config.MaxParkourLength - 2):
         
         if tryToPlaceCheckpointHere == iteration:
 
+            # print(tryToPlaceCheckpointHere)
+
             checkpoint_instance = deepcopy(CheckpointBlock)
 
             if util.can_be_placed(checkpoint_instance, current_block_position, current_forward_direction, list_of_placed_jumps):
 
-                list_of_candidates.append(checkpoint_instance)
+                # print("placed", tryToPlaceCheckpointHere)
+
+                list_of_placed_jumps.append(checkpoint_instance)
                 CheckPointCounter += 1
 
                 # Set new absolute coordinates for next iteration
-                current_block_position = next_jump.rel_finish_block.abs_position
+                current_block_position = checkpoint_instance.rel_finish_block.abs_position
 
                 tryToPlaceCheckpointHere = iteration + config.CheckPointsPeriod
 
+                iteration += 1
                 continue
             else:
-                tryToPlaceCheckpointHere = iteration + 2
-                continue
+                tryToPlaceCheckpointHere = iteration + 1
 
     # Search for candidates to be placed
     for jumptype in list_of_jumptypes_filtered:
@@ -111,7 +118,7 @@ for iteration in range(config.MaxParkourLength - 2):
             list_of_candidates.append(jumptype_instance)
     
 
-    # No placable JumpTypes found  TODO: define behaviour for different ParkourTypes
+    # No placable JumpTypes found
     if len(list_of_candidates) == 0:
 
         if try_again_counter >= 10:
@@ -120,8 +127,30 @@ for iteration in range(config.MaxParkourLength - 2):
             try_again_counter += 1
 
             old_direction_index = list_of_directions.index(current_forward_direction)
-            new_direction_index = (old_direction_index + 1) % 4
+
+            if config.ParkourType == "Random":
+
+                new_direction_index = (old_direction_index + 1) % 4
+            elif config.ParkourType == "Straight":
+
+                new_direction_index = old_direction_index
+            elif config.ParkourType == "StraightCurves":
+
+                new_direction_index = (old_direction_index + 1) % 4
+            elif config.ParkourType == "Spiral":
+
+                if config.SpiralRotation == "clockwise":
+
+                    new_direction_index = (old_direction_index + 1) % 4
+                else:
+                    new_direction_index = old_direction_index - 1
+
+                if new_direction_index < 0:
+                    new_direction_index = 3
+            
             current_forward_direction = list_of_directions[new_direction_index]
+
+            # print("trying again")
             continue
     else:
         try_again_counter = 0
@@ -202,17 +231,12 @@ for iteration in range(config.MaxParkourLength - 2):
 
         if config.SpiralType == "Even":
 
-            if config.EnforceParkourVolume:
-
-                random_bit = rng.integers(low=0, high=2)   # TODO: adjust probability to have a spiral tight to bounds
+            if SpiralTurnCounter >= config.SpiralTurnRate:
+                random_bit = 1
+                SpiralTurnCounter = 0
             else:
-
-                if SpiralTurnCounter >= config.SpiralTurnRate:
-                    random_bit = 1
-                    SpiralTurnCounter = 0
-                else:
-                    random_bit = 0
-                    SpiralTurnCounter += 1
+                random_bit = 0
+                SpiralTurnCounter += 1
         else:
             h_bound = config.SpiralTurnProbability+1
             random_bit = rng.integers(low=0, high=h_bound)
@@ -228,11 +252,13 @@ for iteration in range(config.MaxParkourLength - 2):
                 new_direction_index = old_direction_index - 1
 
             if new_direction_index < 0:
-                    new_direction_index = 3
+                new_direction_index = 3
             
             current_forward_direction = list_of_directions[new_direction_index]
         else:
             current_forward_direction = current_forward_direction
+
+    iteration += 1
 
 
     
@@ -245,7 +271,8 @@ list_of_placed_jumps.append(finishblock_instance)
 print(f"] {len(list_of_placed_jumps)}/{config.MaxParkourLength}")
 
 
-
+end_time_generation = time.time()
+print(f"Time taken: {round(end_time_generation-start_time_generation, 3)} s")
 
 
 ################################################################
@@ -262,16 +289,6 @@ z_axis = []
 
 for index, placed_jump in enumerate(list_of_placed_jumps):
 
-    # if index == 0:
-    #     marker_color = "green"
-    # elif index == len(list_of_placed_jumps) - 1:
-    #     marker_color = "red"
-    # else:
-    #     marker_color = "black"
-    
-    # ax.scatter(placed_jump.rel_start_block.abs_position[0], placed_jump.rel_start_block.abs_position[2], placed_jump.rel_start_block.abs_position[1], c=[marker_color], marker="s", s=1)
-    # ax.scatter(placed_jump.rel_finish_block.abs_position[0], placed_jump.rel_finish_block.abs_position[2], placed_jump.rel_finish_block.abs_position[1], c=[marker_color], marker="s", s=1)
-
     x_axis.append(placed_jump.rel_start_block.abs_position[0])
     y_axis.append(placed_jump.rel_start_block.abs_position[2])
     z_axis.append(placed_jump.rel_start_block.abs_position[1])
@@ -283,8 +300,6 @@ for index, placed_jump in enumerate(list_of_placed_jumps):
     
 
     for block in placed_jump.blocks:
-
-        # ax.scatter(block.abs_position[0], block.abs_position[2], block.abs_position[1], c=[marker_color], marker="s", s=1)
 
         x_axis.append(block.abs_position[0])
         y_axis.append(block.abs_position[2])
@@ -312,7 +327,7 @@ if config.EnforceParkourVolume:
     ax.set_zticks(np.arange(min_axis_distance, max_axis_distance+1, stepsize))
 else:
 
-    
+    # TODO: fix axis generation
 
     x_list = []
     y_list = []
@@ -321,19 +336,19 @@ else:
     for placed_jump in list_of_placed_jumps:
 
         x_list.append(placed_jump.rel_start_block.abs_position[0])
-        y_list.append(placed_jump.rel_start_block.abs_position[2])  # Here the y value (for height) is the minecraft z value
-        z_list.append(placed_jump.rel_start_block.abs_position[1])
+        y_list.append(placed_jump.rel_start_block.abs_position[2])  # Here the y value is the minecraft z value
+        z_list.append(placed_jump.rel_start_block.abs_position[1])  # height == minecraft y value
 
         x_list.append(placed_jump.rel_finish_block.abs_position[0])
-        y_list.append(placed_jump.rel_finish_block.abs_position[2])  # Here the y value (for height) is the minecraft z value
-        z_list.append(placed_jump.rel_finish_block.abs_position[1])
+        y_list.append(placed_jump.rel_finish_block.abs_position[2])  # Here the y value is the minecraft z value
+        z_list.append(placed_jump.rel_finish_block.abs_position[1])  # height == minecraft y value
         
 
         for block in placed_jump.blocks:
 
             x_list.append(block.abs_position[0])
-            y_list.append(block.abs_position[2])  # Here the y value (for height) is the minecraft z value
-            z_list.append(block.abs_position[1])
+            y_list.append(block.abs_position[2])  # Here the y value is the minecraft z value
+            z_list.append(block.abs_position[1])  # height == minecraft y value
     
     x_min = min(x_list)
     x_max = max(x_list)

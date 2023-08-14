@@ -1,10 +1,10 @@
 
 
 ParkourVolume = [(0, 50), (0, 50), (0, 50)]  # Absolute X, Y, Z coordinate ranges in the minecraft world.
-EnforceParkourVolume = True                  # If True then the parkour will generate only inside the above defined Parkour Volume. If False it will generate to arbitrary coordinates, depending on the start block.
+EnforceParkourVolume = False                  # If True then the parkour will generate only inside the above defined Parkour Volume. If False it will generate to arbitrary coordinates, depending on the start block.
 FillParkourVolumeWithAirFirst = True         # Only works when EnforceParkourVolume is set to True
-MaxParkourLength = 100                       # Maximum length of the parkour including the Start, Checkpoint and Finish structures.
-StartPosition = (25, 0, 25)                    # Absolute X, Y, Z coordinates in the minecraft world. Must be within the ParkourVolume defined above if EnforceParkourVolume is set to True.
+MaxParkourLength = 200                       # Maximum length of the parkour including the Start, Checkpoint and Finish structures.
+StartPosition = (1, 0, 1)                    # Absolute X, Y, Z coordinates in the minecraft world. Must be within the ParkourVolume defined above if EnforceParkourVolume is set to True. The startblock structure is 3x3 blocks so set this to (1, 0, 1) for the start to be within the volume.
 StartForwardDirection = "Xpos"               # Sets the initial forward direction of the parkour for the first jump. Values: {Xpos, Xneg, Zpos, Zneg}
 BlockType = "minecraft:bedrock"              # Sets the default minecraft block type for all parkour structures, except for special structures like ladders and ice.
 
@@ -20,15 +20,15 @@ Difficulty = 0.3                                         # Choose parkour diffic
 Flow = 0.8                                               # Choose how fast/flowing/fluent the parkour is to traverse in range [0.0, 1.0]. 0.0 - slow/ahlting, 1.0 - fast/fluent
 
 
-ParkourType = "Spiral"    # Spiral, Straight, StraightCurves, Random  TODO: implement all types
+ParkourType = "Random"    # Spiral, Straight, StraightCurves, Random
 ParkourAscending = True   # Set to True if the parkour should have an upwards elevation change. Set to False for the parkour to stay on the same height/y-level.
 
 StraightCurvesSize = 1    # Values: 1 - 10, Changes how frequently the parkour direction changes: 1 - very often, 10 - rarely
 
 SpiralRotation = "counterclockwise"  # clockwise, counterclockwise
 SpiralType = "Even"                  # Random, Even
-SpiralTurnRate = 40                  # After how many jumps the Spiral will change direction. Only works with SpiralType = "Even"
-SpiralTurnProbability = 10           # Values: 1 - high prob, 10 - low prob. Probability for changing direction for SpiralType = "Random"
+SpiralTurnRate = 30                  # After how many jumps the Spiral will change direction. Only works with SpiralType = "Even"
+SpiralTurnProbability = 2           # Values: 1 - high prob, 10 - low prob. Probability for changing direction for SpiralType = "Random"
 
 
 

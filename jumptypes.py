@@ -26,8 +26,9 @@ CheckpointBlock = JumpType(name="Parkour Checkpoint Structure", structure_type="
                       rel_start_block=Block(BlockType, (2, 0, 0)), 
                       rel_finish_block=Block(BlockType, (2, 0, 0)),
                       blocks=[Block(BlockType, (0, 0, -1)), Block(BlockType, (0, 0, 1)), 
-                              Block(BlockType, (1, 0, 0)), Block(BlockType, (1, 0, -1)), Block(BlockType, (1, 0, 1)), 
+                              Block("minecraft:diamond_block", (1, 0, 0)), Block(BlockType, (1, 0, -1)), Block(BlockType, (1, 0, 1)), 
                               Block(BlockType, (2, 0, 1)), Block(BlockType, (2, 0, -1)), 
+                              Block("minecraft:command_block", (1, -1, 0)), Block("minecraft:light_pressureplate", (1, 1, 0))
                               ],
                       difficulty=0.0, 
                       flow=1.0)

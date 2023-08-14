@@ -23,21 +23,31 @@ def compute_abs_coordinates_of_start_block(jumptype: JumpType, absolut_pos_of_la
 
 def shortcut_possible_checker(old_X, old_Y, old_Z, new_X, new_Y, new_Z):
 
-     # First zone, one y-level below
-        if old_Y == new_Y - 1 and (old_X <= new_X + 2 and old_X >= new_X - 2) and (old_Z <= new_Z + 2 and old_Z >= new_Z - 2):
-            return True
-        
-        # Same height
-        if old_Y == new_Y and (old_X <= new_X + 4 and old_X >= new_X - 4) and (old_Z <= new_Z + 4 and old_Z >= new_Z - 4):
-            return True
+    # 3 y-levels below (against obstruction of earlier jumps)
+    if old_Y == new_Y - 3 and (old_X <= new_X + 2 and old_X >= new_X - 2) and (old_Z <= new_Z + 2 and old_Z >= new_Z - 2):
+        return True
+    
+    # 2 y-levels below (against obstruction of earlier jumps)
+    if old_Y == new_Y - 2 and (old_X <= new_X + 2 and old_X >= new_X - 2) and (old_Z <= new_Z + 2 and old_Z >= new_Z - 2):
+        return True
 
-        # One y-level up
-        if old_Y == new_Y + 1 and (old_X <= new_X + 6 and old_X >= new_X - 6) and (old_Z <= new_Z + 6 and old_Z >= new_Z - 6):
-            return True
+    # One y-level below
+    if old_Y == new_Y - 1 and (old_X <= new_X + 2 and old_X >= new_X - 2) and (old_Z <= new_Z + 2 and old_Z >= new_Z - 2):
+        return True
+    
+    # Same height
+    if old_Y == new_Y and (old_X <= new_X + 4 and old_X >= new_X - 4) and (old_Z <= new_Z + 4 and old_Z >= new_Z - 4):
+        return True
 
-        # Rest of the volume above the block in a 16x10x16 volume
-        if (old_Y <= new_Y + 12 and old_Y >= new_Y + 2) and (old_X <= new_X + 8 and old_X >= new_X - 8) and (old_Z <= new_Z + 8 and old_Z >= new_Z - 8):
-            return True
+    # One y-level up
+    if old_Y == new_Y + 1 and (old_X <= new_X + 6 and old_X >= new_X - 6) and (old_Z <= new_Z + 6 and old_Z >= new_Z - 6):
+        return True
+
+    # Rest of the volume above the block in a 16x10x16 volume
+    if (old_Y <= new_Y + 12 and old_Y >= new_Y + 2) and (old_X <= new_X + 8 and old_X >= new_X - 8) and (old_Z <= new_Z + 8 and old_Z >= new_Z - 8):
+        return True
+
+    return False
 
 
 def shortcut_possible(new_block: Block, earlier_structure: JumpType):
@@ -76,13 +86,14 @@ def shortcut_possible(new_block: Block, earlier_structure: JumpType):
     return False
 
 
-# Returns True only if the Block is in the config defined Parkour bounds, else False
+# Returns True only if the Block is in the config defined Parkour bounds, else False. 
+# Also considers the height of the player hitbox, leaving 4 blocks headroom below the maximum y value of the volume.
 def in_bounds(block: Block):
     
     # X coordinate
     if block.abs_position[0] >= config.ParkourVolume[0][0] and block.abs_position[0] <= config.ParkourVolume[0][1]:
         # Y coordinate
-        if block.abs_position[1] >= config.ParkourVolume[1][0] and block.abs_position[1] <= config.ParkourVolume[1][1]:
+        if block.abs_position[1] >= config.ParkourVolume[1][0] and block.abs_position[1] <= config.ParkourVolume[1][1] - 4:
             # Z coordinate
             if block.abs_position[2] >= config.ParkourVolume[2][0] and block.abs_position[2] <= config.ParkourVolume[2][1]:
                 return True
@@ -116,12 +127,12 @@ def can_be_placed(jumptype: JumpType, current_block_position: tuple, current_for
     # For start and finish blocks
     for earlier_jump in list_of_placed_jumps[:len(list_of_placed_jumps)-1]:
 
-            if shortcut_possible(jumptype.rel_start_block, earlier_jump):
-                
-                return False
-            if shortcut_possible(jumptype.rel_finish_block, earlier_jump):
-                
-                return False
+        if shortcut_possible(jumptype.rel_start_block, earlier_jump):
+            
+            return False
+        if shortcut_possible(jumptype.rel_finish_block, earlier_jump):
+            
+            return False
     
     # For rest of the structure
     for block in jumptype.blocks:
