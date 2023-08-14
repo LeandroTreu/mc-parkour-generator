@@ -375,8 +375,77 @@ else:
     plt.savefig("parkour_plot.png", dpi=300)
 
 
+
+
+################################################################
+# Write file                                                   #
+################################################################
+
+if config.FileWrite:
+
+    print("Writing files...")
+
+    # TODO: Write config file variables as a text header into the file
+    with open("parkour_generator_datapack/data/parkour_generator/functions/generate.mcfunction", "w") as file:
+
+        for placed_jump in list_of_placed_jumps:
+
+            x = placed_jump.rel_start_block.abs_position[0]
+            y = placed_jump.rel_start_block.abs_position[1]
+            z = placed_jump.rel_start_block.abs_position[2]
+
+            writestr = f"fill {x} {y} {z} {x} {y} {z} {placed_jump.rel_start_block.name}\n"
+            file.write(writestr)
+
+            x = placed_jump.rel_finish_block.abs_position[0]
+            y = placed_jump.rel_finish_block.abs_position[1]
+            z = placed_jump.rel_finish_block.abs_position[2]
+
+            writestr = f"fill {x} {y} {z} {x} {y} {z} {placed_jump.rel_finish_block.name}\n"
+            file.write(writestr)
+
+            
+
+            for block in placed_jump.blocks:
+
+                x = block.abs_position[0]
+                y = block.abs_position[1]
+                z = block.abs_position[2]
+
+                writestr = f"fill {x} {y} {z} {x} {y} {z} {block.name}\n"
+                file.write(writestr)
+
+
+    # TODO: Text header for explanation
+    with open("parkour_generator_datapack/data/parkour_generator/functions/remove.mcfunction", "w") as file:
+
+        for placed_jump in list_of_placed_jumps:
+
+            x = placed_jump.rel_start_block.abs_position[0]
+            y = placed_jump.rel_start_block.abs_position[1]
+            z = placed_jump.rel_start_block.abs_position[2]
+
+            writestr = f"fill {x} {y} {z} {x} {y} {z} minecraft:air\n"
+            file.write(writestr)
+
+            x = placed_jump.rel_finish_block.abs_position[0]
+            y = placed_jump.rel_finish_block.abs_position[1]
+            z = placed_jump.rel_finish_block.abs_position[2]
+
+            writestr = f"fill {x} {y} {z} {x} {y} {z} minecraft:air\n"
+            file.write(writestr)
+
+            
+
+            for block in placed_jump.blocks:
+
+                x = block.abs_position[0]
+                y = block.abs_position[1]
+                z = block.abs_position[2]
+
+                writestr = f"fill {x} {y} {z} {x} {y} {z} minecraft:air\n"
+                file.write(writestr)
+
+print("Done.")
+
     
-    
-
-
-

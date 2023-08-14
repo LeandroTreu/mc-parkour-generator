@@ -1,7 +1,7 @@
 
 
 ParkourVolume = [(0, 50), (0, 50), (0, 50)]  # Absolute X, Y, Z coordinate ranges in the minecraft world.
-EnforceParkourVolume = False                  # If True then the parkour will generate only inside the above defined Parkour Volume. If False it will generate to arbitrary coordinates, depending on the start block.
+EnforceParkourVolume = True                  # If True then the parkour will generate only inside the above defined Parkour Volume. If False it will generate to arbitrary coordinates, depending on the start block.
 FillParkourVolumeWithAirFirst = True         # Only works when EnforceParkourVolume is set to True
 MaxParkourLength = 200                       # Maximum length of the parkour including the Start, Checkpoint and Finish structures.
 StartPosition = (1, 0, 1)                    # Absolute X, Y, Z coordinates in the minecraft world. Must be within the ParkourVolume defined above if EnforceParkourVolume is set to True. The startblock structure is 3x3 blocks so set this to (1, 0, 1) for the start to be within the volume.
@@ -20,7 +20,7 @@ Difficulty = 0.3                                         # Choose parkour diffic
 Flow = 0.8                                               # Choose how fast/flowing/fluent the parkour is to traverse in range [0.0, 1.0]. 0.0 - slow/ahlting, 1.0 - fast/fluent
 
 
-ParkourType = "Random"    # Spiral, Straight, StraightCurves, Random
+ParkourType = "StraightCurves"    # Spiral, Straight, StraightCurves, Random
 ParkourAscending = True   # Set to True if the parkour should have an upwards elevation change. Set to False for the parkour to stay on the same height/y-level.
 
 StraightCurvesSize = 1    # Values: 1 - 10, Changes how frequently the parkour direction changes: 1 - very often, 10 - rarely
@@ -36,9 +36,9 @@ SpiralTurnProbability = 2           # Values: 1 - high prob, 10 - low prob. Prob
 
 
 PlotFileType = "png"      # "jpg" or "png"
-PlotColorMap = "winter"  # viridis, plasma, gray, hot, summer, winter, hsv, copper
+PlotColorMap = "winter"   # viridis, plasma, gray, hot, summer, winter, hsv, copper
 
-
+FileWrite = False         # Set to True to write the minecraft datapack files as soon as the parkour is generated (overwrites with the new parkour every time). Set to False to not write the files.
 
 
 # TODO: Check all config values types and ranges

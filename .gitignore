@@ -1,2 +1,4 @@
 *.png
 *.jpg
+
+parkour_generator_datapack/data/parkour_generator/functions/*
