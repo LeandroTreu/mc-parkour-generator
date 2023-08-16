@@ -386,8 +386,34 @@ if config.FileWrite:
     print("Writing files...")
 
     # TODO: Write config file variables as a text header into the file
+    # TODO: Command limit per function file is 65,536: gamerule maxCommandChainLength
+    # TODO: Research gamerule commandModificationBlockLimit
     with open("parkour_generator_datapack/data/parkour_generator/functions/generate.mcfunction", "w") as file:
 
+        file.write(f"# Headerline\n")
+
+        file.write(f"gamerule spawnRadius 0\n")
+
+        world_spawn = list_of_placed_jumps[0].rel_start_block.abs_position
+        file.write(f"setworldspawn {world_spawn[0]} {world_spawn[1]+1} {world_spawn[2]}\n")
+        file.write(f"spawnpoint @a {world_spawn[0]} {world_spawn[1]+1} {world_spawn[2]}\n")
+        file.write(f"tp @a {world_spawn[0]} {world_spawn[1]+1} {world_spawn[2]}\n")
+
+        file.write(f"gamemode adventure @a\n")
+        file.write(f"effect give @a minecraft:saturation 3600 4\n")
+        file.write(f"gamerule doImmediateRespawn true\n")
+        file.write(f"gamerule fallDamage false\n")
+        file.write(f"gamerule keepInventory true\n")
+
+
+        # Fill parkour volume with air first if set in config
+        if config.EnforceParkourVolume and config.FillParkourVolumeWithAirFirst:
+
+            volume = config.ParkourVolume
+            file.write(f"fill {volume[0][0]} {volume[1][0]} {volume[2][0]} {volume[0][1]} {volume[1][1]} {volume[2][1]} minecraft:air\n")
+
+
+        # Place all jump structures
         for placed_jump in list_of_placed_jumps:
 
             x = placed_jump.rel_start_block.abs_position[0]
