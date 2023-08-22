@@ -6,6 +6,7 @@ from jumptypes import list_of_jumptypes
 from jumptypes import StartBlock
 from jumptypes import FinishBlock
 from jumptypes import CheckpointBlock
+from jumptypes import CommandBlockControl
 from typing import List
 import numpy as np
 from numpy.random import default_rng
@@ -411,6 +412,21 @@ if config.FileWrite:
 
             volume = config.ParkourVolume
             file.write(f"fill {volume[0][0]} {volume[1][0]} {volume[2][0]} {volume[0][1]} {volume[1][1]} {volume[2][1]} minecraft:air\n")
+
+        if config.CheckPointsEnabled:
+            
+            # Place the control command blocks structure
+            command_blocks_instance = deepcopy(CommandBlockControl)
+            world_spawn = list_of_placed_jumps[0].rel_start_block.abs_position
+            abs_position = (world_spawn[0]-10, world_spawn[1], world_spawn[2]-10)  # TODO: Smart positioning of the command blocks
+            command_blocks_instance.set_absolut_coordinates(abs_position, "Xpos")
+
+            list_of_placed_jumps.append(command_blocks_instance)
+
+            # Place command block that gives the player a checkpoint teleporter
+            # TODO: Position according to config.StartForwardDirection
+            file.write(f"fill {world_spawn[0]} {world_spawn[1]+2} {world_spawn[2]-2} {world_spawn[0]} {world_spawn[1]+2} {world_spawn[2]-2} minecraft:command_block\n")
+            file.write(f"fill {world_spawn[0]} {world_spawn[1]+2} {world_spawn[2]-1} {world_spawn[0]} {world_spawn[1]+2} {world_spawn[2]-1} minecraft:stone_button\n")
 
 
         # Place all jump structures

@@ -32,6 +32,17 @@ CheckpointBlock = JumpType(name="Parkour Checkpoint Structure", structure_type="
                               ],
                       difficulty=0.0, 
                       flow=1.0)
+CommandBlockControl = JumpType(name="Parkour Checkpoint Command Blocks Structure", structure_type="CommandControl", 
+                      rel_start_block=Block(BlockType, (0, 0, 0)), 
+                      rel_finish_block=Block(BlockType, (0, 0, 0)),
+                      blocks=[Block("minecraft:command_block", (1, 0, 0)), Block("minecraft:command_block", (2, 0, 0)),
+                              Block("minecraft:redstone_block", (1, 1, 0)), Block("minecraft:redstone_block", (2, 1, 0)), 
+                              Block("minecraft:command_block", (1, 0, 2)), Block("minecraft:command_block", (2, 0, 2)),
+                              Block("minecraft:redstone_block", (1, 1, 2)), Block("minecraft:redstone_block", (2, 1, 2)),
+                              Block("minecraft:command_block", (1, 0, 4)), Block("minecraft:redstone_block", (1, 1, 4)),
+                              ],
+                      difficulty=0.0, 
+                      flow=1.0)
 
 list_of_jumptypes: List[JumpType] = []
 
