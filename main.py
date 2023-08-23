@@ -7,6 +7,7 @@ from jumptypes import StartBlock
 from jumptypes import FinishBlock
 from jumptypes import CheckpointBlock
 from jumptypes import CommandBlockControl
+from jumptypes import DispenserCommandblock
 from typing import List
 import numpy as np
 from numpy.random import default_rng
@@ -40,6 +41,46 @@ startblock_instance = deepcopy(StartBlock)
 startblock_instance.set_absolut_coordinates(current_block_position, current_forward_direction)
 list_of_placed_jumps.append(startblock_instance)
 
+# Place the control command blocks structure
+if config.CheckPointsEnabled:
+     
+    world_spawn = list_of_placed_jumps[0].rel_start_block.abs_position
+    abs_position = (world_spawn[0]-10, world_spawn[1], world_spawn[2]-10)  # TODO: Smart positioning of the command blocks
+
+
+    if config.StartForwardDirection == "Xpos":
+        rotation_degree = 180
+    else if config.StartForwardDirection == "Xneg":
+        rotation_degree = 0
+    else if config.StartForwardDirection == "Zpos":
+        rotation_degree = 90
+    else if config.StartForwardDirection == "Zneg":
+        rotation_degree = -90
+
+
+    command_blocks_instance = deepcopy(CommandBlockControl)
+    command_block_1_string = 'minecraft:chain_command_block[facing=west]{Command:"' + f'fill {abs_position[0]+6} {abs_position[1]+1} {abs_position[2]} {abs_position[0]+6} {abs_position[1]+1} {abs_position[2]} minecraft:redstone_block replace' + '"}'
+    command_block_2_string = 'minecraft:repeating_command_block[facing=west]{Command:"' + f'fill {abs_position[0]+6} {abs_position[1]+1} {abs_position[2]} {abs_position[0]+6} {abs_position[1]+1} {abs_position[2]} minecraft:air replace' + '"}'
+    command_block_3_string = 'minecraft:repeating_command_block[facing=west]{Command:"' + f'kill @e[type=minecraft:fishing_bobber]' + '"}'
+    command_block_4_string = 'minecraft:repeating_command_block[facing=west]{Command:"' + f'execute at @e[type=minecraft:fishing_bobber] run tp @p {world_spawn[0]} {world_spawn[1]+1} {world_spawn[2]} {rotation_degree} 0' + '"}'
+
+    blocks=[Block(command_block_1_string, (1, 0, 0)), 
+            Block(command_block_2_string, (2, 0, 0)),
+            Block("minecraft:redstone_block", (1, 1, 0)), Block("minecraft:redstone_block", (2, 1, 0)), 
+            Block(command_block_3_string, (4, 0, 0)), 
+            Block(command_block_4_string, (6, 0, 0)),
+            Block("minecraft:redstone_block", (4, 1, 0)), Block("minecraft:redstone_block", (6, 1, 0)),
+    ]
+    command_blocks_instance.blocks = blocks
+    command_blocks_instance.set_absolut_coordinates(abs_position, "Xpos")
+
+    list_of_placed_jumps.append(command_blocks_instance)
+
+    # Place command block that gives the player a checkpoint teleporter
+    # TODO: Position according to config.StartForwardDirection
+    dispenser_instance = deepcopy(DispenserCommandblock)
+    dispenser_instance.set_absolut_coordinates((world_spawn[0], world_spawn[1]+2, world_spawn[2]-2), config.StartForwardDirection)
+    list_of_placed_jumps.append(dispenser_instance)
 
 
 
@@ -95,6 +136,29 @@ while iteration < config.MaxParkourLength - 2:
             if util.can_be_placed(checkpoint_instance, current_block_position, current_forward_direction, list_of_placed_jumps):
 
                 # print("placed", tryToPlaceCheckpointHere)
+
+                c_block_abs = command_blocks_instance.rel_start_block.abs_position
+                
+                for block in checkpoint_instance.blocks:
+                    if block.name == "minecraft:light_weighted_pressure_plate"
+                        checkpoint_respawn = block.abs_position
+                
+                if current_forward_direction == "Xpos":
+                    rotation_degree = 180
+                else if current_forward_direction == "Xneg":
+                    rotation_degree = 0
+                else if current_forward_direction == "Zpos":
+                    rotation_degree = 90
+                else if current_forward_direction == "Zneg":
+                    rotation_degree = -90
+    
+                checkpoint_command_string_recursive = 'minecraft:repeating_command_block[facing=west]{Command:"' + f'execute at @e[type=minecraft:fishing_bobber] run tp @p {checkpoint_respawn[0]} {checkpoint_respawn[1]} {checkpoint_respawn[2]} {rotation_degree} 0' + '"}' 
+                checkpoint_command_string = 'minecraft:command_block{Command:"' + f'fill {c_block_abs[0]+6} {c_block_abs[1]} {c_block_abs[2]} {c_block_abs[0]+6} {c_block_abs[1]} {c_block_abs[2]} {checkpoint_command_string_recursive} destroy' + '"}' 
+                
+                for block in checkpoint_instance.blocks:
+                    if block.name == "minecraft:command_block":
+                        block.name = checkpoint_command_string
+                  
 
                 list_of_placed_jumps.append(checkpoint_instance)
                 CheckPointCounter += 1
@@ -269,7 +333,14 @@ finishblock_instance = deepcopy(FinishBlock)
 abs_position = util.compute_abs_coordinates_of_start_block(finishblock_instance, current_block_position, current_forward_direction)
 finishblock_instance.set_absolut_coordinates(abs_position, current_forward_direction)
 list_of_placed_jumps.append(finishblock_instance)
-print(f"] {len(list_of_placed_jumps)}/{config.MaxParkourLength}")
+
+# Adjust for the control structure and the dispenser
+if config.CheckPointsEnabled:
+    
+    print(f"] {len(list_of_placed_jumps)-2}/{config.MaxParkourLength}")
+else:
+    
+    print(f"] {len(list_of_placed_jumps)}/{config.MaxParkourLength}")
 
 
 end_time_generation = time.time()
@@ -413,22 +484,6 @@ if config.FileWrite:
             volume = config.ParkourVolume
             file.write(f"fill {volume[0][0]} {volume[1][0]} {volume[2][0]} {volume[0][1]} {volume[1][1]} {volume[2][1]} minecraft:air\n")
 
-        if config.CheckPointsEnabled:
-            
-            # Place the control command blocks structure
-            command_blocks_instance = deepcopy(CommandBlockControl)
-            world_spawn = list_of_placed_jumps[0].rel_start_block.abs_position
-            abs_position = (world_spawn[0]-10, world_spawn[1], world_spawn[2]-10)  # TODO: Smart positioning of the command blocks
-            command_blocks_instance.set_absolut_coordinates(abs_position, "Xpos")
-
-            list_of_placed_jumps.append(command_blocks_instance)
-
-            # Place command block that gives the player a checkpoint teleporter
-            # TODO: Position according to config.StartForwardDirection
-            file.write(f"fill {world_spawn[0]} {world_spawn[1]+2} {world_spawn[2]-2} {world_spawn[0]} {world_spawn[1]+2} {world_spawn[2]-2} minecraft:command_block\n")
-            file.write(f"fill {world_spawn[0]} {world_spawn[1]+2} {world_spawn[2]-1} {world_spawn[0]} {world_spawn[1]+2} {world_spawn[2]-1} minecraft:stone_button\n")
-
-
         # Place all jump structures
         for placed_jump in list_of_placed_jumps:
 
@@ -460,6 +515,8 @@ if config.FileWrite:
 
     # TODO: Text header for explanation
     with open("parkour_generator_datapack/data/parkour_generator/functions/remove.mcfunction", "w") as file:
+
+        file.write(f"# Headerline\n")
 
         for placed_jump in list_of_placed_jumps:
 
