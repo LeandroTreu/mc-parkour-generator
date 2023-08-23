@@ -42,6 +42,8 @@ startblock_instance.set_absolut_coordinates(current_block_position, current_forw
 list_of_placed_jumps.append(startblock_instance)
 
 # Place the control command blocks structure
+command_blocks_instance = deepcopy(CommandBlockControl)
+dispenser_instance = deepcopy(DispenserCommandblock)
 if config.CheckPointsEnabled:
      
     world_spawn = list_of_placed_jumps[0].rel_start_block.abs_position
@@ -50,15 +52,15 @@ if config.CheckPointsEnabled:
 
     if config.StartForwardDirection == "Xpos":
         rotation_degree = 180
-    else if config.StartForwardDirection == "Xneg":
+    elif config.StartForwardDirection == "Xneg":
         rotation_degree = 0
-    else if config.StartForwardDirection == "Zpos":
+    elif config.StartForwardDirection == "Zpos":
         rotation_degree = 90
-    else if config.StartForwardDirection == "Zneg":
+    elif config.StartForwardDirection == "Zneg":
         rotation_degree = -90
 
 
-    command_blocks_instance = deepcopy(CommandBlockControl)
+    
     command_block_1_string = 'minecraft:chain_command_block[facing=west]{Command:"' + f'fill {abs_position[0]+6} {abs_position[1]+1} {abs_position[2]} {abs_position[0]+6} {abs_position[1]+1} {abs_position[2]} minecraft:redstone_block replace' + '"}'
     command_block_2_string = 'minecraft:repeating_command_block[facing=west]{Command:"' + f'fill {abs_position[0]+6} {abs_position[1]+1} {abs_position[2]} {abs_position[0]+6} {abs_position[1]+1} {abs_position[2]} minecraft:air replace' + '"}'
     command_block_3_string = 'minecraft:repeating_command_block[facing=west]{Command:"' + f'kill @e[type=minecraft:fishing_bobber]' + '"}'
@@ -74,13 +76,10 @@ if config.CheckPointsEnabled:
     command_blocks_instance.blocks = blocks
     command_blocks_instance.set_absolut_coordinates(abs_position, "Xpos")
 
-    list_of_placed_jumps.append(command_blocks_instance)
+    
 
     # Place command block that gives the player a checkpoint teleporter
-    # TODO: Position according to config.StartForwardDirection
-    dispenser_instance = deepcopy(DispenserCommandblock)
     dispenser_instance.set_absolut_coordinates((world_spawn[0], world_spawn[1]+2, world_spawn[2]-2), config.StartForwardDirection)
-    list_of_placed_jumps.append(dispenser_instance)
 
 
 
@@ -140,20 +139,22 @@ while iteration < config.MaxParkourLength - 2:
                 c_block_abs = command_blocks_instance.rel_start_block.abs_position
                 
                 for block in checkpoint_instance.blocks:
-                    if block.name == "minecraft:light_weighted_pressure_plate"
+                    if block.name == "minecraft:light_weighted_pressure_plate":
                         checkpoint_respawn = block.abs_position
                 
                 if current_forward_direction == "Xpos":
                     rotation_degree = 180
-                else if current_forward_direction == "Xneg":
+                elif current_forward_direction == "Xneg":
                     rotation_degree = 0
-                else if current_forward_direction == "Zpos":
+                elif current_forward_direction == "Zpos":
                     rotation_degree = 90
-                else if current_forward_direction == "Zneg":
+                elif current_forward_direction == "Zneg":
                     rotation_degree = -90
-    
-                checkpoint_command_string_recursive = 'minecraft:repeating_command_block[facing=west]{Command:"' + f'execute at @e[type=minecraft:fishing_bobber] run tp @p {checkpoint_respawn[0]} {checkpoint_respawn[1]} {checkpoint_respawn[2]} {rotation_degree} 0' + '"}' 
-                checkpoint_command_string = 'minecraft:command_block{Command:"' + f'fill {c_block_abs[0]+6} {c_block_abs[1]} {c_block_abs[2]} {c_block_abs[0]+6} {c_block_abs[1]} {c_block_abs[2]} {checkpoint_command_string_recursive} destroy' + '"}' 
+
+
+                # TODO: Fix synrax error when trying to place this recursive command
+                checkpoint_command_string_recursive = 'minecraft:repeating_command_block[facing=west]{Command:' + f'execute at @e[type=minecraft:fishing_bobber] run tp @p {checkpoint_respawn[0]} {checkpoint_respawn[1]} {checkpoint_respawn[2]} {rotation_degree} 0' + '} destroy' 
+                checkpoint_command_string = 'minecraft:command_block{Command:"' + f'fill {c_block_abs[0]+6} {c_block_abs[1]} {c_block_abs[2]} {c_block_abs[0]+6} {c_block_abs[1]} {c_block_abs[2]} {checkpoint_command_string_recursive}' + '"} ' 
                 
                 for block in checkpoint_instance.blocks:
                     if block.name == "minecraft:command_block":
@@ -334,13 +335,13 @@ abs_position = util.compute_abs_coordinates_of_start_block(finishblock_instance,
 finishblock_instance.set_absolut_coordinates(abs_position, current_forward_direction)
 list_of_placed_jumps.append(finishblock_instance)
 
-# Adjust for the control structure and the dispenser
+print(f"] {len(list_of_placed_jumps)}/{config.MaxParkourLength}")
+
+# Place the Control and Dispenser structures
 if config.CheckPointsEnabled:
-    
-    print(f"] {len(list_of_placed_jumps)-2}/{config.MaxParkourLength}")
-else:
-    
-    print(f"] {len(list_of_placed_jumps)}/{config.MaxParkourLength}")
+
+    list_of_placed_jumps.append(command_blocks_instance)
+    list_of_placed_jumps.append(dispenser_instance)
 
 
 end_time_generation = time.time()
@@ -360,6 +361,10 @@ y_axis = []
 z_axis = []
 
 for index, placed_jump in enumerate(list_of_placed_jumps):
+
+    if not config.PlotCommandBlocks:
+        if placed_jump.structure_type == "CommandControl":
+            continue
 
     x_axis.append(placed_jump.rel_start_block.abs_position[0])
     y_axis.append(placed_jump.rel_start_block.abs_position[2])
@@ -476,6 +481,7 @@ if config.FileWrite:
         file.write(f"gamerule doImmediateRespawn true\n")
         file.write(f"gamerule fallDamage false\n")
         file.write(f"gamerule keepInventory true\n")
+        file.write(f"gamerule commandBlockOutput false\n")
 
 
         # Fill parkour volume with air first if set in config

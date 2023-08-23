@@ -40,7 +40,7 @@ CommandBlockControl = JumpType(name="Parkour Checkpoint Command Blocks Structure
                       flow=1.0)
 DispenserCommandblock = JumpType(name="Parkour Checkpoint Respawner Item Dispenser", structure_type="CommandControl", 
                                     rel_start_block=Block('minecraft:command_block{Command: "give @p minecraft:fishing_rod"}', (0, 0, 0)), 
-                                    rel_finish_block=Block("minecraft:stone_button", (1, 0, 0)),
+                                    rel_finish_block=Block("minecraft:stone_button[facing=west]", (1, 0, 0)),  # TODO: depends on direction of start structure
                                     blocks=[],
                                     difficulty=0.0, 
                                     flow=1.0)
