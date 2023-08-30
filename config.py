@@ -6,7 +6,7 @@ FillParkourVolumeWithAirFirst = True         # Only works when EnforceParkourVol
 MaxParkourLength = 200                       # Maximum length of the parkour including the Start, Checkpoint and Finish structures.
 StartPosition = (237, 108, -13)                    # Absolute X, Y, Z coordinates in the minecraft world. Must be within the ParkourVolume defined above if EnforceParkourVolume is set to True. The startblock structure is 3x3 blocks so set this to (1, 0, 1) for the start to be within the volume.
 StartForwardDirection = "Xpos"               # Sets the initial forward direction of the parkour for the first jump. Values: {Xpos, Xneg, Zpos, Zneg}
-BlockType = "minecraft:bedrock"              # Sets the default minecraft block type for all parkour structures, except for special structures like ladders and ice.
+BlockType = "minecraft:glowstone_block"              # Sets the default minecraft block type for all parkour structures, except for special structures like ladders and ice.
 
 RandomSeed = True                            # Set True for a randomised seed. Set False for a set seed, defined below.
 Seed = 98360346                              # Sets a seed for the random number generetor throughout the parkour generation. Value range: [0, 2**63-1]

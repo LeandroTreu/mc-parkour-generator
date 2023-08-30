@@ -152,9 +152,9 @@ while iteration < config.MaxParkourLength - 2:
                     rotation_degree = -90
 
 
-                # TODO: Fix synrax error when trying to place this recursive command
-                checkpoint_command_string_recursive = 'minecraft:repeating_command_block[facing=west]{Command:' + f'execute at @e[type=minecraft:fishing_bobber] run tp @p {checkpoint_respawn[0]} {checkpoint_respawn[1]} {checkpoint_respawn[2]} {rotation_degree} 0' + '} destroy' 
-                checkpoint_command_string = 'minecraft:command_block{Command:"' + f'fill {c_block_abs[0]+6} {c_block_abs[1]} {c_block_abs[2]} {c_block_abs[0]+6} {c_block_abs[1]} {c_block_abs[2]} {checkpoint_command_string_recursive}' + '"} ' 
+                # TODO: Fix syntax error when trying to place this recursive command
+                checkpoint_command_string_recursive = 'minecraft:repeating_command_block[facing=west]{Command:\\"' + f'execute at @e[type=minecraft:fishing_bobber] run tp @p {checkpoint_respawn[0]} {checkpoint_respawn[1]} {checkpoint_respawn[2]} {rotation_degree} 0' + '\\"} destroy' 
+                checkpoint_command_string = 'minecraft:command_block{Command:"' + f'fill {c_block_abs[0]+6} {c_block_abs[1]} {c_block_abs[2]} {c_block_abs[0]+6} {c_block_abs[1]} {c_block_abs[2]} {checkpoint_command_string_recursive}' + '"}' 
                 
                 for block in checkpoint_instance.blocks:
                     if block.name == "minecraft:command_block":
@@ -331,9 +331,32 @@ while iteration < config.MaxParkourLength - 2:
 
 # Place Finish Structure of the Parkour  TODO: Maybe try to place in bounds of Parkour Volume
 finishblock_instance = deepcopy(FinishBlock)
-abs_position = util.compute_abs_coordinates_of_start_block(finishblock_instance, current_block_position, current_forward_direction)
-finishblock_instance.set_absolut_coordinates(abs_position, current_forward_direction)
-list_of_placed_jumps.append(finishblock_instance)
+
+if config.EnforceParkourVolume:
+    if not util.can_be_placed(finishblock_instance, current_block_position, current_forward_direction, list_of_placed_jumps):
+
+        for index in range(len(list_of_placed_jumps)):
+
+            placed_jump = list_of_placed_jumps[len(list_of_placed_jumps) - 2 - index]
+
+            placed_jump_position = placed_jump.rel_finish_block.abs_position
+
+            if util.can_be_placed(finishblock_instance, placed_jump_position, current_forward_direction, list_of_placed_jumps):
+                
+                list_of_placed_jumps = list_of_placed_jumps[0:len(list_of_placed_jumps) - 2 - index + 1]
+                list_of_placed_jumps.append(finishblock_instance)
+
+                break
+            else:
+                continue
+    
+    else:
+        list_of_placed_jumps.append(finishblock_instance)
+
+else:
+    abs_position = util.compute_abs_coordinates_of_start_block(finishblock_instance, current_block_position, current_forward_direction)
+    finishblock_instance.set_absolut_coordinates(abs_position, current_forward_direction)
+    list_of_placed_jumps.append(finishblock_instance)
 
 print(f"] {len(list_of_placed_jumps)}/{config.MaxParkourLength}")
 
