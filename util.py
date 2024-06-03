@@ -117,7 +117,7 @@ def in_bounds(block: Block):
         return False
 
 
-def can_be_placed(jumptype: JumpType, current_block_position: tuple, current_forward_direction: str, list_of_placed_jumps: list):
+def can_be_placed(jumptype: JumpType, current_block_position: tuple, current_forward_direction: str, list_of_placed_jumps: list[JumpType]):
 
     abs_position = compute_abs_coordinates_of_start_block(
         jumptype, current_block_position, current_forward_direction)

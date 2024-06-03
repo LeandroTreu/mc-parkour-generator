@@ -46,7 +46,7 @@ DispenserCommandblock = JumpType(name="Parkour Checkpoint Respawner Item Dispens
                                     flow=1.0)
 
 
-list_of_jumptypes: List[JumpType] = []
+list_of_jumptypes: list[JumpType] = []
 
 # SingleBlock Structures
 list_of_jumptypes.append(JumpType(name="1 block gap straight", structure_type="SingleBlock",    #
