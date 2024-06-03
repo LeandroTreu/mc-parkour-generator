@@ -14,8 +14,8 @@ from numpy.random import default_rng
 from copy import deepcopy
 import matplotlib.pyplot as plt
 import numpy as np
-import math
 import time
+from pathlib import Path
 
 list_of_placed_jumps: List[JumpType] = []
 list_of_candidates: List[JumpType] = []
@@ -483,12 +483,23 @@ else:
 
 if config.FileWrite:
 
+    try:
+        cwd = Path.cwd()
+        datapack_dir = cwd / "parkour_generator_datapack/data/parkour_generator/functions"
+        datapack_dir.mkdir(parents=True, exist_ok=True)
+
+        generate_file = datapack_dir / "generate.mcfunction"
+        remove_file = datapack_dir / "remove.mcfunction"
+    except:
+        raise Exception("Error writing files")
+    
+
     print("Writing files...")
 
     # TODO: Write config file variables as a text header into the file
     # TODO: Command limit per function file is 65,536: gamerule maxCommandChainLength
     # TODO: Research gamerule commandModificationBlockLimit
-    with open("parkour_generator_datapack/data/parkour_generator/functions/generate.mcfunction", "w") as file:
+    with open(generate_file, "w") as file:
 
         file.write(f"# Headerline\n")
 
@@ -543,7 +554,7 @@ if config.FileWrite:
 
 
     # TODO: Text header for explanation
-    with open("parkour_generator_datapack/data/parkour_generator/functions/remove.mcfunction", "w") as file:
+    with open(remove_file, "w") as file:
 
         file.write(f"# Headerline\n")
 
