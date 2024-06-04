@@ -126,32 +126,25 @@ def can_be_placed(jumptype: JumpType, current_block_position: tuple, current_for
 
     # Check if new Structure is in bounds of the config.ParkourVolume
     if config.EnforceParkourVolume:
-
         if not in_bounds(jumptype.rel_start_block):
             return False
         if not in_bounds(jumptype.rel_finish_block):
             return False
         for block in jumptype.blocks:
-
             if not in_bounds(block):
                 return False
 
     # For start and finish blocks
     for earlier_jump in list_of_placed_jumps[:len(list_of_placed_jumps)-1]:
-
         if shortcut_possible(jumptype.rel_start_block, earlier_jump):
-
             return False
         if shortcut_possible(jumptype.rel_finish_block, earlier_jump):
-
             return False
 
     # For rest of the structure
     for block in jumptype.blocks:
         for earlier_jump in list_of_placed_jumps[:len(list_of_placed_jumps)-1]:
-
             if shortcut_possible(block, earlier_jump):
-
                 return False
 
     return True
