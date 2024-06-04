@@ -262,17 +262,21 @@ def write_function_files(list_of_placed_jumps: list[JumpType]) -> None:
 
 def plot_parkour(list_of_placed_jumps: list[JumpType]) -> None:
 
-    fig = plt.figure() # type: ignore
+    fig = plt.figure(figsize=(8, 8)) # type: ignore
     ax = fig.add_subplot(projection='3d') # type: ignore
 
     x_axis: list[int] = []
     y_axis: list[int] = []
     z_axis: list[int] = []
 
+    non_connected_blocks: list[JumpType] = []
     for placed_jump in list_of_placed_jumps:
-
-        if not config.PlotCommandBlocks:
-            if placed_jump.structure_type == "CommandControl":
+    
+        if placed_jump.structure_type == "CommandControl":
+            if config.PlotCommandBlocks:
+                non_connected_blocks.append(placed_jump)
+                continue
+            else:
                 continue
 
         x_axis.append(placed_jump.rel_start_block.abs_position[0])
@@ -289,44 +293,52 @@ def plot_parkour(list_of_placed_jumps: list[JumpType]) -> None:
             y_axis.append(block.abs_position[2])
             z_axis.append(block.abs_position[1])
 
+    # Plot line connecting the blocks
     line_color = "black"
     ax.plot(x_axis, y_axis, z_axis, # type: ignore
             linestyle="-", linewidth=0.5,
             c=line_color, marker="s", markersize=0)
 
+    # Add non-connected blocks for the scatter plot
+    for placed_jump in non_connected_blocks:
+
+        x_axis.append(placed_jump.rel_start_block.abs_position[0])
+        y_axis.append(placed_jump.rel_start_block.abs_position[2])
+        z_axis.append(placed_jump.rel_start_block.abs_position[1])
+
+        x_axis.append(placed_jump.rel_finish_block.abs_position[0])
+        y_axis.append(placed_jump.rel_finish_block.abs_position[2])
+        z_axis.append(placed_jump.rel_finish_block.abs_position[1])
+
+        for block in placed_jump.blocks:
+
+            x_axis.append(block.abs_position[0])
+            y_axis.append(block.abs_position[2])
+            z_axis.append(block.abs_position[1])
+    
+    # Plot the blocks
     ax.scatter(x_axis, y_axis, z_axis, c=z_axis, # type: ignore
                cmap=config.PlotColorMap, marker="s", s=2, alpha=1) # type: ignore
 
+    # Axis calculations
     if config.EnforceParkourVolume:
-
-        min_axis_distance = min(
-            config.ParkourVolume[0][0], config.ParkourVolume[1][0], config.ParkourVolume[2][0])
-        max_axis_distance = max(
-            config.ParkourVolume[0][1], config.ParkourVolume[1][1], config.ParkourVolume[2][1])
-        stepsize = max((abs(max_axis_distance - min_axis_distance)) // 10, 1)
-
-        ax.set_xticks(np.arange(min_axis_distance, # type: ignore
-                      max_axis_distance+1, stepsize))
-        ax.set_yticks(np.arange(min_axis_distance, # type: ignore
-                      max_axis_distance+1, stepsize))
-        ax.set_zticks(np.arange(min_axis_distance, # type: ignore
-                      max_axis_distance+1, stepsize))
+        x_min = config.ParkourVolume[0][0]
+        x_max = config.ParkourVolume[0][1]
+        y_min = config.ParkourVolume[2][0]
+        y_max = config.ParkourVolume[2][1]
+        z_min = config.ParkourVolume[1][0]
+        z_max = config.ParkourVolume[1][1]
     else:
-
-        # TODO: fix axis generation
-
         x_list: list[int] = []
         y_list: list[int] = []
         z_list: list[int] = []
 
         for placed_jump in list_of_placed_jumps:
-
             x_list.append(placed_jump.rel_start_block.abs_position[0])
             # Here the y value is the minecraft z value
             y_list.append(placed_jump.rel_start_block.abs_position[2])
             # height == minecraft y value
             z_list.append(placed_jump.rel_start_block.abs_position[1])
-
             x_list.append(placed_jump.rel_finish_block.abs_position[0])
             # Here the y value is the minecraft z value
             y_list.append(placed_jump.rel_finish_block.abs_position[2])
@@ -334,7 +346,6 @@ def plot_parkour(list_of_placed_jumps: list[JumpType]) -> None:
             z_list.append(placed_jump.rel_finish_block.abs_position[1])
 
             for block in placed_jump.blocks:
-
                 x_list.append(block.abs_position[0])
                 # Here the y value is the minecraft z value
                 y_list.append(block.abs_position[2])
@@ -348,16 +359,27 @@ def plot_parkour(list_of_placed_jumps: list[JumpType]) -> None:
         z_min = min(z_list)
         z_max = max(z_list)
 
-        max_axis_distance = max(x_max, y_max, z_max)
-        min_axis_distance = min(x_min, y_min, z_min)
+        x_max = ((x_max+10) // 10) * 10
+        y_max = ((y_max+10) // 10) * 10
+        z_max = ((z_max+10) // 10) * 10
+        x_min = (x_min // 10) * 10
+        y_min = (y_min // 10) * 10
+        z_min = (z_min // 10) * 10
 
-        stepsize = max(abs(max_axis_distance-min_axis_distance)//10, 1)
-        ax.set_xticks(np.arange(min_axis_distance, # type: ignore
-                      max_axis_distance+1, stepsize))
-        ax.set_yticks(np.arange(min_axis_distance, # type: ignore
-                      max_axis_distance+1, stepsize))
-        ax.set_zticks(np.arange(min_axis_distance, # type: ignore
-                      max_axis_distance+1, stepsize))
+    max_axis_distance = max(x_max, y_max, z_max)
+    min_axis_distance = min(x_min, y_min, z_min)
+    stepsize = max(abs(max_axis_distance-min_axis_distance)//10, 10)
+    stepsize = max((stepsize // 10) * 10, 10)
+
+    ax.set_xticks(np.arange(x_min, # type: ignore
+                    x_max+stepsize, stepsize))
+    ax.set_yticks(np.arange(y_min, # type: ignore
+                    y_max+stepsize, stepsize))
+    ax.set_zticks(np.arange(z_min, # type: ignore
+                    z_max+stepsize, stepsize))
+
+    ax.set_box_aspect((abs(x_max-x_min), abs(y_max-y_min), abs(z_max-z_min))) # type: ignore
+    plt.tick_params(labelsize=10) # type: ignore
 
     if config.PlotFileType == "jpg":
         plt.savefig("parkour_plot.jpg") # type: ignore

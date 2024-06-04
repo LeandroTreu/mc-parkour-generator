@@ -171,7 +171,9 @@ def change_direction(current_forward_direction: str,
 
 def place_finish_structure(current_block_position: tuple[int, int, int], current_forward_direction: str, list_of_placed_jumps: list[JumpType], enforce_volume: bool) -> None:
 
-    # Place Finish Structure of the Parkour  TODO: Maybe try to place in bounds of Parkour Volume
+    # Place Finish Structure of the Parkour
+    # TODO: Maybe try to place in bounds of Parkour Volume
+    # TODO: fix parkour length when backtracking happens
     finishblock_instance = deepcopy(FinishBlock)
 
     if enforce_volume:
@@ -290,10 +292,9 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
     startblock_instance.set_absolut_coordinates(current_block_position, current_forward_direction)
     list_of_placed_jumps.append(startblock_instance)
 
-    # Create command block control structure
+    # Place the Control and Dispenser structures
     command_blocks_instance = deepcopy(CommandBlockControl)
     dispenser_instance = deepcopy(DispenserCommandblock)
-
     if checkpoints_enabled:
         place_control_command_blocks(
             command_blocks_instance, 
@@ -404,7 +405,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
 
     print(f"] {len(list_of_placed_jumps)}/{max_parkour_length}")
 
-    # Place the Control and Dispenser structures
+    # Place command control blocks last so they don't interfere with the block placing checks
     if checkpoints_enabled:
         list_of_placed_jumps.append(command_blocks_instance)
         list_of_placed_jumps.append(dispenser_instance)
