@@ -1,7 +1,5 @@
-import config
 from classes import JumpType
 from classes import Block
-from typing import List
 from config import BlockType
 
 StartBlock = JumpType(name="Parkour Start Structure", structure_type="Start", 

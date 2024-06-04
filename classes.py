@@ -1,12 +1,10 @@
-import config
-
 class Block:
 
-    def __init__(self, name: str, rel_position: tuple) -> None:
+    def __init__(self, name: str, rel_position: tuple[int, int, int]) -> None:
         
         self.name = name                    # Minecraft block name
         self.rel_position = rel_position    # Relative position to last jump block in parkour
-        self.abs_position = (0, 0, 0)       # Absolute coordinates in the minecraft world
+        self.abs_position: tuple[int, int, int] = (0, 0, 0)       # Absolute coordinates in the minecraft world
 
     def __str__(self) -> str:
         
@@ -18,13 +16,13 @@ class Block:
 
         return str(printstr)
     
-    def set_abs_position(self, abs_coordinates: tuple):
+    def set_abs_position(self, abs_coordinates: tuple[int, int, int]):
 
         self.abs_position = abs_coordinates
 
 class JumpType:
 
-    def __init__(self, name: str, structure_type: str, rel_start_block: Block, rel_finish_block: Block, blocks: list, difficulty: float, flow: float) -> None:
+    def __init__(self, name: str, structure_type: str, rel_start_block: Block, rel_finish_block: Block, blocks: list[Block], difficulty: float, flow: float) -> None:
         
         self.name = name                            # Name of the jump type
         self.structure_type = structure_type        # Name of the structure type
@@ -42,7 +40,7 @@ class JumpType:
 
         return "\n"+str(printstr)
     
-    def set_absolut_coordinates(self, abs_tuple: tuple, forward_direction: str):
+    def set_absolut_coordinates(self, abs_tuple: tuple[int, int, int], forward_direction: str):
 
         self.rel_start_block.set_abs_position(abs_tuple)
 
@@ -57,22 +55,22 @@ class JumpType:
 
         return
     
-    def compute_abs_coordinates(self, abs_start_block: tuple, relative_block: Block, forward_direction: str):
+    def compute_abs_coordinates(self, abs_start_block: tuple[int, int, int], relative_block: Block, forward_direction: str) -> tuple[int, int, int]:
         
-        Y = abs_start_block[1] + relative_block.rel_position[1]
+        y = abs_start_block[1] + relative_block.rel_position[1]
 
         if forward_direction == "Xpos":
-            X = abs_start_block[0] + relative_block.rel_position[0]
-            Z = abs_start_block[2] + relative_block.rel_position[2]
+            x = abs_start_block[0] + relative_block.rel_position[0]
+            z = abs_start_block[2] + relative_block.rel_position[2]
         elif forward_direction == "Xneg":
-            X = abs_start_block[0] - relative_block.rel_position[0]
-            Z = abs_start_block[2] - relative_block.rel_position[2]
+            x = abs_start_block[0] - relative_block.rel_position[0]
+            z = abs_start_block[2] - relative_block.rel_position[2]
         elif forward_direction == "Zpos":
-            X = abs_start_block[0] + relative_block.rel_position[2]
-            Z = abs_start_block[2] + relative_block.rel_position[0]
-        elif forward_direction == "Zneg":
-            X = abs_start_block[0] - relative_block.rel_position[2]
-            Z = abs_start_block[2] - relative_block.rel_position[0]
+            x = abs_start_block[0] + relative_block.rel_position[2]
+            z = abs_start_block[2] + relative_block.rel_position[0]
+        else:
+            x = abs_start_block[0] - relative_block.rel_position[2]
+            z = abs_start_block[2] - relative_block.rel_position[0]
         
-        return (X, Y, Z)
+        return (x, y, z)
         

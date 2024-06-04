@@ -9,7 +9,7 @@ from jumptypes import CommandBlockControl
 from jumptypes import DispenserCommandblock
 
 from copy import deepcopy
-from numpy.random import default_rng
+from numpy.random import Generator
 
 DIRECTIONS = ["Xpos", "Zneg", "Xneg", "Zpos"]
 slopesDirection = 0
@@ -28,7 +28,7 @@ def place_control_command_blocks(command_blocks_instance: JumpType, dispenser_in
         rotation_degree = 0
     elif start_forward_direction == "Zpos":
         rotation_degree = 90
-    elif start_forward_direction == "Zneg":
+    else:
         rotation_degree = -90
 
     command_block_1_string = 'minecraft:chain_command_block[facing=west]{Command:"' + f'fill {abs_position[0]+6} {abs_position[1]+1} {
@@ -57,9 +57,9 @@ def place_control_command_blocks(command_blocks_instance: JumpType, dispenser_in
         (world_spawn[0], world_spawn[1]+2, world_spawn[2]-2), start_forward_direction)
 
 
-def filter_jumptypes(list_of_allowed_structure_types: list[JumpType], use_all_blocks: bool, difficulty: float, flow: float, ascending: bool) -> list[JumpType]:
+def filter_jumptypes(list_of_allowed_structure_types: list[str], use_all_blocks: bool, difficulty: float, flow: float, ascending: bool) -> list[JumpType]:
 
-    list_of_jumptypes_filtered = []
+    list_of_jumptypes_filtered: list[JumpType] = []
     if use_all_blocks:
         list_of_jumptypes_filtered = list_of_jumptypes
     else:
@@ -75,19 +75,19 @@ def filter_jumptypes(list_of_allowed_structure_types: list[JumpType], use_all_bl
 
 
 def change_direction(current_forward_direction: str,
-                     rng: any, parkour_type: str,
+                     rng: Generator, parkour_type: str,
                      straight_curves_size: int,
                      spiral_type: str,
                      spiral_turn_rate: int,
                      spiral_turn_prob: int,
-                     spiral_rotation) -> str:
+                     spiral_rotation: str) -> str:
 
     global slopesDirection
     global spiralTurnCounter
 
     if parkour_type == "Random":
         # Choose possible other directions at random
-        random_bit = rng.integers(low=0, high=2)
+        random_bit = rng.integers(low=0, high=2) # type: ignore
         old_direction_index = DIRECTIONS.index(
             current_forward_direction)
 
@@ -106,7 +106,7 @@ def change_direction(current_forward_direction: str,
 
     elif parkour_type == "StraightCurves":
 
-        random_bit = rng.integers(low=0, high=straight_curves_size+1)
+        random_bit = rng.integers(low=0, high=straight_curves_size+1) # type: ignore
 
         if random_bit == 1:
 
@@ -117,14 +117,14 @@ def change_direction(current_forward_direction: str,
                 slopesDirection = 0
                 new_direction_index = (old_direction_index + 1) % 4
             elif slopesDirection == 0:
-                random_bit = rng.integers(low=0, high=2)
+                random_bit = rng.integers(low=0, high=2) # type: ignore
                 if random_bit == 0:
                     slopesDirection = -1
                     new_direction_index = (old_direction_index - 1)
                 else:
                     slopesDirection = 1
                     new_direction_index = (old_direction_index + 1) % 4
-            elif slopesDirection == 1:
+            else:
                 slopesDirection = 0
                 new_direction_index = (old_direction_index - 1)
 
@@ -145,7 +145,7 @@ def change_direction(current_forward_direction: str,
                 spiralTurnCounter += 1
         else:
             h_bound = spiral_turn_prob+1
-            random_bit = rng.integers(low=0, high=h_bound)
+            random_bit = rng.integers(low=0, high=h_bound) # type: ignore
 
         if random_bit == 1:
 
@@ -169,7 +169,7 @@ def change_direction(current_forward_direction: str,
     return current_forward_direction
 
 
-def place_finish_structure(current_block_position: tuple, current_forward_direction: str, list_of_placed_jumps: list[JumpType], enforce_volume: bool) -> None:
+def place_finish_structure(current_block_position: tuple[int, int, int], current_forward_direction: str, list_of_placed_jumps: list[JumpType], enforce_volume: bool) -> None:
 
     # Place Finish Structure of the Parkour  TODO: Maybe try to place in bounds of Parkour Volume
     finishblock_instance = deepcopy(FinishBlock)
@@ -203,7 +203,7 @@ def place_finish_structure(current_block_position: tuple, current_forward_direct
         list_of_placed_jumps.append(finishblock_instance)
 
 
-def place_checkpoint(current_block_position: tuple,
+def place_checkpoint(current_block_position: tuple[int, int, int],
                      current_forward_direction: str,
                      list_of_placed_jumps: list[JumpType],
                      command_blocks_instance: JumpType,
@@ -219,9 +219,13 @@ def place_checkpoint(current_block_position: tuple,
 
             c_block_abs = command_blocks_instance.rel_start_block.abs_position
 
+            checkpoint_respawn = None
             for block in checkpoint_instance.blocks:
                 if block.name == "minecraft:light_weighted_pressure_plate":
                     checkpoint_respawn = block.abs_position
+            
+            if checkpoint_respawn is None:
+                raise Exception("Error: checkpoint_respawn not found")
 
             if current_forward_direction == "Xpos":
                 rotation_degree = 180
@@ -229,7 +233,7 @@ def place_checkpoint(current_block_position: tuple,
                 rotation_degree = 0
             elif current_forward_direction == "Zpos":
                 rotation_degree = 90
-            elif current_forward_direction == "Zneg":
+            else:
                 rotation_degree = -90
 
             # TODO: Fix syntax error when trying to place this recursive command
@@ -259,9 +263,9 @@ def place_checkpoint(current_block_position: tuple,
 
 
 def generate_parkour(list_of_placed_jumps: list[JumpType],
-                     rng: any,
+                     rng: Generator,
                      list_of_allowed_structure_types: list[str],
-                     parkour_start_position: tuple[int],
+                     parkour_start_position: tuple[int, int, int],
                      parkour_start_forward_direction: str,
                      parkour_type: str,
                      spiral_rotation: str,
@@ -276,7 +280,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                      spiral_type: str,
                      spiral_turn_rate: int,
                      spiral_turn_prob: int,
-                     enforce_volume) -> None:
+                     enforce_volume: bool) -> None:
 
     # Place Start Structure of the Parkour
     current_block_position = parkour_start_position
@@ -362,6 +366,8 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                         new_direction_index = old_direction_index - 1
                     if new_direction_index < 0:
                         new_direction_index = 3
+                else:
+                    new_direction_index = old_direction_index
 
                 current_forward_direction = DIRECTIONS[new_direction_index]
                 continue
@@ -369,7 +375,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
             try_again_counter = 0
 
         # Choose randomly from list of candidates
-        random_index: int = rng.integers(low=0, high=len(list_of_candidates))
+        random_index: int = rng.integers(low=0, high=len(list_of_candidates)) # type: ignore
         next_jump = list_of_candidates[random_index]
         list_of_placed_jumps.append(next_jump)
 

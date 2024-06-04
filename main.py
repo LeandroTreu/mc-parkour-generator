@@ -12,9 +12,9 @@ if __name__ == "__main__":
     # Set seed for the RNG
     if config.RandomSeed:
         rng_for_rng = default_rng()
-        seed = rng_for_rng.integers(low=0, high=2**63-1)
+        seed = rng_for_rng.integers(low=0, high=2**63-1) # type: ignore
         print(f"seed: {seed}")
-        rng = default_rng(seed)
+        rng = default_rng(seed) # type: ignore
     else:
         print(f"seed: {config.Seed}")
         rng = default_rng(config.Seed)

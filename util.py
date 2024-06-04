@@ -5,35 +5,35 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def compute_abs_coordinates_of_start_block(jumptype: JumpType, absolut_pos_of_last_block, forward_direction):
+def compute_abs_coordinates_of_start_block(jumptype: JumpType, absolut_pos_of_last_block: tuple[int, int, int], forward_direction: str):
 
-    Y = absolut_pos_of_last_block[1] + jumptype.rel_start_block.rel_position[1]
+    y = absolut_pos_of_last_block[1] + jumptype.rel_start_block.rel_position[1]
 
     if forward_direction == "Xpos":
-        X = absolut_pos_of_last_block[0] + \
+        x = absolut_pos_of_last_block[0] + \
             jumptype.rel_start_block.rel_position[0]
-        Z = absolut_pos_of_last_block[2] + \
+        z = absolut_pos_of_last_block[2] + \
             jumptype.rel_start_block.rel_position[2]
     elif forward_direction == "Xneg":
-        X = absolut_pos_of_last_block[0] - \
+        x = absolut_pos_of_last_block[0] - \
             jumptype.rel_start_block.rel_position[0]
-        Z = absolut_pos_of_last_block[2] - \
+        z = absolut_pos_of_last_block[2] - \
             jumptype.rel_start_block.rel_position[2]
     elif forward_direction == "Zpos":
-        X = absolut_pos_of_last_block[0] + \
+        x = absolut_pos_of_last_block[0] + \
             jumptype.rel_start_block.rel_position[2]
-        Z = absolut_pos_of_last_block[2] + \
+        z = absolut_pos_of_last_block[2] + \
             jumptype.rel_start_block.rel_position[0]
-    elif forward_direction == "Zneg":
-        X = absolut_pos_of_last_block[0] - \
+    else:
+        x = absolut_pos_of_last_block[0] - \
             jumptype.rel_start_block.rel_position[2]
-        Z = absolut_pos_of_last_block[2] - \
+        z = absolut_pos_of_last_block[2] - \
             jumptype.rel_start_block.rel_position[0]
 
-    return (X, Y, Z)
+    return (x, y, z)
 
 
-def shortcut_possible_checker(old_X, old_Y, old_Z, new_X, new_Y, new_Z):
+def shortcut_possible_checker(old_X: int, old_Y: int, old_Z: int, new_X: int, new_Y: int, new_Z: int):
 
     # 3 y-levels below (against obstruction of earlier jumps)
     if old_Y == new_Y - 3 and (old_X <= new_X + 2 and old_X >= new_X - 2) and (old_Z <= new_Z + 2 and old_Z >= new_Z - 2):
@@ -117,7 +117,7 @@ def in_bounds(block: Block):
         return False
 
 
-def can_be_placed(jumptype: JumpType, current_block_position: tuple, current_forward_direction: str, list_of_placed_jumps: list[JumpType]):
+def can_be_placed(jumptype: JumpType, current_block_position: tuple[int, int, int], current_forward_direction: str, list_of_placed_jumps: list[JumpType]):
 
     abs_position = compute_abs_coordinates_of_start_block(
         jumptype, current_block_position, current_forward_direction)
@@ -262,14 +262,14 @@ def write_function_files(list_of_placed_jumps: list[JumpType]) -> None:
 
 def plot_parkour(list_of_placed_jumps: list[JumpType]) -> None:
 
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
+    fig = plt.figure() # type: ignore
+    ax = fig.add_subplot(projection='3d') # type: ignore
 
-    x_axis = []
-    y_axis = []
-    z_axis = []
+    x_axis: list[int] = []
+    y_axis: list[int] = []
+    z_axis: list[int] = []
 
-    for index, placed_jump in enumerate(list_of_placed_jumps):
+    for placed_jump in list_of_placed_jumps:
 
         if not config.PlotCommandBlocks:
             if placed_jump.structure_type == "CommandControl":
@@ -290,12 +290,12 @@ def plot_parkour(list_of_placed_jumps: list[JumpType]) -> None:
             z_axis.append(block.abs_position[1])
 
     line_color = "black"
-    ax.plot(x_axis, y_axis, z_axis,
+    ax.plot(x_axis, y_axis, z_axis, # type: ignore
             linestyle="-", linewidth=0.5,
             c=line_color, marker="s", markersize=0)
 
-    ax.scatter(x_axis, y_axis, z_axis, c=z_axis,
-               cmap=config.PlotColorMap, marker="s", s=2, alpha=1)
+    ax.scatter(x_axis, y_axis, z_axis, c=z_axis, # type: ignore
+               cmap=config.PlotColorMap, marker="s", s=2, alpha=1) # type: ignore
 
     if config.EnforceParkourVolume:
 
@@ -305,19 +305,19 @@ def plot_parkour(list_of_placed_jumps: list[JumpType]) -> None:
             config.ParkourVolume[0][1], config.ParkourVolume[1][1], config.ParkourVolume[2][1])
         stepsize = max((abs(max_axis_distance - min_axis_distance)) // 10, 1)
 
-        ax.set_xticks(np.arange(min_axis_distance,
+        ax.set_xticks(np.arange(min_axis_distance, # type: ignore
                       max_axis_distance+1, stepsize))
-        ax.set_yticks(np.arange(min_axis_distance,
+        ax.set_yticks(np.arange(min_axis_distance, # type: ignore
                       max_axis_distance+1, stepsize))
-        ax.set_zticks(np.arange(min_axis_distance,
+        ax.set_zticks(np.arange(min_axis_distance, # type: ignore
                       max_axis_distance+1, stepsize))
     else:
 
         # TODO: fix axis generation
 
-        x_list = []
-        y_list = []
-        z_list = []
+        x_list: list[int] = []
+        y_list: list[int] = []
+        z_list: list[int] = []
 
         for placed_jump in list_of_placed_jumps:
 
@@ -352,14 +352,14 @@ def plot_parkour(list_of_placed_jumps: list[JumpType]) -> None:
         min_axis_distance = min(x_min, y_min, z_min)
 
         stepsize = max(abs(max_axis_distance-min_axis_distance)//10, 1)
-        ax.set_xticks(np.arange(min_axis_distance,
+        ax.set_xticks(np.arange(min_axis_distance, # type: ignore
                       max_axis_distance+1, stepsize))
-        ax.set_yticks(np.arange(min_axis_distance,
+        ax.set_yticks(np.arange(min_axis_distance, # type: ignore
                       max_axis_distance+1, stepsize))
-        ax.set_zticks(np.arange(min_axis_distance,
+        ax.set_zticks(np.arange(min_axis_distance, # type: ignore
                       max_axis_distance+1, stepsize))
 
     if config.PlotFileType == "jpg":
-        plt.savefig("parkour_plot.jpg")
+        plt.savefig("parkour_plot.jpg") # type: ignore
     else:
-        plt.savefig("parkour_plot.png", dpi=300)
+        plt.savefig("parkour_plot.png", dpi=300) # type: ignore
