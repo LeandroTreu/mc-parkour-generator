@@ -23,13 +23,13 @@ def place_control_command_blocks(command_blocks_instance: JumpType, dispenser_in
     abs_position = (world_spawn[0]-10, world_spawn[1], world_spawn[2]-10)
 
     if start_forward_direction == "Xpos":
-        rotation_degree = 180
-    elif start_forward_direction == "Xneg":
-        rotation_degree = 0
-    elif start_forward_direction == "Zpos":
-        rotation_degree = 90
-    else:
         rotation_degree = -90
+    elif start_forward_direction == "Xneg":
+        rotation_degree = 90
+    elif start_forward_direction == "Zpos":
+        rotation_degree = 0
+    else:
+        rotation_degree = -180
 
     command_block_1_string = 'minecraft:chain_command_block[facing=west]{Command:"' + f'fill {abs_position[0]+6} {abs_position[1]+1} {
         abs_position[2]} {abs_position[0]+6} {abs_position[1]+1} {abs_position[2]} minecraft:redstone_block replace' + '"}'
@@ -230,17 +230,16 @@ def place_checkpoint(current_block_position: tuple[int, int, int],
                 raise Exception("Error: checkpoint_respawn not found")
 
             if current_forward_direction == "Xpos":
-                rotation_degree = 180
-            elif current_forward_direction == "Xneg":
-                rotation_degree = 0
-            elif current_forward_direction == "Zpos":
-                rotation_degree = 90
-            else:
                 rotation_degree = -90
+            elif current_forward_direction == "Xneg":
+                rotation_degree = 90
+            elif current_forward_direction == "Zpos":
+                rotation_degree = 0
+            else:
+                rotation_degree = -180
 
-            # TODO: Fix syntax error when trying to place this recursive command
             checkpoint_command_string_recursive = 'minecraft:repeating_command_block[facing=west]{Command:\\"' + f'execute at @e[type=minecraft:fishing_bobber] run tp @p {
-                checkpoint_respawn[0]} {checkpoint_respawn[1]} {checkpoint_respawn[2]} {rotation_degree} 0' + '\\"} destroy'
+                checkpoint_respawn[0]} {checkpoint_respawn[1]} {checkpoint_respawn[2]} {rotation_degree} 25' + '\\"} destroy'
             checkpoint_command_string = 'minecraft:command_block{Command:"' + f'fill {c_block_abs[0]+6} {c_block_abs[1]} {
                 c_block_abs[2]} {c_block_abs[0]+6} {c_block_abs[1]} {c_block_abs[2]} {checkpoint_command_string_recursive}' + '"}'
 

@@ -180,15 +180,12 @@ def write_function_files(list_of_placed_jumps: list[JumpType]) -> None:
         file.write(f"gamerule spawnRadius 0\n")
 
         world_spawn = list_of_placed_jumps[0].rel_start_block.abs_position
-        file.write(f"setworldspawn {world_spawn[0]} {
-            world_spawn[1]+1} {world_spawn[2]}\n")
-        file.write(
-            f"spawnpoint @a {world_spawn[0]} {world_spawn[1]+1} {world_spawn[2]}\n")
-        file.write(
-            f"tp @a {world_spawn[0]} {world_spawn[1]+1} {world_spawn[2]}\n")
+        file.write(f"setworldspawn {world_spawn[0]} {world_spawn[1]+1} {world_spawn[2]}\n")
+        file.write(f"spawnpoint @a {world_spawn[0]} {world_spawn[1]+1} {world_spawn[2]}\n")
+        file.write(f"tp @a {world_spawn[0]} {world_spawn[1]+1} {world_spawn[2]}\n")
 
         file.write(f"gamemode adventure @a\n")
-        file.write(f"effect give @a minecraft:saturation 3600 4\n")
+        file.write(f"effect give @a minecraft:saturation 3600 4\n") # TODO: infinite duration
         file.write(f"gamerule doImmediateRespawn true\n")
         file.write(f"gamerule fallDamage false\n")
         file.write(f"gamerule keepInventory true\n")
