@@ -21,8 +21,25 @@ if __name__ == "__main__":
 
     # Generate Parkour
     start_time_generation = time.time()
-    generator.generate_parkour(
-        list_of_placed_jumps, rng, list_of_allowed_structure_types=config.AllowedStructureTypes)
+    generator.generate_parkour(list_of_placed_jumps, 
+                               rng, 
+                               list_of_allowed_structure_types=config.AllowedStructureTypes,
+                               parkour_start_position=config.StartPosition,
+                               parkour_start_forward_direction=config.StartForwardDirection,
+                               parkour_type=config.ParkourType,
+                               spiral_rotation=config.SpiralRotation,
+                               max_parkour_length=config.MaxParkourLength,
+                               checkpoints_enabled=config.CheckPointsEnabled,
+                               checkpoints_period=config.CheckPointsPeriod,
+                               use_all_blocks=config.UseAllBlocks,
+                               difficulty=config.Difficulty,
+                               flow=config.Flow,
+                               ascending=config.ParkourAscending,
+                               straight_curves_size=config.StraightCurvesSize,
+                               spiral_type=config.SpiralType,
+                               spiral_turn_rate=config.SpiralTurnRate,
+                               spiral_turn_prob=config.SpiralTurnProbability,
+                               enforce_volume=config.EnforceParkourVolume)
     end_time_generation = time.time()
 
     print(f"Time taken: {

@@ -1,4 +1,3 @@
-import config
 import util
 from classes import JumpType
 from classes import Block
@@ -16,19 +15,20 @@ DIRECTIONS = ["Xpos", "Zneg", "Xneg", "Zpos"]
 slopesDirection = 0
 spiralTurnCounter = 0
 
-def place_control_command_blocks(command_blocks_instance: JumpType, dispenser_instance: JumpType, list_of_placed_jumps: list[JumpType]) -> None:
+
+def place_control_command_blocks(command_blocks_instance: JumpType, dispenser_instance: JumpType, list_of_placed_jumps: list[JumpType], start_forward_direction: str) -> None:
 
     world_spawn = list_of_placed_jumps[0].rel_start_block.abs_position
     # TODO: Smart positioning of the command blocks
     abs_position = (world_spawn[0]-10, world_spawn[1], world_spawn[2]-10)
 
-    if config.StartForwardDirection == "Xpos":
+    if start_forward_direction == "Xpos":
         rotation_degree = 180
-    elif config.StartForwardDirection == "Xneg":
+    elif start_forward_direction == "Xneg":
         rotation_degree = 0
-    elif config.StartForwardDirection == "Zpos":
+    elif start_forward_direction == "Zpos":
         rotation_degree = 90
-    elif config.StartForwardDirection == "Zneg":
+    elif start_forward_direction == "Zneg":
         rotation_degree = -90
 
     command_block_1_string = 'minecraft:chain_command_block[facing=west]{Command:"' + f'fill {abs_position[0]+6} {abs_position[1]+1} {
@@ -54,32 +54,38 @@ def place_control_command_blocks(command_blocks_instance: JumpType, dispenser_in
 
     # Place command block that gives the player a checkpoint teleporter
     dispenser_instance.set_absolut_coordinates(
-        (world_spawn[0], world_spawn[1]+2, world_spawn[2]-2), config.StartForwardDirection)
+        (world_spawn[0], world_spawn[1]+2, world_spawn[2]-2), start_forward_direction)
 
 
-def filter_jumptypes(list_of_allowed_structure_types) -> list[JumpType]:
+def filter_jumptypes(list_of_allowed_structure_types: list[JumpType], use_all_blocks: bool, difficulty: float, flow: float, ascending: bool) -> list[JumpType]:
 
     list_of_jumptypes_filtered = []
-    if config.UseAllBlocks:
+    if use_all_blocks:
         list_of_jumptypes_filtered = list_of_jumptypes
     else:
         for jumptype in list_of_jumptypes:
             if jumptype.structure_type in list_of_allowed_structure_types:
-                if jumptype.difficulty >= config.Difficulty - 0.2 and jumptype.difficulty <= config.Difficulty + 0.2:
-                    if jumptype.flow >= config.Flow - 0.2 and jumptype.flow <= config.Flow + 0.2:
-                        if not config.ParkourAscending and util.is_Ascending(jumptype):
+                if jumptype.difficulty >= difficulty - 0.2 and jumptype.difficulty <= difficulty + 0.2:
+                    if jumptype.flow >= flow - 0.2 and jumptype.flow <= flow + 0.2:
+                        if not ascending and util.is_Ascending(jumptype):
                             continue
                         list_of_jumptypes_filtered.append(jumptype)
 
     return list_of_jumptypes_filtered
 
 
-def change_direction(current_forward_direction: str, rng: any) -> str:
+def change_direction(current_forward_direction: str,
+                     rng: any, parkour_type: str,
+                     straight_curves_size: int,
+                     spiral_type: str,
+                     spiral_turn_rate: int,
+                     spiral_turn_prob: int,
+                     spiral_rotation) -> str:
 
     global slopesDirection
     global spiralTurnCounter
 
-    if config.ParkourType == "Random":
+    if parkour_type == "Random":
         # Choose possible other directions at random
         random_bit = rng.integers(low=0, high=2)
         old_direction_index = DIRECTIONS.index(
@@ -95,19 +101,13 @@ def change_direction(current_forward_direction: str, rng: any) -> str:
 
         return DIRECTIONS[new_direction_index]
 
-    elif config.ParkourType == "Straight":
+    elif parkour_type == "Straight":
         return current_forward_direction  # Keep same direction
 
-    elif config.ParkourType == "StraightCurves":
+    elif parkour_type == "StraightCurves":
 
-        # TODO: don't check this here
-        if config.StraightCurvesSize < 1 or config.StraightCurvesSize > 10:
-            raise Exception(
-                "Invalid input for StraightCurvesSize: must be between 1 and 10 (inclusive)")
+        random_bit = rng.integers(low=0, high=straight_curves_size+1)
 
-        random_bit = rng.integers(low=0, high=config.StraightCurvesSize+1)
-
-        # Only change direction with probability 1/(config.StraightCurvesSize+1)
         if random_bit == 1:
 
             old_direction_index = DIRECTIONS.index(
@@ -135,16 +135,16 @@ def change_direction(current_forward_direction: str, rng: any) -> str:
         else:
             return current_forward_direction
 
-    elif config.ParkourType == "Spiral":
-        if config.SpiralType == "Even":
-            if spiralTurnCounter >= config.SpiralTurnRate:
+    elif parkour_type == "Spiral":
+        if spiral_type == "Even":
+            if spiralTurnCounter >= spiral_turn_rate:
                 random_bit = 1
                 spiralTurnCounter = 0
             else:
                 random_bit = 0
                 spiralTurnCounter += 1
         else:
-            h_bound = config.SpiralTurnProbability+1
+            h_bound = spiral_turn_prob+1
             random_bit = rng.integers(low=0, high=h_bound)
 
         if random_bit == 1:
@@ -152,7 +152,7 @@ def change_direction(current_forward_direction: str, rng: any) -> str:
             old_direction_index = DIRECTIONS.index(
                 current_forward_direction)
 
-            if config.SpiralRotation == "clockwise":
+            if spiral_rotation == "clockwise":
 
                 new_direction_index = (old_direction_index + 1) % 4
             else:
@@ -169,12 +169,12 @@ def change_direction(current_forward_direction: str, rng: any) -> str:
     return current_forward_direction
 
 
-def place_finish_structure(current_block_position: tuple, current_forward_direction: str, list_of_placed_jumps: list[JumpType]) -> None:
+def place_finish_structure(current_block_position: tuple, current_forward_direction: str, list_of_placed_jumps: list[JumpType], enforce_volume: bool) -> None:
 
     # Place Finish Structure of the Parkour  TODO: Maybe try to place in bounds of Parkour Volume
     finishblock_instance = deepcopy(FinishBlock)
 
-    if config.EnforceParkourVolume:
+    if enforce_volume:
         if not util.can_be_placed(finishblock_instance, current_block_position, current_forward_direction, list_of_placed_jumps):
 
             for index in range(len(list_of_placed_jumps)):
@@ -203,15 +203,16 @@ def place_finish_structure(current_block_position: tuple, current_forward_direct
         list_of_placed_jumps.append(finishblock_instance)
 
 
-def place_checkpoint(current_block_position: tuple, 
-                     current_forward_direction: str, 
-                     list_of_placed_jumps: list[JumpType], 
-                     command_blocks_instance: JumpType, 
-                     n_blocks_placed: int, 
-                     tryToPlaceCheckpointHere: int) -> tuple[int, bool, int]:
+def place_checkpoint(current_block_position: tuple,
+                     current_forward_direction: str,
+                     list_of_placed_jumps: list[JumpType],
+                     command_blocks_instance: JumpType,
+                     n_blocks_placed: int,
+                     try_to_place_cp_here: int,
+                     cp_period: int) -> tuple[int, bool, int]:
 
     continue_bool = False
-    if tryToPlaceCheckpointHere == n_blocks_placed:
+    if try_to_place_cp_here == n_blocks_placed:
         checkpoint_instance = deepcopy(CheckpointBlock)
 
         if util.can_be_placed(checkpoint_instance, current_block_position, current_forward_direction, list_of_placed_jumps):
@@ -246,60 +247,88 @@ def place_checkpoint(current_block_position: tuple,
             # Set new absolute coordinates for next iteration
             current_block_position = checkpoint_instance.rel_finish_block.abs_position
 
-            tryToPlaceCheckpointHere = n_blocks_placed + config.CheckPointsPeriod
+            try_to_place_cp_here = n_blocks_placed + cp_period
             n_blocks_placed += 1
             continue_bool = True
-            return n_blocks_placed, continue_bool, tryToPlaceCheckpointHere
+            return n_blocks_placed, continue_bool, try_to_place_cp_here
         else:
-            tryToPlaceCheckpointHere = n_blocks_placed + 1
-            return n_blocks_placed, continue_bool, tryToPlaceCheckpointHere
+            try_to_place_cp_here = n_blocks_placed + 1
+            return n_blocks_placed, continue_bool, try_to_place_cp_here
     else:
-        return n_blocks_placed, continue_bool, tryToPlaceCheckpointHere
+        return n_blocks_placed, continue_bool, try_to_place_cp_here
 
 
-def generate_parkour(list_of_placed_jumps: list[JumpType], rng: any, list_of_allowed_structure_types: list[str]) -> None:
+def generate_parkour(list_of_placed_jumps: list[JumpType],
+                     rng: any,
+                     list_of_allowed_structure_types: list[str],
+                     parkour_start_position: tuple[int],
+                     parkour_start_forward_direction: str,
+                     parkour_type: str,
+                     spiral_rotation: str,
+                     max_parkour_length: int,
+                     checkpoints_enabled: bool,
+                     checkpoints_period: int,
+                     use_all_blocks: bool,
+                     difficulty: float,
+                     flow: float,
+                     ascending: bool,
+                     straight_curves_size: int,
+                     spiral_type: str,
+                     spiral_turn_rate: int,
+                     spiral_turn_prob: int,
+                     enforce_volume) -> None:
 
     # Place Start Structure of the Parkour
-    current_block_position = config.StartPosition
-    current_forward_direction = config.StartForwardDirection
+    current_block_position = parkour_start_position
+    current_forward_direction = parkour_start_forward_direction
 
     startblock_instance = deepcopy(StartBlock)
-    startblock_instance.set_absolut_coordinates(
-        current_block_position, current_forward_direction)
+    startblock_instance.set_absolut_coordinates(current_block_position, current_forward_direction)
     list_of_placed_jumps.append(startblock_instance)
 
     # Create command block control structure
     command_blocks_instance = deepcopy(CommandBlockControl)
     dispenser_instance = deepcopy(DispenserCommandblock)
 
-    if config.CheckPointsEnabled:
+    if checkpoints_enabled:
         place_control_command_blocks(
-            command_blocks_instance, dispenser_instance, list_of_placed_jumps)
+            command_blocks_instance, 
+            dispenser_instance, 
+            list_of_placed_jumps, 
+            parkour_start_forward_direction)
 
     # Pre-filter allowed jumptypes
     list_of_jumptypes_filtered = filter_jumptypes(
-        list_of_allowed_structure_types)
+        list_of_allowed_structure_types, 
+        use_all_blocks, 
+        difficulty, 
+        flow, 
+        ascending)
 
     print(f"Number of filtered jumptypes: {len(list_of_jumptypes_filtered)}")
 
     try_again_counter = 0
-    tryToPlaceCheckpointHere = config.CheckPointsPeriod
+    try_to_place_cp_here = checkpoints_period
 
     # Search for candidates
     list_of_candidates: list[JumpType] = []
     n_blocks_placed = 0
     print("[", end="")
     # Max parkour length minus Start and Finish structures
-    while n_blocks_placed < config.MaxParkourLength - 2:
+    while n_blocks_placed < max_parkour_length - 2:
 
         # Loading bar print
-        if n_blocks_placed % max(config.MaxParkourLength//10, 1) == 0:
+        if n_blocks_placed % max(max_parkour_length//10, 1) == 0:
             print("=", end="", flush=True)
 
-        if config.CheckPointsEnabled:
-            # TODO: check variable updates, simplify
-            n_blocks_placed, continue_bool, tryToPlaceCheckpointHere = place_checkpoint(current_block_position, current_forward_direction,
-                                                           list_of_placed_jumps, command_blocks_instance, n_blocks_placed, tryToPlaceCheckpointHere)
+        if checkpoints_enabled:
+            n_blocks_placed, continue_bool, try_to_place_cp_here = place_checkpoint(current_block_position, 
+                                                                                    current_forward_direction,
+                                                                                    list_of_placed_jumps, 
+                                                                                    command_blocks_instance, 
+                                                                                    n_blocks_placed, 
+                                                                                    try_to_place_cp_here, 
+                                                                                    checkpoints_period)
 
             if continue_bool:
                 continue
@@ -320,14 +349,14 @@ def generate_parkour(list_of_placed_jumps: list[JumpType], rng: any, list_of_all
                 old_direction_index = DIRECTIONS.index(
                     current_forward_direction)
 
-                if config.ParkourType == "Random":
+                if parkour_type == "Random":
                     new_direction_index = (old_direction_index + 1) % 4
-                elif config.ParkourType == "Straight":
+                elif parkour_type == "Straight":
                     new_direction_index = old_direction_index
-                elif config.ParkourType == "StraightCurves":
+                elif parkour_type == "StraightCurves":
                     new_direction_index = (old_direction_index + 1) % 4
-                elif config.ParkourType == "Spiral":
-                    if config.SpiralRotation == "clockwise":
+                elif parkour_type == "Spiral":
+                    if spiral_rotation == "clockwise":
                         new_direction_index = (old_direction_index + 1) % 4
                     else:
                         new_direction_index = old_direction_index - 1
@@ -351,18 +380,26 @@ def generate_parkour(list_of_placed_jumps: list[JumpType], rng: any, list_of_all
         list_of_candidates = []
 
         # Change direction for next iteration
-        current_forward_direction = change_direction(
-            current_forward_direction, rng)
+        current_forward_direction = change_direction(current_forward_direction, 
+                                                     rng, 
+                                                     parkour_type, 
+                                                     straight_curves_size, 
+                                                     spiral_type, 
+                                                     spiral_turn_rate, 
+                                                     spiral_turn_prob, 
+                                                     spiral_rotation)
 
         n_blocks_placed += 1
 
     place_finish_structure(current_block_position,
-                           current_forward_direction, list_of_placed_jumps)
+                           current_forward_direction, 
+                           list_of_placed_jumps, 
+                           enforce_volume)
 
-    print(f"] {len(list_of_placed_jumps)}/{config.MaxParkourLength}")
+    print(f"] {len(list_of_placed_jumps)}/{max_parkour_length}")
 
     # Place the Control and Dispenser structures
-    if config.CheckPointsEnabled:
+    if checkpoints_enabled:
         list_of_placed_jumps.append(command_blocks_instance)
         list_of_placed_jumps.append(dispenser_instance)
 
