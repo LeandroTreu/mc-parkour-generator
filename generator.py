@@ -211,7 +211,7 @@ def place_checkpoint(current_block_position: tuple[int, int, int],
                      command_blocks_instance: JumpType,
                      n_blocks_placed: int,
                      try_to_place_cp_here: int,
-                     cp_period: int) -> tuple[int, bool, int]:
+                     cp_period: int) -> tuple[int, bool, int, tuple[int, int, int]]:
 
     continue_bool = False
     if try_to_place_cp_here == n_blocks_placed:
@@ -255,12 +255,12 @@ def place_checkpoint(current_block_position: tuple[int, int, int],
             try_to_place_cp_here = n_blocks_placed + cp_period
             n_blocks_placed += 1
             continue_bool = True
-            return n_blocks_placed, continue_bool, try_to_place_cp_here
+            return n_blocks_placed, continue_bool, try_to_place_cp_here, current_block_position
         else:
             try_to_place_cp_here = n_blocks_placed + 1
-            return n_blocks_placed, continue_bool, try_to_place_cp_here
+            return n_blocks_placed, continue_bool, try_to_place_cp_here, current_block_position
     else:
-        return n_blocks_placed, continue_bool, try_to_place_cp_here
+        return n_blocks_placed, continue_bool, try_to_place_cp_here, current_block_position
 
 
 def generate_parkour(list_of_placed_jumps: list[JumpType],
@@ -326,13 +326,13 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
             print("=", end="", flush=True)
 
         if checkpoints_enabled:
-            n_blocks_placed, continue_bool, try_to_place_cp_here = place_checkpoint(current_block_position, 
-                                                                                    current_forward_direction,
-                                                                                    list_of_placed_jumps, 
-                                                                                    command_blocks_instance, 
-                                                                                    n_blocks_placed, 
-                                                                                    try_to_place_cp_here, 
-                                                                                    checkpoints_period)
+            n_blocks_placed, continue_bool, try_to_place_cp_here, current_block_position = place_checkpoint(current_block_position, 
+                                                                                                            current_forward_direction,
+                                                                                                            list_of_placed_jumps, 
+                                                                                                            command_blocks_instance, 
+                                                                                                            n_blocks_placed, 
+                                                                                                            try_to_place_cp_here, 
+                                                                                                            checkpoints_period)
 
             if continue_bool:
                 continue
