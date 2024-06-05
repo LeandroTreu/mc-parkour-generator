@@ -31,14 +31,14 @@ CheckpointBlock = JumpType(name="Parkour Checkpoint Structure", structure_type="
                       difficulty=0.0, 
                       flow=1.0)
 CommandBlockControl = JumpType(name="Parkour Checkpoint Command Blocks Structure", structure_type="CommandControl", 
-                      rel_start_block=Block(BlockType, (0, 0, 0)), 
-                      rel_finish_block=Block(BlockType, (0, 0, 0)),
+                      rel_start_block=Block("minecraft:air", (0, 0, 0)), 
+                      rel_finish_block=Block("minecraft:air", (0, 0, 0)),
                         blocks=[],
                       difficulty=0.0, 
                       flow=1.0)
 DispenserCommandblock = JumpType(name="Parkour Checkpoint Respawner Item Dispenser", structure_type="CommandControl", 
                                     rel_start_block=Block('minecraft:command_block{Command: "give @p minecraft:fishing_rod"}', (0, 0, 0)), 
-                                    rel_finish_block=Block("minecraft:stone_button[facing=west]", (1, 0, 0)),  # TODO: depends on direction of start structure
+                                    rel_finish_block=Block("minecraft:stone_button", (0, 1, 0)),
                                     blocks=[],
                                     difficulty=0.0, 
                                     flow=1.0)

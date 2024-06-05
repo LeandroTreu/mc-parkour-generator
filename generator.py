@@ -38,23 +38,31 @@ def place_control_command_blocks(command_blocks_instance: JumpType, dispenser_in
     command_block_3_string = 'minecraft:repeating_command_block[facing=west]{Command:"' + \
         f'kill @e[type=minecraft:fishing_bobber]' + '"}'
     command_block_4_string = 'minecraft:repeating_command_block[facing=west]{Command:"' + f'execute at @e[type=minecraft:fishing_bobber] run tp @p {
-        world_spawn[0]} {world_spawn[1]+1} {world_spawn[2]} {rotation_degree} 0' + '"}'
+        world_spawn[0]} {world_spawn[1]+1} {world_spawn[2]} {rotation_degree} 25' + '"}'
 
     blocks = [Block(command_block_1_string, (1, 0, 0)),
               Block(command_block_2_string, (2, 0, 0)),
-              Block("minecraft:redstone_block", (1, 1, 0)), Block(
-        "minecraft:redstone_block", (2, 1, 0)),
-        Block(command_block_3_string, (4, 0, 0)),
-        Block(command_block_4_string, (6, 0, 0)),
-        Block("minecraft:redstone_block", (4, 1, 0)), Block(
-        "minecraft:redstone_block", (6, 1, 0)),
+              Block("minecraft:redstone_block", (1, 1, 0)), 
+              Block("minecraft:redstone_block", (2, 1, 0)),
+              Block(command_block_3_string, (4, 0, 0)),
+              Block(command_block_4_string, (6, 0, 0)),
+              Block("minecraft:redstone_block", (4, 1, 0)), 
+              Block("minecraft:redstone_block", (6, 1, 0)),
     ]
     command_blocks_instance.blocks = blocks
     command_blocks_instance.set_absolut_coordinates(abs_position, "Xpos")
 
     # Place command block that gives the player a checkpoint teleporter
-    dispenser_instance.set_absolut_coordinates(
-        (world_spawn[0], world_spawn[1]+2, world_spawn[2]-2), start_forward_direction)
+    if (start_forward_direction == "Xpos" or start_forward_direction == "Xneg"):
+        dispenser_instance.set_absolut_coordinates(
+            (world_spawn[0], world_spawn[1], world_spawn[2]-2), start_forward_direction)
+        button_facing_direction = "north"
+    else:
+        dispenser_instance.set_absolut_coordinates(
+            (world_spawn[0]-2, world_spawn[1], world_spawn[2]), start_forward_direction)
+        button_facing_direction = "east"
+    
+    dispenser_instance.rel_finish_block.name = f"minecraft:stone_button[face=floor, facing={button_facing_direction}]"
 
 
 def filter_jumptypes(list_of_allowed_structure_types: list[str], use_all_blocks: bool, difficulty: float, flow: float, ascending: bool) -> list[JumpType]:

@@ -35,15 +35,15 @@ def compute_abs_coordinates_of_start_block(jumptype: JumpType, absolut_pos_of_la
 def shortcut_possible_checker(old_X: int, old_Y: int, old_Z: int, new_X: int, new_Y: int, new_Z: int):
 
     # 3 y-levels below (against obstruction of earlier jumps)
-    if old_Y == new_Y - 3 and (old_X <= new_X + 2 and old_X >= new_X - 2) and (old_Z <= new_Z + 2 and old_Z >= new_Z - 2):
+    if old_Y == new_Y - 3 and (old_X <= new_X + 3 and old_X >= new_X - 3) and (old_Z <= new_Z + 3 and old_Z >= new_Z - 3):
         return True
 
     # 2 y-levels below (against obstruction of earlier jumps)
-    if old_Y == new_Y - 2 and (old_X <= new_X + 2 and old_X >= new_X - 2) and (old_Z <= new_Z + 2 and old_Z >= new_Z - 2):
+    if old_Y == new_Y - 2 and (old_X <= new_X + 3 and old_X >= new_X - 3) and (old_Z <= new_Z + 3 and old_Z >= new_Z - 3):
         return True
 
     # One y-level below
-    if old_Y == new_Y - 1 and (old_X <= new_X + 3 and old_X >= new_X - 3) and (old_Z <= new_Z + 3 and old_Z >= new_Z - 3):
+    if old_Y == new_Y - 1 and (old_X <= new_X + 4 and old_X >= new_X - 4) and (old_Z <= new_Z + 4 and old_Z >= new_Z - 4):
         return True
 
     # Same height
