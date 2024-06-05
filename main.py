@@ -39,7 +39,8 @@ if __name__ == "__main__":
                                spiral_type=config.SpiralType,
                                spiral_turn_rate=config.SpiralTurnRate,
                                spiral_turn_prob=config.SpiralTurnProbability,
-                               enforce_volume=config.EnforceParkourVolume)
+                               enforce_volume=config.EnforceParkourVolume,
+                               parkour_volume=config.ParkourVolume)
     end_time_generation = time.time()
 
     print(f"Time taken: {
@@ -47,9 +48,14 @@ if __name__ == "__main__":
 
     # Write datapack files
     if config.FileWrite:
-        util.write_function_files(list_of_placed_jumps)
+        util.write_function_files(list_of_placed_jumps, parkour_volume=config.ParkourVolume, enforce_parkour_volume=config.EnforceParkourVolume, fill_volume_with_air=config.FillParkourVolumeWithAirFirst)
 
     # Plot parkour to a file
-    util.plot_parkour(list_of_placed_jumps)
+    util.plot_parkour(list_of_placed_jumps, 
+                      parkour_volume=config.ParkourVolume, 
+                      enforce_parkour_volume=config.EnforceParkourVolume, 
+                      plot_command_blocks=config.PlotCommandBlocks, 
+                      plot_color_scheme=config.PlotColorMap, 
+                      plot_file_type=config.PlotFileType)
 
     print("Done.")

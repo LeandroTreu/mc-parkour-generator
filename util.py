@@ -1,4 +1,3 @@
-import config
 from classes import JumpType, Block
 from pathlib import Path
 import matplotlib.pyplot as plt
@@ -100,14 +99,14 @@ def shortcut_possible(new_block: Block, earlier_structure: JumpType):
 
 # Returns True only if the Block is in the config defined Parkour bounds, else False.
 # Also considers the height of the player hitbox, leaving 4 blocks headroom below the maximum y value of the volume.
-def in_bounds(block: Block):
+def in_bounds(block: Block, parkour_volume: list[tuple[int, int]]):
 
     # X coordinate
-    if block.abs_position[0] >= config.ParkourVolume[0][0] and block.abs_position[0] <= config.ParkourVolume[0][1]:
+    if block.abs_position[0] >= parkour_volume[0][0] and block.abs_position[0] <= parkour_volume[0][1]:
         # Y coordinate
-        if block.abs_position[1] >= config.ParkourVolume[1][0] and block.abs_position[1] <= config.ParkourVolume[1][1] - 4:
+        if block.abs_position[1] >= parkour_volume[1][0] and block.abs_position[1] <= parkour_volume[1][1] - 4:
             # Z coordinate
-            if block.abs_position[2] >= config.ParkourVolume[2][0] and block.abs_position[2] <= config.ParkourVolume[2][1]:
+            if block.abs_position[2] >= parkour_volume[2][0] and block.abs_position[2] <= parkour_volume[2][1]:
                 return True
             else:
                 return False
@@ -117,21 +116,26 @@ def in_bounds(block: Block):
         return False
 
 
-def can_be_placed(jumptype: JumpType, current_block_position: tuple[int, int, int], current_forward_direction: str, list_of_placed_jumps: list[JumpType]):
+def can_be_placed(jumptype: JumpType, 
+                  current_block_position: tuple[int, int, int], 
+                  current_forward_direction: str, 
+                  list_of_placed_jumps: list[JumpType],
+                  enforce_parkour_volume: bool,
+                  parkour_volume: list[tuple[int, int]]):
 
     abs_position = compute_abs_coordinates_of_start_block(
         jumptype, current_block_position, current_forward_direction)
 
     jumptype.set_absolut_coordinates(abs_position, current_forward_direction)
 
-    # Check if new Structure is in bounds of the config.ParkourVolume
-    if config.EnforceParkourVolume:
-        if not in_bounds(jumptype.rel_start_block):
+    # Check if new Structure is in bounds of the parkour_volume
+    if enforce_parkour_volume:
+        if not in_bounds(jumptype.rel_start_block, parkour_volume):
             return False
-        if not in_bounds(jumptype.rel_finish_block):
+        if not in_bounds(jumptype.rel_finish_block, parkour_volume):
             return False
         for block in jumptype.blocks:
-            if not in_bounds(block):
+            if not in_bounds(block, parkour_volume):
                 return False
 
     # For start and finish blocks
@@ -152,13 +156,17 @@ def can_be_placed(jumptype: JumpType, current_block_position: tuple[int, int, in
 
 def is_Ascending(jumptype: JumpType) -> bool:
 
+    # TODO: also for rel_finish_block of more complex structures
     if jumptype.rel_start_block.rel_position[1] > 0:
         return True
 
     return False
 
 
-def write_function_files(list_of_placed_jumps: list[JumpType]) -> None:
+def write_function_files(list_of_placed_jumps: list[JumpType], 
+                         parkour_volume: list[tuple[int, int]], 
+                         enforce_parkour_volume: bool, 
+                         fill_volume_with_air: bool) -> None:
 
     try:
         cwd = Path.cwd()
@@ -185,16 +193,15 @@ def write_function_files(list_of_placed_jumps: list[JumpType]) -> None:
         file.write(f"tp @a {world_spawn[0]} {world_spawn[1]+1} {world_spawn[2]}\n")
 
         file.write(f"gamemode adventure @a\n")
-        file.write(f"effect give @a minecraft:saturation 3600 4\n") # TODO: infinite duration
+        # file.write(f"effect give @a minecraft:saturation 3600 4\n") # TODO: infinite duration
         file.write(f"gamerule doImmediateRespawn true\n")
         file.write(f"gamerule fallDamage false\n")
         file.write(f"gamerule keepInventory true\n")
         file.write(f"gamerule commandBlockOutput false\n")
 
         # Fill parkour volume with air first if set in config
-        if config.EnforceParkourVolume and config.FillParkourVolumeWithAirFirst:
-
-            volume = config.ParkourVolume
+        if enforce_parkour_volume and fill_volume_with_air:
+            volume = parkour_volume
             file.write(f"fill {volume[0][0]} {volume[1][0]} {volume[2][0]} {
                 volume[0][1]} {volume[1][1]} {volume[2][1]} minecraft:air\n")
 
@@ -257,7 +264,12 @@ def write_function_files(list_of_placed_jumps: list[JumpType]) -> None:
                 file.write(writestr)
 
 
-def plot_parkour(list_of_placed_jumps: list[JumpType]) -> None:
+def plot_parkour(list_of_placed_jumps: list[JumpType], 
+                 parkour_volume: list[tuple[int, int]], 
+                 enforce_parkour_volume: bool, 
+                 plot_command_blocks: bool,
+                 plot_color_scheme: str,
+                 plot_file_type: str) -> None:
 
     fig = plt.figure(figsize=(8, 8)) # type: ignore
     ax = fig.add_subplot(projection='3d') # type: ignore
@@ -270,7 +282,7 @@ def plot_parkour(list_of_placed_jumps: list[JumpType]) -> None:
     for placed_jump in list_of_placed_jumps:
     
         if placed_jump.structure_type == "CommandControl":
-            if config.PlotCommandBlocks:
+            if plot_command_blocks:
                 non_connected_blocks.append(placed_jump)
                 continue
             else:
@@ -315,16 +327,16 @@ def plot_parkour(list_of_placed_jumps: list[JumpType]) -> None:
     
     # Plot the blocks
     ax.scatter(x_axis, y_axis, z_axis, c=z_axis, # type: ignore
-               cmap=config.PlotColorMap, marker="s", s=2, alpha=1) # type: ignore
+               cmap=plot_color_scheme, marker="s", s=2, alpha=1) # type: ignore
 
     # Axis calculations
-    if config.EnforceParkourVolume:
-        x_min = config.ParkourVolume[0][0]
-        x_max = config.ParkourVolume[0][1]
-        y_min = config.ParkourVolume[2][0]
-        y_max = config.ParkourVolume[2][1]
-        z_min = config.ParkourVolume[1][0]
-        z_max = config.ParkourVolume[1][1]
+    if enforce_parkour_volume:
+        x_min = parkour_volume[0][0]
+        x_max = parkour_volume[0][1]
+        y_min = parkour_volume[2][0]
+        y_max = parkour_volume[2][1]
+        z_min = parkour_volume[1][0]
+        z_max = parkour_volume[1][1]
     else:
         x_list: list[int] = []
         y_list: list[int] = []
@@ -378,7 +390,7 @@ def plot_parkour(list_of_placed_jumps: list[JumpType]) -> None:
     ax.set_box_aspect((abs(x_max-x_min), abs(y_max-y_min), abs(z_max-z_min))) # type: ignore
     plt.tick_params(labelsize=10) # type: ignore
 
-    if config.PlotFileType == "jpg":
+    if plot_file_type == "jpg":
         plt.savefig("parkour_plot.jpg") # type: ignore
     else:
         plt.savefig("parkour_plot.png", dpi=300) # type: ignore

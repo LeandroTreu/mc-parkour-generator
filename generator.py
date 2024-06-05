@@ -169,7 +169,11 @@ def change_direction(current_forward_direction: str,
     return current_forward_direction
 
 
-def place_finish_structure(current_block_position: tuple[int, int, int], current_forward_direction: str, list_of_placed_jumps: list[JumpType], enforce_volume: bool) -> None:
+def place_finish_structure(current_block_position: tuple[int, int, int], 
+                           current_forward_direction: str, 
+                           list_of_placed_jumps: list[JumpType], 
+                           enforce_volume: bool,
+                           parkour_volume: list[tuple[int, int]]) -> None:
 
     # Place Finish Structure of the Parkour
     # TODO: Maybe try to place in bounds of Parkour Volume
@@ -177,7 +181,7 @@ def place_finish_structure(current_block_position: tuple[int, int, int], current
     finishblock_instance = deepcopy(FinishBlock)
 
     if enforce_volume:
-        if not util.can_be_placed(finishblock_instance, current_block_position, current_forward_direction, list_of_placed_jumps):
+        if not util.can_be_placed(finishblock_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume):
 
             for index in range(len(list_of_placed_jumps)):
 
@@ -186,7 +190,7 @@ def place_finish_structure(current_block_position: tuple[int, int, int], current
 
                 placed_jump_position = placed_jump.rel_finish_block.abs_position
 
-                if util.can_be_placed(finishblock_instance, placed_jump_position, current_forward_direction, list_of_placed_jumps):
+                if util.can_be_placed(finishblock_instance, placed_jump_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume):
 
                     list_of_placed_jumps = list_of_placed_jumps[0:len(
                         list_of_placed_jumps) - 2 - index + 1]
@@ -211,13 +215,15 @@ def place_checkpoint(current_block_position: tuple[int, int, int],
                      command_blocks_instance: JumpType,
                      n_blocks_placed: int,
                      try_to_place_cp_here: int,
-                     cp_period: int) -> tuple[int, bool, int, tuple[int, int, int]]:
+                     cp_period: int,
+                     enforce_parkour_volume: bool,
+                     parkour_volume: list[tuple[int, int]]) -> tuple[int, bool, int, tuple[int, int, int]]:
 
     continue_bool = False
     if try_to_place_cp_here == n_blocks_placed:
         checkpoint_instance = deepcopy(CheckpointBlock)
 
-        if util.can_be_placed(checkpoint_instance, current_block_position, current_forward_direction, list_of_placed_jumps):
+        if util.can_be_placed(checkpoint_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_parkour_volume, parkour_volume):
 
             c_block_abs = command_blocks_instance.rel_start_block.abs_position
 
@@ -281,7 +287,8 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                      spiral_type: str,
                      spiral_turn_rate: int,
                      spiral_turn_prob: int,
-                     enforce_volume: bool) -> None:
+                     enforce_volume: bool,
+                     parkour_volume: list[tuple[int, int]]) -> None:
 
     # Place Start Structure of the Parkour
     current_block_position = parkour_start_position
@@ -332,7 +339,9 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                                                                                                             command_blocks_instance, 
                                                                                                             n_blocks_placed, 
                                                                                                             try_to_place_cp_here, 
-                                                                                                            checkpoints_period)
+                                                                                                            checkpoints_period,
+                                                                                                            enforce_volume,
+                                                                                                            parkour_volume)
 
             if continue_bool:
                 continue
@@ -340,7 +349,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
         # Search for candidates to be placed
         for jumptype in list_of_jumptypes_filtered:
             jumptype_instance = deepcopy(jumptype)
-            if util.can_be_placed(jumptype_instance, current_block_position, current_forward_direction, list_of_placed_jumps):
+            if util.can_be_placed(jumptype_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume):
                 list_of_candidates.append(jumptype_instance)
 
         # No placable JumpTypes found
@@ -400,7 +409,8 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
     place_finish_structure(current_block_position,
                            current_forward_direction, 
                            list_of_placed_jumps, 
-                           enforce_volume)
+                           enforce_volume,
+                           parkour_volume)
 
     print(f"] {len(list_of_placed_jumps)}/{max_parkour_length}")
 
