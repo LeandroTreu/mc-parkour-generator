@@ -16,13 +16,13 @@
     "flow": 0.8,
     "parkourType": "Random",
     "parkourAscending": true,
-    "straightCurvesSize": 5,
+    "straightCurvesSize": 1,
     "spiralRotation": "counterclockwise",
     "spiralType": "Even",
     "spiralTurnRate": 30,
     "spiralTurnProbability": 2,
     "plotFileType": "png",
     "plotColorScheme": "winter",
-    "plotCommandBLocks": true,
-    "writeDatapackFiles": true,
+    "plotCommandBlocks": true,
+    "writeDatapackFiles": true
 }

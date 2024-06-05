@@ -1,3 +1,24 @@
+# type: ignore
+from pathlib import Path
+import json
+
+def import_config() -> dict[str, str | int | float | bool]:
+    
+    settings_file = Path("settings.json")
+    with open(settings_file, "r") as file:
+        config = json.load(file)
+    
+    config: dict[str, str | int | float | bool] = dict(config)
+
+    # TODO: Check all config values types and ranges
+    if config["straightCurvesSize"] < 1 or config["straightCurvesSize"] > 10:
+        raise Exception("Invalid input for StraightCurvesSize: must be between 1 and 10 (inclusive)")
+
+
+    return config
+
+
+
 
 
 ParkourVolume: list[tuple[int, int]] = [(-350, -210), (36, 100), (-190, -50)]  # Absolute X, Y, Z coordinate ranges in the minecraft world. TODO: add check for minecraft build height
@@ -17,7 +38,7 @@ CheckPointsPeriod = 10                       # After this many normal jumptypes,
 UseAllBlocks = True                                      # Set to False for the below settings to take effect. Set to True to use all JumpTypes for generation.
 AllowedStructureTypes = ["SingleBlock", "TwoBlock"]
 Difficulty = 0.3                                         # Choose parkour difficulty in range [0.0, 1.0]. 0.0 - very easy, 1.0 - very hard
-Flow = 0.8                                               # Choose how fast/flowing/fluent the parkour is to traverse in range [0.0, 1.0]. 0.0 - slow/ahlting, 1.0 - fast/fluent
+Flow = 0.8                                               # Choose how fast/flowing/fluent the parkour is to traverse in range [0.0, 1.0]. 0.0 - slow/halting, 1.0 - fast/fluent
 
 
 ParkourType = "Random"    # Spiral, Straight, StraightCurves, Random
@@ -38,6 +59,3 @@ PlotCommandBlocks = True
 FileWrite = True         # Set to True to write the minecraft datapack files as soon as the parkour is generated (overwrites with the new parkour every time). Set to False to not write the files.
 
 
-# TODO: Check all config values types and ranges
-if StraightCurvesSize < 1 or StraightCurvesSize > 10:
-            raise Exception("Invalid input for StraightCurvesSize: must be between 1 and 10 (inclusive)")
