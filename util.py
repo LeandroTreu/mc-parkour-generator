@@ -43,11 +43,11 @@ def shortcut_possible_checker(old_X: int, old_Y: int, old_Z: int, new_X: int, ne
         return True
 
     # One y-level below
-    if old_Y == new_Y - 1 and (old_X <= new_X + 2 and old_X >= new_X - 2) and (old_Z <= new_Z + 2 and old_Z >= new_Z - 2):
+    if old_Y == new_Y - 1 and (old_X <= new_X + 3 and old_X >= new_X - 3) and (old_Z <= new_Z + 3 and old_Z >= new_Z - 3):
         return True
 
     # Same height
-    if old_Y == new_Y and (old_X <= new_X + 4 and old_X >= new_X - 4) and (old_Z <= new_Z + 4 and old_Z >= new_Z - 4):
+    if old_Y == new_Y and (old_X <= new_X + 5 and old_X >= new_X - 5) and (old_Z <= new_Z + 5 and old_Z >= new_Z - 5):
         return True
 
     # One y-level up
@@ -55,7 +55,7 @@ def shortcut_possible_checker(old_X: int, old_Y: int, old_Z: int, new_X: int, ne
         return True
 
     # Rest of the volume above the block in a 16x10x16 volume
-    if (old_Y <= new_Y + 12 and old_Y >= new_Y + 2) and (old_X <= new_X + 8 and old_X >= new_X - 8) and (old_Z <= new_Z + 8 and old_Z >= new_Z - 8):
+    if (old_Y >= new_Y + 2 and old_Y <= new_Y + 12) and (old_X <= new_X + 8 and old_X >= new_X - 8) and (old_Z <= new_Z + 8 and old_Z >= new_Z - 8):
         return True
 
     return False

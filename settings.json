@@ -2,7 +2,7 @@
     "parkourVolume": [[0, 100], [0, 100], [0, 100]],
     "enforceParkourVolume": false,
     "fillParkourVolumeWithAir": true,
-    "maxParkourLength": 50,
+    "maxParkourLength": 150,
     "startPosition": [0, 0, 0],
     "startForwardDirection": "Xneg",
     "blockType": "minecraft:stone",

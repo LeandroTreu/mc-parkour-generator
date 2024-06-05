@@ -209,6 +209,7 @@ def place_finish_structure(current_block_position: tuple[int, int, int],
         list_of_placed_jumps.append(finishblock_instance)
 
 
+# TODO: fix checkpoints never placed for Random parkour_type, because no space
 def place_checkpoint(current_block_position: tuple[int, int, int],
                      current_forward_direction: str,
                      list_of_placed_jumps: list[JumpType],
