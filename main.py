@@ -67,3 +67,5 @@ if __name__ == "__main__":
                       plot_file_type=config["plotFileType"])
 
     print("Done.")
+
+    input("Enter any key to exit: ")

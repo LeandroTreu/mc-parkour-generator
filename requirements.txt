@@ -1,3 +1,4 @@
+altgraph==0.17.4
 contourpy==1.2.1
 cycler==0.12.1
 fonttools==4.53.0
@@ -5,7 +6,12 @@ kiwisolver==1.4.5
 matplotlib==3.9.0
 numpy==1.26.4
 packaging==24.0
+pefile==2023.2.7
 pillow==10.3.0
+pyinstaller==6.7.0
+pyinstaller-hooks-contrib==2024.6
 pyparsing==3.1.2
 python-dateutil==2.9.0.post0
+pywin32-ctypes==0.2.2
+setuptools==70.0.0
 six==1.16.0
