@@ -5,11 +5,11 @@ from classes import JumpType
 import generator
 import time
 from numpy.random import default_rng
+import tkinter as tk
+import tkinter.ttk as ttk
 
 
-if __name__ == "__main__":
-
-    config = config.import_config()
+def generate_parkour(config: dict[str, any], gui_enabled: bool, gui_loading_bar: ttk.Progressbar, gui_window: tk.Tk):
 
     list_of_placed_jumps: list[JumpType] = []
 
@@ -45,7 +45,10 @@ if __name__ == "__main__":
                                spiral_turn_rate=config["spiralTurnRate"],
                                spiral_turn_prob=config["spiralTurnProbability"],
                                enforce_volume=config["enforceParkourVolume"],
-                               parkour_volume=config["parkourVolume"])
+                               parkour_volume=config["parkourVolume"],
+                               gui_enabled=gui_enabled,
+                               gui_loading_bar=gui_loading_bar,
+                               gui_window=gui_window)
     end_time_generation = time.time()
 
     print(f"Time taken: {
@@ -66,6 +69,3 @@ if __name__ == "__main__":
                       plot_color_scheme=config["plotColorScheme"],
                       plot_file_type=config["plotFileType"])
 
-    print("Done.")
-
-    input("Enter any key to exit: ")

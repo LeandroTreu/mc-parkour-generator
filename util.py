@@ -394,3 +394,5 @@ def plot_parkour(list_of_placed_jumps: list[JumpType],
         plt.savefig("parkour_plot.jpg") # type: ignore
     else:
         plt.savefig("parkour_plot.png", dpi=300) # type: ignore
+    
+    plt.close(fig)

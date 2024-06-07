@@ -7,6 +7,8 @@ from jumptypes import FinishBlock
 from jumptypes import CheckpointBlock
 from jumptypes import CommandBlockControl
 from jumptypes import DispenserCommandblock
+import tkinter as tk
+import tkinter.ttk as ttk
 
 from copy import deepcopy
 from numpy.random import Generator
@@ -297,7 +299,10 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                      spiral_turn_rate: int,
                      spiral_turn_prob: int,
                      enforce_volume: bool,
-                     parkour_volume: list[tuple[int, int]]) -> None:
+                     parkour_volume: list[tuple[int, int]],
+                     gui_enabled: bool,
+                     gui_loading_bar: ttk.Progressbar,
+                     gui_window: tk.Tk) -> None:
 
     # Place Start Structure of the Parkour
     current_block_position = parkour_start_position
@@ -340,6 +345,10 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
         # Loading bar print
         if n_blocks_placed % max(max_parkour_length//10, 1) == 0:
             print("=", end="", flush=True)
+
+            if gui_enabled:
+                gui_loading_bar["value"] = 100 * (n_blocks_placed / max(max_parkour_length, 1))
+                gui_window.update_idletasks()
 
         if checkpoints_enabled:
             n_blocks_placed, continue_bool, try_to_place_cp_here, current_block_position = place_checkpoint(current_block_position, 

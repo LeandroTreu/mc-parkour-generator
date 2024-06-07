@@ -3,8 +3,8 @@ import tkinter as tk
 import tkinter.ttk as ttk
 from PIL import ImageTk, Image
 import config
-from tkinter import Variable
 import time
+import main
 
 class Gui():
 
@@ -36,11 +36,16 @@ class Gui():
         self.settings_frame = ttk.Frame(master=self.window, relief="flat", borderwidth=5)
         self.settings_frame.pack(fill=tk.BOTH, expand=True, side=tk.LEFT)
 
+        # Image frame and label
         self.image_frame = ttk.Frame(master=self.window, relief="flat", borderwidth=5)
         self.image_frame.pack(fill=tk.BOTH, expand=True, side=tk.RIGHT)
+        self.img = Image.open("parkour_plot.png")
+        self.img = self.img.resize(self.image_size)
+        self.img = ImageTk.PhotoImage(self.img)
+        self.img_label = tk.Label(self.image_frame, image=self.img)
+        self.img_label.pack(expand=True, fill=tk.BOTH)
 
         self.populate_settings_frame()
-        self.populate_image_frame()
 
     def create_menu(self):
 
@@ -56,6 +61,7 @@ class Gui():
 
     def populate_settings_frame(self):
 
+        # Settings
         self.settings_label = ttk.Label(master=self.settings_frame, text="Settings")
         self.enforce_cb = ttk.Checkbutton(master=self.settings_frame, text="Enforce Parkour Volume", variable=self.variables["enforceParkourVolume"], onvalue=True, offvalue=False, command=self.cb_toggle)
         self.fill_air_cb = ttk.Checkbutton(master=self.settings_frame, text="Fill Volume with Air", variable=self.variables["fillParkourVolumeWithAir"], onvalue=True, offvalue=False, state="disabled")
@@ -98,22 +104,21 @@ class Gui():
             self.parkour_volume_label["state"] = "disabled"
             self.parkour_volume["state"] = "disabled"
     
-    def populate_image_frame(self):
-
-        img = Image.open("parkour_plot.png")
-        img = img.resize(self.image_size)
-        img = ImageTk.PhotoImage(img)
-        img_label = tk.Label(self.image_frame, image=img)
-        img_label.pack(expand=True, fill=tk.BOTH)
-
+    def refresh_image(self):
+        self.img = Image.open("parkour_plot.png")
+        self.img = self.img.resize(self.image_size)
+        self.img = ImageTk.PhotoImage(self.img)
+        self.img_label["image"] = self.img
         # Prevent GC
-        img_label.image = img
+        self.img_label.image = self.img
 
     def generate_parkour(self):
-        for i in range(100):
-            self.loadingbar["value"] = i
-            self.window.update_idletasks()
-            time.sleep(0.005)
+
+        main.generate_parkour(self.settings, True, self.loadingbar, self.window)
+        self.refresh_image()
+        # Update loading bar to 100%
+        self.loadingbar["value"] = 100
+        self.window.update_idletasks()
 
     def run(self) -> None:
         self.window.mainloop()
@@ -122,6 +127,10 @@ class Gui():
 if __name__ == "__main__":
 
     settings = config.import_config()
+    use_gui = True
 
-    gui = Gui(settings)
-    gui.run()
+    if use_gui:
+        gui = Gui(settings)
+        gui.run()
+    else:
+        main.generate_parkour(settings, False, None, None)
