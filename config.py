@@ -3,9 +3,8 @@ from pathlib import Path
 import json
 from tkinter import messagebox
 
-def import_config(gui_enabled: bool) -> dict[str, any]:
-    
-    # Set default config
+def set_default_config() -> dict[str, any]:
+
     config = {}
     config["parkourVolume"] = [[0, 10], [0, 10], [0, 10]]
     config["enforceParkourVolume"] = False
@@ -34,6 +33,12 @@ def import_config(gui_enabled: bool) -> dict[str, any]:
     config["plotCommandBlocks"] = True
     config["writeDatapackFiles"] = True
 
+    return config
+
+def import_config(gui_enabled: bool) -> dict[str, any]:
+    
+    config = set_default_config()
+
     # Import config from file
     settings_file = Path("settings.json")
     try:
@@ -58,8 +63,57 @@ def check_config(config: dict[str, any]) -> str:
 
     error_string = ""
 
+    # try:
+    x_min = int(config["parkourVolume"][0][0])
+    x_max = int(config["parkourVolume"][0][1])
+    y_min = int(config["parkourVolume"][1][0])
+    y_max = int(config["parkourVolume"][1][1])
+    z_min = int(config["parkourVolume"][2][0])
+    z_max = int(config["parkourVolume"][2][1])
+    if x_min > x_max: 
+        error_string += f"parkourVolume: {x_min} > {x_max}\n"
+    if y_min > y_max: 
+        error_string += f"parkourVolume: {y_min} > {y_max}\n"
+    if z_min > z_max: 
+        error_string += f"parkourVolume: {z_min} > {z_max}\n"
+    for l in config["parkourVolume"]:
+        for c in l:
+            if c > 29999984 or c < -29999984:
+                error_string += f"parkourVolume: coordinate {c} is not within the range [-29999984, 29999984]\n"
+    if y_min < -64 or y_max < -64:
+        error_string += f"parkourVolume: minimum build height is Y: -64\n"
+    if y_min > 320 or y_max > 320:
+        error_string += f"parkourVolume: maximum build height is Y: 320\n"
+    # except:
+    #     error_string += f"parkourVolume: wrong input format. Only integers are allowed.\n"
+    
+    if type(config["enforceParkourVolume"]) is not bool:
+        error_string += "enforceParkourVolume: wrong input format. Only true or false are allowed.\n"
+    if type(config["fillParkourVolumeWithAir"]) is not bool:
+        error_string += "fillParkourVolumeWithAir: wrong input format. Only true or false are allowed.\n"
+
+    try:
+        pl = int(config["maxParkourLength"]) 
+        if pl < 0 or pl > 1000000:
+            error_string += "maxParkourLength: parkour length not in allowed range of [0, 1000000]\n"
+    except:
+        error_string += f"maxParkourLength: wrong input format. Only integers are allowed.\n"
+
+    try:
+        x = int(config["startPosition"][0]) 
+        y = int(config["startPosition"][1]) 
+        z = int(config["startPosition"][2]) 
+        if x < -29999984 or x > 29999984:
+            error_string += "startPosition: X: {x} not in allowed range of [-29999984, 29999984]\n"
+        if z < -29999984 or z > 29999984:
+            error_string += "startPosition: Z: {z} not in allowed range of [-29999984, 29999984]\n"
+        if y < -64 or y > 320:
+            error_string += "startPosition: Y: {y} not in allowed range of [-64, 320]\n"
+    except:
+        error_string += f"startPosition: wrong input format. Only integers are allowed.\n"
+
     if config["curvesSize"] < 1 or config["curvesSize"] > 10:
-        error_string += "Invalid input for \"curvesSize\": must be between 1 and 10 (inclusive)\n"
+        error_string += "\"curvesSize\": must be between 1 and 10 (inclusive)\n"
     
     return error_string
 

@@ -36,22 +36,24 @@ class Gui():
         error_str = config.check_config(self.settings)
         if error_str != "":
             messagebox.showerror("Error in settings.json", error_str)
+            self.settings = config.set_default_config()
+            messagebox.showwarning("Settings Warning", "Reverted to default settings because of an Error")
 
         # Map settings to tkinter Variables
         self.variables = {}
         for (name, value) in self.settings.items():
 
             if name == "parkourVolume":
-                self.variables["parkourVolume_x1"] = tk.IntVar(master=self.window, value=value[0][0])
-                self.variables["parkourVolume_x2"] = tk.IntVar(master=self.window, value=value[0][1])
-                self.variables["parkourVolume_y1"] = tk.IntVar(master=self.window, value=value[1][0])
-                self.variables["parkourVolume_y2"] = tk.IntVar(master=self.window, value=value[1][1])
-                self.variables["parkourVolume_z1"] = tk.IntVar(master=self.window, value=value[2][0])
-                self.variables["parkourVolume_z2"] = tk.IntVar(master=self.window, value=value[2][1])
+                self.variables["parkourVolume_x1"] = tk.StringVar(master=self.window, value=value[0][0])
+                self.variables["parkourVolume_x2"] = tk.StringVar(master=self.window, value=value[0][1])
+                self.variables["parkourVolume_y1"] = tk.StringVar(master=self.window, value=value[1][0])
+                self.variables["parkourVolume_y2"] = tk.StringVar(master=self.window, value=value[1][1])
+                self.variables["parkourVolume_z1"] = tk.StringVar(master=self.window, value=value[2][0])
+                self.variables["parkourVolume_z2"] = tk.StringVar(master=self.window, value=value[2][1])
             elif name == "startPosition":
-                self.variables["startPosition_x"] = tk.IntVar(master=self.window, value=value[0])
-                self.variables["startPosition_y"] = tk.IntVar(master=self.window, value=value[1])
-                self.variables["startPosition_z"] = tk.IntVar(master=self.window, value=value[2])
+                self.variables["startPosition_x"] = tk.StringVar(master=self.window, value=value[0])
+                self.variables["startPosition_y"] = tk.StringVar(master=self.window, value=value[1])
+                self.variables["startPosition_z"] = tk.StringVar(master=self.window, value=value[2])
             elif name == "allowedStructureTypes":
                 self.variables["allowedStructureTypes_sb"] = tk.BooleanVar(master=self.window, value=True)
                 self.variables["allowedStructureTypes_tb"] = tk.BooleanVar(master=self.window, value=True)
@@ -60,9 +62,9 @@ class Gui():
             elif type(value) is str:
                 self.variables[name] = tk.StringVar(master=self.window, value=value)
             elif type(value) is int:
-                self.variables[name] = tk.IntVar(master=self.window, value=value)
+                self.variables[name] = tk.StringVar(master=self.window, value=value)
             elif type(value) is float:
-                self.variables[name] = tk.DoubleVar(master=self.window, value=value)
+                self.variables[name] = tk.StringVar(master=self.window, value=value)
             else:
                 self.variables[name] = tk.StringVar(master=self.window, value=str(value))
 
@@ -393,9 +395,30 @@ class Gui():
         for name, value in self.settings.items():
 
             if name == "parkourVolume":
-                self.settings[name] = [[v["parkourVolume_x1"].get(), v["parkourVolume_x2"].get()], [v["parkourVolume_y1"].get(), v["parkourVolume_y2"].get()], [v["parkourVolume_z1"].get(), v["parkourVolume_z2"].get()]]
+                try:
+                    self.settings[name] = [[
+                                        int(v["parkourVolume_x1"].get()), 
+                                        int(v["parkourVolume_x2"].get())
+                                        ], 
+                                        [
+                                        int(v["parkourVolume_y1"].get()), 
+                                        int(v["parkourVolume_y2"].get())
+                                        ], 
+                                        [
+                                        int(v["parkourVolume_z1"].get()), 
+                                        int(v["parkourVolume_z2"].get())
+                                        ]]
+                except:
+                    messagebox.showerror("Settings Error", "parkourVolume: wrong input format. Only integers are allowed.")
+                    return False
+
             elif name == "startPosition":
-                self.settings[name] = [v["startPosition_x"].get(), v["startPosition_y"].get(), v["startPosition_z"].get()]
+                try:
+                    self.settings[name] = [int(v["startPosition_x"].get()), int(v["startPosition_y"].get()), int(v["startPosition_z"].get())]
+                except:
+                    messagebox.showerror("Settings Error", "startPosition: wrong input format. Only integers are allowed.")
+                    return False
+
             elif name == "allowedStructureTypes":
                 self.settings[name] = []
                 if v["allowedStructureTypes_sb"].get():
@@ -403,7 +426,21 @@ class Gui():
                 if v["allowedStructureTypes_tb"].get():
                     self.settings[name].append("TwoBlock")
             else:
-                self.settings[name] = v[name].get()
+                t = type(self.settings[name])
+                if t is bool or t is str:
+                    self.settings[name] = v[name].get()
+                elif t is int:
+                    try:
+                        self.settings[name] = int(v[name].get())
+                    except:
+                        messagebox.showerror("Settings Error", f"{name}: wrong input format. Only integers are allowed.")
+                        return False
+                elif t is float:
+                    try:
+                        self.settings[name] = float(v[name].get())
+                    except:
+                        messagebox.showerror("Settings Error", f"{name}: wrong input format. Only floats are allowed.")
+                        return False
 
         error_str = config.check_config(self.settings)
         if error_str != "":
