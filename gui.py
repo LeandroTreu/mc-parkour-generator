@@ -6,6 +6,7 @@ import config
 import time
 import main
 from tkinter import font
+from tkinter import messagebox
 
 class Gui():
 
@@ -118,19 +119,19 @@ class Gui():
         self.start_position_z = ttk.Entry(master=self.settings_frame, textvariable=self.variables["startPosition_z"], width=10)
 
         self.start_forward_dir_l = ttk.Label(master=self.settings_frame, text="Start Forward Direction:")
-        self.start_forward_dir = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["startForwardDirection"], values=["Xpos", "Xneg", "Zpos", "Zneg"], width=10)
+        self.start_forward_dir = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["startForwardDirection"], values=["Xpos", "Xneg", "Zpos", "Zneg"], width=10, state="readonly")
 
         self.block_type_l = ttk.Label(master=self.settings_frame, text="Parkour Block Type:")
         self.block_type = ttk.Entry(master=self.settings_frame, textvariable=self.variables["blockType"])
 
-        self.random_seed = ttk.Checkbutton(master=self.settings_frame, text="Random Seed", variable=self.variables["randomSeed"], onvalue=True, offvalue=False, command=None)
+        self.random_seed = ttk.Checkbutton(master=self.settings_frame, text="Random Seed", variable=self.variables["randomSeed"], onvalue=True, offvalue=False, command=self.update_vis)
         self.seed = ttk.Entry(master=self.settings_frame, textvariable=self.variables["seed"])
 
-        self.cp_enabled = ttk.Checkbutton(master=self.settings_frame, text="Checkpoints", variable=self.variables["checkpointsEnabled"], onvalue=True, offvalue=False, command=None)
+        self.cp_enabled = ttk.Checkbutton(master=self.settings_frame, text="Checkpoints", variable=self.variables["checkpointsEnabled"], onvalue=True, offvalue=False, command=self.update_vis)
         self.cp_period_l = ttk.Label(master=self.settings_frame, text="Checkpoints Period:")
         self.cp_period = ttk.Entry(master=self.settings_frame, textvariable=self.variables["checkpointsPeriod"], width=10)
 
-        self.use_all_blocks = ttk.Checkbutton(master=self.settings_frame, text="Use all JumpTypes", variable=self.variables["useAllBlocks"], onvalue=True, offvalue=False, command=None)
+        self.use_all_blocks = ttk.Checkbutton(master=self.settings_frame, text="Use all JumpTypes", variable=self.variables["useAllBlocks"], onvalue=True, offvalue=False, command=self.update_vis)
         self.allowed_str_types_l = ttk.Label(master=self.settings_frame, text="Allowed JumpTypes:")
         self.t_one_block = ttk.Checkbutton(master=self.settings_frame, text="SingleBlock", variable=self.variables["allowedStructureTypes_sb"], onvalue=True, offvalue=False, command=None)
         self.t_two_block = ttk.Checkbutton(master=self.settings_frame, text="TwoBlock", variable=self.variables["allowedStructureTypes_tb"], onvalue=True, offvalue=False, command=None)
@@ -141,7 +142,8 @@ class Gui():
         self.flow = ttk.Scale(master=self.settings_frame, variable=self.variables["flow"], from_=0, to=1.0, command=self.show_flow)
 
         self.parkour_type_l = ttk.Label(master=self.settings_frame, text="Parkour Type:")
-        self.parkour_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["parkourType"], values=["Straight", "Random", "Curves", "Spiral"], width=10)
+        self.parkour_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["parkourType"], values=["Straight", "Curves", "Spiral", "Random"], width=10, state="readonly")
+        self.parkour_type.bind("<<ComboboxSelected>>", self.update_vis)
         self.ascending = ttk.Checkbutton(master=self.settings_frame, text="Parkour Ascending", variable=self.variables["parkourAscending"], onvalue=True, offvalue=False, command=None)
 
         self.curves_size_l = ttk.Label(master=self.settings_frame, text="Curves Size:")
@@ -158,9 +160,9 @@ class Gui():
 
         # File options
         self.plot_file_type_l = ttk.Label(master=self.settings_frame, text="Plot File Type:")
-        self.plot_file_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotFileType"], values=["png", "jpg"], width=10)
+        self.plot_file_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotFileType"], values=["png", "jpg"], width=10, state="readonly")
         self.plot_colorscheme_l = ttk.Label(master=self.settings_frame, text="Plot Colorscheme:")
-        self.plot_colorscheme = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotColorScheme"], values=["winter", "viridis", "plasma", "grey", "hot", "summer", "hsv", "copper"], width=10)
+        self.plot_colorscheme = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotColorScheme"], values=["winter", "viridis", "plasma", "grey", "hot", "summer", "hsv", "copper"], width=10, state="readonly")
         self.plot_commandblocks = ttk.Checkbutton(master=self.settings_frame, text="Plot Commandblocks", variable=self.variables["plotCommandBlocks"], onvalue=True, offvalue=False, command=None)
         self.write_datapack_files = ttk.Checkbutton(master=self.settings_frame, text="Write Datapack Files", variable=self.variables["writeDatapackFiles"], onvalue=True, offvalue=False, command=None)
 
@@ -275,17 +277,92 @@ class Gui():
         # Task Info
         self.task_info_label = ttk.Label(master=self.generate_frame, text="Task Info")
         self.task_info_label.pack(side=tk.TOP, padx=5, pady=5)
+
+        self.update_vis("")
     
-    def update_vis(self):
+    def update_vis(self, string=""):
 
         if self.variables["enforceParkourVolume"].get() is True:
             self.fill_air_cb["state"] = "normal"
             self.parkour_volume_label["state"] = "normal"
-            self.parkour_volume["state"] = "normal"
+            self.parkour_volume_x1_l["state"] = "normal"
+            self.parkour_volume_x1["state"] = "normal"
+            self.parkour_volume_x2_l["state"] = "normal"
+            self.parkour_volume_x2["state"] = "normal"
+            self.parkour_volume_y1_l["state"] = "normal"
+            self.parkour_volume_y1["state"] = "normal"
+            self.parkour_volume_y2_l["state"] = "normal"
+            self.parkour_volume_y2["state"] = "normal"
+            self.parkour_volume_z1_l["state"] = "normal"
+            self.parkour_volume_z1["state"] = "normal"
+            self.parkour_volume_z2_l["state"] = "normal"
+            self.parkour_volume_z2["state"] = "normal"
         else:
             self.fill_air_cb["state"] = "disabled"
             self.parkour_volume_label["state"] = "disabled"
-            self.parkour_volume["state"] = "disabled"
+            self.parkour_volume_x1_l["state"] = "disabled"
+            self.parkour_volume_x1["state"] = "disabled"
+            self.parkour_volume_x2_l["state"] = "disabled"
+            self.parkour_volume_x2["state"] = "disabled"
+            self.parkour_volume_y1_l["state"] = "disabled"
+            self.parkour_volume_y1["state"] = "disabled"
+            self.parkour_volume_y2_l["state"] = "disabled"
+            self.parkour_volume_y2["state"] = "disabled"
+            self.parkour_volume_z1_l["state"] = "disabled"
+            self.parkour_volume_z1["state"] = "disabled"
+            self.parkour_volume_z2_l["state"] = "disabled"
+            self.parkour_volume_z2["state"] = "disabled"
+        
+        if self.variables["checkpointsEnabled"].get() is True:
+            self.cp_period_l["state"] = "normal"
+            self.cp_period["state"] = "normal"
+        else:
+            self.cp_period_l["state"] = "disabled"
+            self.cp_period["state"] = "disabled"
+
+        if self.variables["useAllBlocks"].get() is True:
+            self.allowed_str_types_l["state"] = "disabled"
+            self.t_one_block["state"] = "disabled"
+            self.t_two_block["state"] = "disabled"
+        else:
+            self.allowed_str_types_l["state"] = "normal"
+            self.t_one_block["state"] = "normal"
+            self.t_two_block["state"] = "normal"
+
+        p_type = self.variables["parkourType"].get()
+        if p_type == "Straight" or p_type == "Random":
+            self.curves_size_l["state"] = "disabled"
+            self.curves_size["state"] = "disabled"
+            self.spiral_rotation_l["state"] = "disabled"
+            self.spiral_rotation["state"] = "disabled"
+            self.spiral_type_l["state"] = "disabled"
+            self.spiral_type["state"] = "disabled"
+            self.spiral_turnrate_l["state"] = "disabled"
+            self.spiral_turnrate["state"] = "disabled"
+            self.spiral_turn_prob_l["state"] = "disabled"
+            self.spiral_turn_prob["state"] = "disabled"
+        elif p_type == "Curves":
+            self.curves_size_l["state"] = "normal"
+            self.curves_size["state"] = "normal"
+            self.spiral_rotation_l["state"] = "disabled"
+            self.spiral_rotation["state"] = "disabled"
+            self.spiral_type_l["state"] = "disabled"
+            self.spiral_type["state"] = "disabled"
+            self.spiral_turnrate_l["state"] = "disabled"
+            self.spiral_turnrate["state"] = "disabled"
+            self.spiral_turn_prob_l["state"] = "disabled"
+            self.spiral_turn_prob["state"] = "disabled"
+        elif p_type == "Spiral":
+            self.curves_size_l["state"] = "disabled"
+            self.curves_size["state"] = "disabled"
+            self.spiral_rotation_l["state"] = "normal"
+            self.spiral_rotation["state"] = "normal"
+            self.spiral_type_l["state"] = "normal"
+            self.spiral_type["state"] = "normal"
+            self.spiral_turnrate_l["state"] = "normal"
+            self.spiral_turnrate["state"] = "normal"
+            self.spiral_turn_prob_l["state"] = "normal"
+            self.spiral_turn_prob["state"] = "normal"
     
     def show_difficulty(self, string):
         string = round(float(string), 1)
@@ -307,22 +384,40 @@ class Gui():
         # Prevent GC
         self.img_label.image = self.img
     
-    def check_settings(self):
+    def set_config(self) -> bool:
 
-        # for name, var in self.variables.items():
+        v = self.variables
+        for name, value in self.settings.items():
 
-        return True
+            if name == "parkourVolume":
+                self.settings[name] = [[v["parkourVolume_x1"].get(), v["parkourVolume_x2"].get()], [v["parkourVolume_y1"].get(), v["parkourVolume_y2"].get()], [v["parkourVolume_z1"].get(), v["parkourVolume_z2"].get()]]
+            elif name == "startPosition":
+                self.settings[name] = [v["startPosition_x"].get(), v["startPosition_y"].get(), v["startPosition_z"].get()]
+            elif name == "allowedStructureTypes":
+                self.settings[name] = []
+                if v["allowedStructureTypes_sb"].get():
+                    self.settings[name].append("SingleBlock")
+                if v["allowedStructureTypes_tb"].get():
+                    self.settings[name].append("TwoBlock")
+            else:
+                self.settings[name] = v[name].get()
+
+        if config.check_config(self.settings):
+            return True
+        else:
+            return False
 
     def generate_parkour(self):
 
         self.generate_button["state"] = "disabled"
-        if self.check_settings():
-
+        if self.set_config():
             main.generate_parkour(self.settings, True, self.loadingbar, self.window)
             self.refresh_image()
             # Update loading bar to 100%
             self.loadingbar["value"] = 100
             self.window.update_idletasks()
+        else:
+            messagebox.showerror("Settings Error", "Test Error")
         self.generate_button["state"] = "normal"
 
     def run(self) -> None:

@@ -2,21 +2,62 @@
 from pathlib import Path
 import json
 
-def import_config() -> dict[str, str | int | float | bool]:
+def import_config() -> dict[str, any]:
     
+    # Set default config
+    config = {}
+    config["parkourVolume"] = [[0, 10], [0, 10], [0, 10]]
+    config["enforceParkourVolume"] = False
+    config["fillParkourVolumeWithAir"] = True
+    config["maxParkourLength"] = 10
+    config["startPosition"] = [0, 0, 0]
+    config["startForwardDirection"] = "Xpos"
+    config["blockType"] = "minecraft:stone"
+    config["randomSeed"] = True
+    config["seed"] = 0
+    config["checkpointsEnabled"] = False
+    config["checkpointsPeriod"] = 10
+    config["useAllBlocks"] = True
+    config["allowedStructureTypes"] = ["SingleBlock", "TwoBlock"]
+    config["difficulty"] = 0.3
+    config["flow"] = 0.8
+    config["parkourType"] = "Straight"
+    config["parkourAscending"] = True
+    config["straightCurvesSize"] = 10
+    config["spiralRotation"] = "counterclockwise"
+    config["spiralType"] = "Even"
+    config["spiralTurnRate"] = 10
+    config["spiralTurnProbability"] = 2
+    config["plotFileType"] = "png"
+    config["plotColorScheme"] = "winter"
+    config["plotCommandBlocks"] = True
+    config["writeDatapackFiles"] = True
+
+    # Import config from file
     settings_file = Path("settings.json")
     with open(settings_file, "r") as file:
-        config = json.load(file)
+        file_dict = dict(json.load(file))
     
-    config: dict[str, str | int | float | bool] = dict(config)
-
-    # TODO: Check all config values types and ranges
-    if config["straightCurvesSize"] < 1 or config["straightCurvesSize"] > 10:
-        raise Exception("Invalid input for StraightCurvesSize: must be between 1 and 10 (inclusive)")
-
+    for name, value in file_dict.items():
+        if name not in config.keys():
+            raise Exception(f"\"{name}\" is not a valid setting")
+        else:
+            config[name] = file_dict[name]
+    
+    error_str = check_config(config)
+    if error_str != "":
+        raise Exception(error_str)
 
     return config
 
+def check_config(config: dict[str, any]) -> str:
+
+    error_string = ""
+
+    if config["straightCurvesSize"] < 1 or config["straightCurvesSize"] > 10:
+        error_string += "Invalid input for \"StraightCurvesSize\": must be between 1 and 10 (inclusive)\n"
+    
+    return error_string
 
 
 
