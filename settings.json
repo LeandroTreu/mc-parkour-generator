@@ -16,7 +16,7 @@
     "flow": 0.8,
     "parkourType": "Random",
     "parkourAscending": true,
-    "straightCurvesSize": 1,
+    "curvesSize": 1,
     "spiralRotation": "counterclockwise",
     "spiralType": "Even",
     "spiralTurnRate": 30,

@@ -1,8 +1,9 @@
 # type: ignore
 from pathlib import Path
 import json
+from tkinter import messagebox
 
-def import_config() -> dict[str, any]:
+def import_config(gui_enabled: bool) -> dict[str, any]:
     
     # Set default config
     config = {}
@@ -23,7 +24,7 @@ def import_config() -> dict[str, any]:
     config["flow"] = 0.8
     config["parkourType"] = "Straight"
     config["parkourAscending"] = True
-    config["straightCurvesSize"] = 10
+    config["curvesSize"] = 10
     config["spiralRotation"] = "counterclockwise"
     config["spiralType"] = "Even"
     config["spiralTurnRate"] = 10
@@ -35,27 +36,30 @@ def import_config() -> dict[str, any]:
 
     # Import config from file
     settings_file = Path("settings.json")
-    with open(settings_file, "r") as file:
-        file_dict = dict(json.load(file))
-    
-    for name, value in file_dict.items():
-        if name not in config.keys():
-            raise Exception(f"\"{name}\" is not a valid setting")
-        else:
-            config[name] = file_dict[name]
-    
-    error_str = check_config(config)
-    if error_str != "":
-        raise Exception(error_str)
+    try:
+        with open(settings_file, "r") as file:
+            file_dict = dict(json.load(file))
 
+        for name, value in file_dict.items():
+            if name not in config.keys():
+                error_str = f"\"{name}\" is not a valid setting"
+                if gui_enabled:
+                    messagebox.showerror("Error in settings.json", error_str)
+                else:
+                    raise Exception(error_str)
+            else:
+                config[name] = file_dict[name]
+    except:
+        print("settings.json file not found")
+    
     return config
 
 def check_config(config: dict[str, any]) -> str:
 
     error_string = ""
 
-    if config["straightCurvesSize"] < 1 or config["straightCurvesSize"] > 10:
-        error_string += "Invalid input for \"StraightCurvesSize\": must be between 1 and 10 (inclusive)\n"
+    if config["curvesSize"] < 1 or config["curvesSize"] > 10:
+        error_string += "Invalid input for \"curvesSize\": must be between 1 and 10 (inclusive)\n"
     
     return error_string
 
@@ -82,10 +86,10 @@ Difficulty = 0.3                                         # Choose parkour diffic
 Flow = 0.8                                               # Choose how fast/flowing/fluent the parkour is to traverse in range [0.0, 1.0]. 0.0 - slow/halting, 1.0 - fast/fluent
 
 
-ParkourType = "Random"    # Spiral, Straight, StraightCurves, Random
+ParkourType = "Random"    # Spiral, Straight, Curves, Random
 ParkourAscending = True   # Set to True if the parkour should have an upwards elevation change. Set to False for the parkour to stay on the same height/y-level.
 
-StraightCurvesSize = 5    # Values: 1 - 10, Changes how frequently the parkour direction changes: 1 - very often, 10 - rarely
+curvesSize = 5    # Values: 1 - 10, Changes how frequently the parkour direction changes: 1 - very often, 10 - rarely
 
 SpiralRotation = "counterclockwise"  # clockwise, counterclockwise
 SpiralType = "Even"                  # Random, Even

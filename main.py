@@ -40,7 +40,7 @@ def generate_parkour(config: dict[str, any], gui_enabled: bool, gui_loading_bar:
                                difficulty=config["difficulty"],
                                flow=config["flow"],
                                ascending=config["parkourAscending"],
-                               straight_curves_size=config["straightCurvesSize"],
+                               straight_curves_size=config["curvesSize"],
                                spiral_type=config["spiralType"],
                                spiral_turn_rate=config["spiralTurnRate"],
                                spiral_turn_prob=config["spiralTurnProbability"],

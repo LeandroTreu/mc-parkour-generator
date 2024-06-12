@@ -114,7 +114,7 @@ def change_direction(current_forward_direction: str,
     elif parkour_type == "Straight":
         return current_forward_direction  # Keep same direction
 
-    elif parkour_type == "StraightCurves":
+    elif parkour_type == "Curves":
 
         random_bit = rng.integers(low=0, high=straight_curves_size+1) # type: ignore
 
@@ -384,7 +384,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                     new_direction_index = (old_direction_index + 1) % 4
                 elif parkour_type == "Straight":
                     new_direction_index = old_direction_index
-                elif parkour_type == "StraightCurves":
+                elif parkour_type == "Curves":
                     new_direction_index = (old_direction_index + 1) % 4
                 elif parkour_type == "Spiral":
                     if spiral_rotation == "clockwise":

@@ -15,9 +15,7 @@ class Gui():
     font_general = ("Segoe UI", 10, "normal")
     label_pad_y = 3
 
-    def __init__(self, settings: dict[any]) -> None:
-
-        self.settings = settings
+    def __init__(self) -> None:
 
         self.window = tk.Tk()
         self.window.title("MC Parkour Generator")
@@ -33,6 +31,11 @@ class Gui():
         fixed_font.configure(family=self.font_general[0], size=self.font_general[1], weight=self.font_general[2])
         
         self.create_menu()
+
+        self.settings = config.import_config(gui_enabled=True)
+        error_str = config.check_config(self.settings)
+        if error_str != "":
+            messagebox.showerror("Error in settings.json", error_str)
 
         # Map settings to tkinter Variables
         self.variables = {}
@@ -147,7 +150,7 @@ class Gui():
         self.ascending = ttk.Checkbutton(master=self.settings_frame, text="Parkour Ascending", variable=self.variables["parkourAscending"], onvalue=True, offvalue=False, command=None)
 
         self.curves_size_l = ttk.Label(master=self.settings_frame, text="Curves Size:")
-        self.curves_size = ttk.Entry(master=self.settings_frame, textvariable=self.variables["straightCurvesSize"], width=10)
+        self.curves_size = ttk.Entry(master=self.settings_frame, textvariable=self.variables["curvesSize"], width=10)
 
         self.spiral_rotation_l = ttk.Label(master=self.settings_frame, text="Spiral Rotation:")
         self.spiral_rotation = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["spiralRotation"], values=["counterclockwise", "clockwise"], width=10)
@@ -402,10 +405,12 @@ class Gui():
             else:
                 self.settings[name] = v[name].get()
 
-        if config.check_config(self.settings):
-            return True
-        else:
+        error_str = config.check_config(self.settings)
+        if error_str != "":
+            messagebox.showerror("Settings Error", error_str)
             return False
+        else:
+            return True
 
     def generate_parkour(self):
 
@@ -416,8 +421,6 @@ class Gui():
             # Update loading bar to 100%
             self.loadingbar["value"] = 100
             self.window.update_idletasks()
-        else:
-            messagebox.showerror("Settings Error", "Test Error")
         self.generate_button["state"] = "normal"
 
     def run(self) -> None:
@@ -426,11 +429,14 @@ class Gui():
 
 if __name__ == "__main__":
 
-    settings = config.import_config()
     use_gui = True
 
     if use_gui:
-        gui = Gui(settings)
+        gui = Gui()
         gui.run()
     else:
+        settings = config.import_config(gui_enabled=False)
+        error_str = check_config(config)
+        if error_str != "":
+            raise Exception(error_str)
         main.generate_parkour(settings, False, None, None)
