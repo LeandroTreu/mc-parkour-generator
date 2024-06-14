@@ -74,7 +74,10 @@ class Gui():
         # Image frame and label
         self.image_frame = ttk.Frame(master=self.window, relief="flat", borderwidth=5)
         self.image_frame.pack(fill=tk.BOTH, expand=True, side=tk.RIGHT)
-        self.img = Image.open("parkour_plot.png")
+        if self.settings["plotFileType"] == "png":
+            self.img = Image.open("parkour_plot.png")
+        else:
+            self.img = Image.open("parkour_plot.jpg")
         self.img = self.img.resize(self.image_size)
         self.img = ImageTk.PhotoImage(self.img)
         self.img_label = tk.Label(self.image_frame, image=self.img)
@@ -168,7 +171,7 @@ class Gui():
         self.plot_file_type_l = ttk.Label(master=self.settings_frame, text="Plot File Type:")
         self.plot_file_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotFileType"], values=["png", "jpg"], width=10, state="readonly")
         self.plot_colorscheme_l = ttk.Label(master=self.settings_frame, text="Plot Colorscheme:")
-        self.plot_colorscheme = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotColorScheme"], values=["winter", "viridis", "plasma", "grey", "hot", "summer", "hsv", "copper"], width=10, state="readonly")
+        self.plot_colorscheme = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotColorScheme"], values=["winter", "viridis", "plasma", "gray", "hot", "summer", "hsv", "copper"], width=10, state="readonly")
         self.plot_commandblocks = ttk.Checkbutton(master=self.settings_frame, text="Plot Commandblocks", variable=self.variables["plotCommandBlocks"], onvalue=True, offvalue=False, command=None)
         self.write_datapack_files = ttk.Checkbutton(master=self.settings_frame, text="Write Datapack Files", variable=self.variables["writeDatapackFiles"], onvalue=True, offvalue=False, command=None)
 
@@ -402,7 +405,10 @@ class Gui():
         self.curves_size_l["text"] = f"Curves Size: {string}"
 
     def refresh_image(self):
-        self.img = Image.open("parkour_plot.png")
+        if self.settings["plotFileType"] == "png":
+            self.img = Image.open("parkour_plot.png")
+        else:
+            self.img = Image.open("parkour_plot.jpg")
         self.img = self.img.resize(self.image_size)
         self.img = ImageTk.PhotoImage(self.img)
         self.img_label["image"] = self.img
@@ -474,8 +480,8 @@ class Gui():
         self.generate_button["state"] = "disabled"
         if self.set_config():
             seed = main.generate_parkour(self.settings, True, self.loadingbar, self.window)
-            self.refresh_image()
             self.variables["seed"].set(seed)
+            self.refresh_image()
             # Update loading bar to 100%
             self.loadingbar["value"] = 100
             self.window.update_idletasks()

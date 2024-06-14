@@ -52,23 +52,28 @@ def generate_parkour(config: dict[str, any], gui_enabled: bool, gui_loading_bar:
                                gui_window=gui_window)
     end_time_generation = time.time()
 
-    print(f"Time taken: {
-          round(end_time_generation-start_time_generation, 3)} s")
+    print(f"Generation time: {round(end_time_generation-start_time_generation, 3)} s")
 
     # Write datapack files
+    start_time = time.time()
     if config["writeDatapackFiles"]:
         util.write_function_files(list_of_placed_jumps, 
                                   parkour_volume=config["parkourVolume"], 
                                   enforce_parkour_volume=config["enforceParkourVolume"], 
                                   fill_volume_with_air=config["fillParkourVolumeWithAir"])
+    end_time = time.time()
+    print(f"Datapack time: {round(end_time-start_time, 3)} s")
 
     # Plot parkour to a file
+    start_time = time.time()
     util.plot_parkour(list_of_placed_jumps, 
                       parkour_volume=config["parkourVolume"], 
                       enforce_parkour_volume=config["enforceParkourVolume"], 
                       plot_command_blocks=config["plotCommandBlocks"],
                       plot_color_scheme=config["plotColorScheme"],
                       plot_file_type=config["plotFileType"])
+    end_time = time.time()
+    print(f"Plot time: {round(end_time-start_time, 3)} s")
     
     return seed
 
