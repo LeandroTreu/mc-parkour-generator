@@ -89,7 +89,7 @@ def change_direction(current_forward_direction: str,
                      curves_size: float,
                      spiral_type: str,
                      spiral_turn_rate: int,
-                     spiral_turn_prob: int,
+                     spiral_turn_prob: float,
                      spiral_rotation: str) -> str:
 
     global curvesDirection
@@ -150,17 +150,21 @@ def change_direction(current_forward_direction: str,
 
     elif parkour_type == "Spiral":
         if spiral_type == "Even":
-            if spiralTurnCounter >= spiral_turn_rate:
-                random_bit = 1
+            if spiralTurnCounter + 1 >= spiral_turn_rate:
+                spiral_turn_prob = 100
                 spiralTurnCounter = 0
             else:
-                random_bit = 0
+                spiral_turn_prob = 0
                 spiralTurnCounter += 1
         else:
-            h_bound = spiral_turn_prob+1
-            random_bit = rng.integers(low=0, high=h_bound) # type: ignore
+            spiral_turn_prob = int(spiral_turn_prob * 100)
+            if spiral_turn_prob > 100:
+                spiral_turn_prob = 100
+            if spiral_turn_prob < 0:
+                spiral_turn_prob = 0
 
-        if random_bit == 1:
+        random_nr = rng.integers(low=0, high=101) # type: ignore
+        if random_nr <= spiral_turn_prob:
 
             old_direction_index = DIRECTIONS.index(
                 current_forward_direction)
@@ -300,7 +304,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                      curves_size: float,
                      spiral_type: str,
                      spiral_turn_rate: int,
-                     spiral_turn_prob: int,
+                     spiral_turn_prob: float,
                      enforce_volume: bool,
                      parkour_volume: list[tuple[int, int]],
                      gui_enabled: bool,

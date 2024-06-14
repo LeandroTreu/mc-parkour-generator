@@ -23,7 +23,7 @@ def set_default_config() -> dict[str, any]:
     config["flow"] = 0.8
     config["parkourType"] = "Straight"
     config["parkourAscending"] = True
-    config["curvesSize"] = 10
+    config["curvesSize"] = 0.5
     config["spiralRotation"] = "counterclockwise"
     config["spiralType"] = "Even"
     config["spiralTurnRate"] = 10
@@ -187,6 +187,29 @@ def check_config(config: dict[str, any]) -> str:
     except:
         error_string += "curvesSize: wrong input format. Needs to be a floating point number.\n"
 
+    r = config["spiralRotation"]
+    if r != "counterclockwise" and r != "clockwise":
+        error_string += "spiralRotation: wrong input format. Allowed values are: counterclockwise and clockwise.\n"
+
+    r = config["spiralType"]
+    if r != "Even" and r != "Random":
+        error_string += "spiralType: wrong input format. Allowed values are: Even and Random.\n"
+
+    try:
+        tr = int(config["spiralTurnRate"])
+        if tr < 1:
+            error_string += f"spiralTurnRate: must be > 0\n"
+    except:
+        error_string += "spiralTurnRate: wrong input format. Needs to be an integer number > 0.\n"
+
+    try:
+        tp = float(config["spiralTurnProbability"])
+        if tp < 0.0 or tp > 1.0:
+            error_string += f"spiralTurnProbability: must be in the allowed range of [0.0, 1.0]\n"
+    except:
+        error_string += "spiralTurnProbability: wrong input format. Needs to be a floating point number.\n"
+
+
     return error_string
 
 
@@ -220,7 +243,7 @@ curvesSize = 0.5    # Values: [0.1, 1.0], Changes the size of the curves: 0.1 - 
 SpiralRotation = "counterclockwise"  # clockwise, counterclockwise
 SpiralType = "Even"                  # Random, Even
 SpiralTurnRate = 30                  # After how many jumps the Spiral will change direction. Only works with SpiralType = "Even"
-SpiralTurnProbability = 2           # Values: 1 - high prob, 10 - low prob. Probability for changing direction for SpiralType = "Random"
+SpiralTurnProbability = 0.5          # Probability for changing direction for SpiralType = "Random"
 
 
 PlotFileType = "png"      # "jpg" or "png"

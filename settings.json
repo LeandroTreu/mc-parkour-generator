@@ -20,7 +20,7 @@
     "spiralRotation": "counterclockwise",
     "spiralType": "Even",
     "spiralTurnRate": 30,
-    "spiralTurnProbability": 2,
+    "spiralTurnProbability": 0.5,
     "plotFileType": "png",
     "plotColorScheme": "winter",
     "plotCommandBlocks": true,

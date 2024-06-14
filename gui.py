@@ -158,9 +158,10 @@ class Gui():
         self.spiral_rotation = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["spiralRotation"], values=["counterclockwise", "clockwise"], width=10)
         self.spiral_type_l = ttk.Label(master=self.settings_frame, text="Spiral Type:")
         self.spiral_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["spiralType"], values=["Even", "Random"], width=10)
+        self.spiral_type.bind("<<ComboboxSelected>>", self.update_vis)
         self.spiral_turnrate_l = ttk.Label(master=self.settings_frame, text="Spiral Turn Rate:")
         self.spiral_turnrate = ttk.Entry(master=self.settings_frame, textvariable=self.variables["spiralTurnRate"], width=10)
-        self.spiral_turn_prob_l = ttk.Label(master=self.settings_frame, text=f"Spiral Turn Probability: {self.variables["spiralTurnProbability"].get()}")
+        self.spiral_turn_prob_l = ttk.Label(master=self.settings_frame, text=f"Spiral Turn Probability: {(((self.settings["spiralTurnProbability"]*10)//1) / 10)}")
         self.spiral_turn_prob = ttk.Scale(master=self.settings_frame, variable=self.variables["spiralTurnProbability"], from_=0, to=1.0, command=self.show_spiral_prob)
 
         # File options
@@ -364,10 +365,20 @@ class Gui():
             self.spiral_rotation["state"] = "normal"
             self.spiral_type_l["state"] = "normal"
             self.spiral_type["state"] = "normal"
-            self.spiral_turnrate_l["state"] = "normal"
-            self.spiral_turnrate["state"] = "normal"
-            self.spiral_turn_prob_l["state"] = "normal"
-            self.spiral_turn_prob["state"] = "normal"
+        
+            sp_type = self.variables["spiralType"].get()
+            if sp_type == "Even":
+                self.spiral_turnrate_l["state"] = "normal"
+                self.spiral_turnrate["state"] = "normal"
+                self.spiral_turn_prob_l["state"] = "disabled"
+                self.spiral_turn_prob["state"] = "disabled"
+            else:
+                self.spiral_turnrate_l["state"] = "disabled"
+                self.spiral_turnrate["state"] = "disabled"
+                self.spiral_turn_prob_l["state"] = "normal"
+                self.spiral_turn_prob["state"] = "normal"
+
+
     
     def show_difficulty(self, string):
         string = ((float(string)*10)//1) / 10
