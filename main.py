@@ -10,7 +10,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 
 
-def generate_parkour(config: dict[str, any], gui_enabled: bool, gui_loading_bar: ttk.Progressbar, gui_window: tk.Tk):
+def generate_parkour(config: dict[str, any], gui_enabled: bool, gui_loading_bar: ttk.Progressbar, gui_window: tk.Tk) -> int:
 
     list_of_placed_jumps: list[JumpType] = []
 
@@ -69,4 +69,6 @@ def generate_parkour(config: dict[str, any], gui_enabled: bool, gui_loading_bar:
                       plot_command_blocks=config["plotCommandBlocks"],
                       plot_color_scheme=config["plotColorScheme"],
                       plot_file_type=config["plotFileType"])
+    
+    return seed
 

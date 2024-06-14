@@ -209,6 +209,20 @@ def check_config(config: dict[str, any]) -> str:
     except:
         error_string += "spiralTurnProbability: wrong input format. Needs to be a floating point number.\n"
 
+    if config["plotFileType"] != "png" and config["plotFileType"] != "jpg":
+        error_string += "plotFileType: wrong input format. Allowed values are: png and jpg.\n"
+
+    c = config["plotColorScheme"]
+    colorschemes = ["winter", "viridis", "plasma", "gray", "hot", "summer", "hsv", "copper"]
+    if c not in colorschemes:
+        error_string += f"plotColorScheme: wrong input format. Allowed values are: {colorschemes}.\n"
+
+    if type(config["plotCommandBlocks"]) is not bool:
+        error_string += "plotCommandBlocks: wrong input format. Only true or false are allowed.\n"
+
+    if type(config["writeDatapackFiles"]) is not bool:
+        error_string += "writeDatapackFiles: wrong input format. Only true or false are allowed.\n"
+    
 
     return error_string
 
@@ -224,7 +238,7 @@ StartForwardDirection = "Xneg"               # Sets the initial forward directio
 BlockType = "minecraft:stone"              # Sets the default minecraft block type for all parkour structures, except for special structures like ladders and ice.
 
 RandomSeed = True                            # Set True for a randomised seed. Set False for a set seed, defined below.
-Seed = 98360346                              # Sets a seed for the random number generetor throughout the parkour generation. Value range: [0, 2**63-1]
+Seed = 98360346                              # Sets a seed for the random number generetor throughout the parkour generation.
 
 CheckPointsEnabled = True                    # If True then a checkpoint structure will be placed periodically with the defined CheckPointsPeriod below.
 CheckPointsPeriod = 10                       # After this many normal jumptypes, one checkpoint is placed. If not possible the checkpoint is placed as soon as possible later in the parkour.

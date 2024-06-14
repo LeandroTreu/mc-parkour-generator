@@ -7,7 +7,7 @@
     "startForwardDirection": "Xpos",
     "blockType": "minecraft:stone",
     "randomSeed": true,
-    "seed": 239293471,
+    "seed": 0,
     "checkpointsEnabled": true,
     "checkpointsPeriod": 10,
     "useAllBlocks": true,

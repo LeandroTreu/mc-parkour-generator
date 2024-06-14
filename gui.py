@@ -127,10 +127,10 @@ class Gui():
         self.start_forward_dir = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["startForwardDirection"], values=["Xpos", "Xneg", "Zpos", "Zneg"], width=10, state="readonly")
 
         self.block_type_l = ttk.Label(master=self.settings_frame, text="Parkour Block Type:")
-        self.block_type = ttk.Entry(master=self.settings_frame, textvariable=self.variables["blockType"])
+        self.block_type = ttk.Entry(master=self.settings_frame, textvariable=self.variables["blockType"], width=22)
 
         self.random_seed = ttk.Checkbutton(master=self.settings_frame, text="Random Seed", variable=self.variables["randomSeed"], onvalue=True, offvalue=False, command=self.update_vis)
-        self.seed = ttk.Entry(master=self.settings_frame, textvariable=self.variables["seed"])
+        self.seed = ttk.Entry(master=self.settings_frame, textvariable=self.variables["seed"], width=22)
 
         self.cp_enabled = ttk.Checkbutton(master=self.settings_frame, text="Checkpoints", variable=self.variables["checkpointsEnabled"], onvalue=True, offvalue=False, command=self.update_vis)
         self.cp_period_l = ttk.Label(master=self.settings_frame, text="Checkpoints Period:")
@@ -318,6 +318,11 @@ class Gui():
             self.parkour_volume_z1["state"] = "disabled"
             self.parkour_volume_z2_l["state"] = "disabled"
             self.parkour_volume_z2["state"] = "disabled"
+
+        if self.variables["randomSeed"].get():
+            self.seed["state"] = "disabled"
+        else:
+            self.seed["state"] = "normal"
         
         if self.variables["checkpointsEnabled"].get() is True:
             self.cp_period_l["state"] = "normal"
@@ -468,8 +473,9 @@ class Gui():
 
         self.generate_button["state"] = "disabled"
         if self.set_config():
-            main.generate_parkour(self.settings, True, self.loadingbar, self.window)
+            seed = main.generate_parkour(self.settings, True, self.loadingbar, self.window)
             self.refresh_image()
+            self.variables["seed"].set(seed)
             # Update loading bar to 100%
             self.loadingbar["value"] = 100
             self.window.update_idletasks()
@@ -482,6 +488,7 @@ class Gui():
 if __name__ == "__main__":
 
     use_gui = True
+    print(2**64)
 
     if use_gui:
         gui = Gui()
