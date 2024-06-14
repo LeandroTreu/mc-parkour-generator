@@ -14,7 +14,7 @@ from copy import deepcopy
 from numpy.random import Generator
 
 DIRECTIONS = ["Xpos", "Zneg", "Xneg", "Zpos"]
-slopesDirection = 0
+curvesDirection = 0
 spiralTurnCounter = 0
 
 
@@ -86,13 +86,13 @@ def filter_jumptypes(list_of_allowed_structure_types: list[str], use_all_blocks:
 
 def change_direction(current_forward_direction: str,
                      rng: Generator, parkour_type: str,
-                     straight_curves_size: int,
+                     curves_size: float,
                      spiral_type: str,
                      spiral_turn_rate: int,
                      spiral_turn_prob: int,
                      spiral_rotation: str) -> str:
 
-    global slopesDirection
+    global curvesDirection
     global spiralTurnCounter
 
     if parkour_type == "Random":
@@ -116,26 +116,29 @@ def change_direction(current_forward_direction: str,
 
     elif parkour_type == "Curves":
 
-        random_bit = rng.integers(low=0, high=straight_curves_size+1) # type: ignore
+        curves_size = int((curves_size * 10) // 1)
+        if curves_size < 1:
+            curves_size = 1
+        random_nr = rng.integers(low=0, high=curves_size) # type: ignore
 
-        if random_bit == 1:
+        if random_nr == 0:
 
             old_direction_index = DIRECTIONS.index(
                 current_forward_direction)
 
-            if slopesDirection == -1:
-                slopesDirection = 0
+            if curvesDirection == -1:
+                curvesDirection = 0
                 new_direction_index = (old_direction_index + 1) % 4
-            elif slopesDirection == 0:
+            elif curvesDirection == 0:
                 random_bit = rng.integers(low=0, high=2) # type: ignore
                 if random_bit == 0:
-                    slopesDirection = -1
+                    curvesDirection = -1
                     new_direction_index = (old_direction_index - 1)
                 else:
-                    slopesDirection = 1
+                    curvesDirection = 1
                     new_direction_index = (old_direction_index + 1) % 4
             else:
-                slopesDirection = 0
+                curvesDirection = 0
                 new_direction_index = (old_direction_index - 1)
 
             if new_direction_index < 0:
@@ -294,7 +297,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                      difficulty: float,
                      flow: float,
                      ascending: bool,
-                     straight_curves_size: int,
+                     curves_size: float,
                      spiral_type: str,
                      spiral_turn_rate: int,
                      spiral_turn_prob: int,
@@ -416,7 +419,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
         current_forward_direction = change_direction(current_forward_direction, 
                                                      rng, 
                                                      parkour_type, 
-                                                     straight_curves_size, 
+                                                     curves_size, 
                                                      spiral_type, 
                                                      spiral_turn_rate, 
                                                      spiral_turn_prob, 

@@ -5,6 +5,7 @@ from classes import JumpType
 import generator
 import time
 from numpy.random import default_rng
+import numpy as np
 import tkinter as tk
 import tkinter.ttk as ttk
 
@@ -16,7 +17,7 @@ def generate_parkour(config: dict[str, any], gui_enabled: bool, gui_loading_bar:
     # Set seed for the RNG
     if config["randomSeed"]:
         rng_for_rng = default_rng()
-        seed = rng_for_rng.integers(low=0, high=2**63-1)
+        seed = rng_for_rng.integers(low=0, high=(2**64), dtype=np.uint64)
         print(f"seed: {seed}")
         rng = default_rng(seed)
     else:
@@ -40,7 +41,7 @@ def generate_parkour(config: dict[str, any], gui_enabled: bool, gui_loading_bar:
                                difficulty=config["difficulty"],
                                flow=config["flow"],
                                ascending=config["parkourAscending"],
-                               straight_curves_size=config["curvesSize"],
+                               curves_size=config["curvesSize"],
                                spiral_type=config["spiralType"],
                                spiral_turn_rate=config["spiralTurnRate"],
                                spiral_turn_prob=config["spiralTurnProbability"],

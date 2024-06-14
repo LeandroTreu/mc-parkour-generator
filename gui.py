@@ -141,9 +141,9 @@ class Gui():
         self.t_one_block = ttk.Checkbutton(master=self.settings_frame, text="SingleBlock", variable=self.variables["allowedStructureTypes_sb"], onvalue=True, offvalue=False, command=None)
         self.t_two_block = ttk.Checkbutton(master=self.settings_frame, text="TwoBlock", variable=self.variables["allowedStructureTypes_tb"], onvalue=True, offvalue=False, command=None)
 
-        self.difficulty_l = ttk.Label(master=self.settings_frame, text=f"Difficulty: {self.variables["difficulty"].get()}")
+        self.difficulty_l = ttk.Label(master=self.settings_frame, text=f"Difficulty: {(((self.settings["difficulty"]*10)//1) / 10)}")
         self.difficulty = ttk.Scale(master=self.settings_frame, variable=self.variables["difficulty"], from_=0, to=1.0, command=self.show_difficulty)
-        self.flow_l = ttk.Label(master=self.settings_frame, text=f"Flow: {self.variables["flow"].get()}")
+        self.flow_l = ttk.Label(master=self.settings_frame, text=f"Flow: {(((self.settings["flow"]*10)//1) / 10)}")
         self.flow = ttk.Scale(master=self.settings_frame, variable=self.variables["flow"], from_=0, to=1.0, command=self.show_flow)
 
         self.parkour_type_l = ttk.Label(master=self.settings_frame, text="Parkour Type:")
@@ -151,8 +151,8 @@ class Gui():
         self.parkour_type.bind("<<ComboboxSelected>>", self.update_vis)
         self.ascending = ttk.Checkbutton(master=self.settings_frame, text="Parkour Ascending", variable=self.variables["parkourAscending"], onvalue=True, offvalue=False, command=None)
 
-        self.curves_size_l = ttk.Label(master=self.settings_frame, text="Curves Size:")
-        self.curves_size = ttk.Entry(master=self.settings_frame, textvariable=self.variables["curvesSize"], width=10)
+        self.curves_size_l = ttk.Label(master=self.settings_frame, text=f"Curves Size: {(((self.settings["curvesSize"]*10)//1) / 10)}")
+        self.curves_size = ttk.Scale(master=self.settings_frame, variable=self.variables["curvesSize"], from_=0.1, to=1.0, command=self.show_curves_size)
 
         self.spiral_rotation_l = ttk.Label(master=self.settings_frame, text="Spiral Rotation:")
         self.spiral_rotation = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["spiralRotation"], values=["counterclockwise", "clockwise"], width=10)
@@ -370,17 +370,21 @@ class Gui():
             self.spiral_turn_prob["state"] = "normal"
     
     def show_difficulty(self, string):
-        string = round(float(string), 1)
+        string = ((float(string)*10)//1) / 10
         self.difficulty_l["text"] = f"Difficulty: {string}"
 
     def show_flow(self, string):
-        string = round(float(string), 1)
+        string = ((float(string)*10)//1) / 10
         self.flow_l["text"] = f"Flow: {string}"
 
     def show_spiral_prob(self, string):
-        string = round(float(string), 1)
+        string = ((float(string)*10)//1) / 10
         self.spiral_turn_prob_l["text"] = f"Spiral Turn Probability: {string}"
         
+    def show_curves_size(self, string):
+        string = ((float(string)*10)//1) / 10
+        self.curves_size_l["text"] = f"Curves Size: {string}"
+
     def refresh_image(self):
         self.img = Image.open("parkour_plot.png")
         self.img = self.img.resize(self.image_size)

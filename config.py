@@ -63,29 +63,30 @@ def check_config(config: dict[str, any]) -> str:
 
     error_string = ""
 
-    # try:
-    x_min = int(config["parkourVolume"][0][0])
-    x_max = int(config["parkourVolume"][0][1])
-    y_min = int(config["parkourVolume"][1][0])
-    y_max = int(config["parkourVolume"][1][1])
-    z_min = int(config["parkourVolume"][2][0])
-    z_max = int(config["parkourVolume"][2][1])
-    if x_min > x_max: 
-        error_string += f"parkourVolume: {x_min} > {x_max}\n"
-    if y_min > y_max: 
-        error_string += f"parkourVolume: {y_min} > {y_max}\n"
-    if z_min > z_max: 
-        error_string += f"parkourVolume: {z_min} > {z_max}\n"
-    for l in config["parkourVolume"]:
-        for c in l:
-            if c > 29999984 or c < -29999984:
-                error_string += f"parkourVolume: coordinate {c} is not within the range [-29999984, 29999984]\n"
-    if y_min < -64 or y_max < -64:
-        error_string += f"parkourVolume: minimum build height is Y: -64\n"
-    if y_min > 320 or y_max > 320:
-        error_string += f"parkourVolume: maximum build height is Y: 320\n"
-    # except:
-    #     error_string += f"parkourVolume: wrong input format. Only integers are allowed.\n"
+    try:
+        x_min = int(config["parkourVolume"][0][0])
+        x_max = int(config["parkourVolume"][0][1])
+        y_min = int(config["parkourVolume"][1][0])
+        y_max = int(config["parkourVolume"][1][1])
+        z_min = int(config["parkourVolume"][2][0])
+        z_max = int(config["parkourVolume"][2][1])
+        if x_min > x_max: 
+            error_string += f"parkourVolume: {x_min} > {x_max}\n"
+        if y_min > y_max: 
+            error_string += f"parkourVolume: {y_min} > {y_max}\n"
+        if z_min > z_max: 
+            error_string += f"parkourVolume: {z_min} > {z_max}\n"
+        for l in config["parkourVolume"]:
+            for c in l:
+                if c > 29999984 or c < -29999984:
+                    error_string += f"parkourVolume: coordinate {c} is not within the range [-29999984, 29999984]\n"
+        if y_min < -64 or y_max < -64:
+            error_string += f"parkourVolume: minimum build height is Y: -64\n"
+        if y_min > 320 or y_max > 320:
+            error_string += f"parkourVolume: maximum build height is Y: 320\n"
+    except:
+        error_string += f"parkourVolume: wrong input format. Only integers are allowed.\n"
+        return error_string
     
     if type(config["enforceParkourVolume"]) is not bool:
         error_string += "enforceParkourVolume: wrong input format. Only true or false are allowed.\n"
@@ -98,23 +99,94 @@ def check_config(config: dict[str, any]) -> str:
             error_string += "maxParkourLength: parkour length not in allowed range of [0, 1000000]\n"
     except:
         error_string += f"maxParkourLength: wrong input format. Only integers are allowed.\n"
+        return error_string
 
     try:
         x = int(config["startPosition"][0]) 
         y = int(config["startPosition"][1]) 
         z = int(config["startPosition"][2]) 
         if x < -29999984 or x > 29999984:
-            error_string += "startPosition: X: {x} not in allowed range of [-29999984, 29999984]\n"
+            error_string += f"startPosition: X: {x} not in allowed range of [-29999984, 29999984]\n"
         if z < -29999984 or z > 29999984:
-            error_string += "startPosition: Z: {z} not in allowed range of [-29999984, 29999984]\n"
+            error_string += f"startPosition: Z: {z} not in allowed range of [-29999984, 29999984]\n"
         if y < -64 or y > 320:
-            error_string += "startPosition: Y: {y} not in allowed range of [-64, 320]\n"
+            error_string += f"startPosition: Y: {y} not in allowed range of [-64, 320]\n"
+        if type(config["enforceParkourVolume"]) is bool and config["enforceParkourVolume"] is True:
+            if x > config["parkourVolume"][0][1] or x < config["parkourVolume"][0][0]:
+                error_string += f"startPosition: X:{x} is not inside the parkour volume\n"
+            if y > config["parkourVolume"][1][1] or y < config["parkourVolume"][1][0]:
+                error_string += f"startPosition: Y:{y} is not inside the parkour volume\n"
+            if z > config["parkourVolume"][2][1] or z < config["parkourVolume"][2][0]:
+                error_string += f"startPosition: Z:{z} is not inside the parkour volume\n"
     except:
         error_string += f"startPosition: wrong input format. Only integers are allowed.\n"
+        return error_string
 
-    if config["curvesSize"] < 1 or config["curvesSize"] > 10:
-        error_string += "\"curvesSize\": must be between 1 and 10 (inclusive)\n"
+    fd = config["startForwardDirection"]
+    if fd != "Xpos" and fd != "Xneg" and fd != "Zpos" and fd != "Zneg":
+        error_string += "startForwardDirection: wrong input format. Allowed values are: Xpos, Xneg, Zpos, Zneg.\n"
+
+    if type(config["blockType"]) is not str:
+        error_string += "blockType: wrong input format. Needs to be a valid minecraft block string, compatible with the /fill command.\n"
+
+    if type(config["randomSeed"]) is not bool:
+        error_string += "randomSeed: wrong input format. Only true or false are allowed.\n"
+
+    try:
+        seed = int(config["seed"])
+        if seed < 0 or seed > (2**64)-1:
+            error_string += f"seed: {seed} is not in the allowed range of [0, 2^64-1]\n"
+    except:
+        error_string += "seed: wrong input format. Only integers are allowed.\n"
+
+    if type(config["checkpointsEnabled"]) is not bool:
+        error_string += "checkpointsEnabled: wrong input format. Only true or false are allowed.\n"
+
+    try:
+        cpp = int(config["checkpointsPeriod"])
+        if cpp < 1:
+            error_string += "checkpointsPeriod: needs to be > 0\n"
+    except:
+        error_string += "checkpointsPeriod: wrong input format. Only integers are allowed.\n"
+
+    if type(config["useAllBlocks"]) is not bool:
+        error_string += "useAllBlocks: wrong input format. Only true or false are allowed.\n"
     
+    try:
+        for e in config["allowedStructureTypes"]:
+            if e != "SingleBlock" and e != "TwoBlock":
+                error_string += "allowedStructureTypes: allowed strings are: SingleBlock, TwoBlock\n"
+    except:
+        error_string += "allowedStructureTypes: wrong input format. Needs to be a list of strings.\n"
+
+    try:
+        d = float(config["difficulty"])
+        if d < 0.0 or d > 1.0:
+            error_string += f"difficulty: {d} is not in the allowed range of [0.0, 1.0]\n"
+    except:
+        error_string += "difficulty: wrong input format. Needs to be a floating point number.\n"
+
+    try:
+        f = float(config["flow"])
+        if f < 0.0 or f > 1.0:
+            error_string += f"flow: {f} is not in the allowed range of [0.0, 1.0]\n"
+    except:
+        error_string += "flow: wrong input format. Needs to be a floating point number.\n"
+
+    t = config["parkourType"]
+    if t != "Straight" and t != "Curves" and t != "Spiral" and t != "Random":
+        error_string += "parkourType: wrong input format. Allowed values are: Straight, Curves, Spiral, Random.\n"
+
+    if type(config["parkourAscending"]) is not bool:
+        error_string += "parkourAscending: wrong input format. Only true or false are allowed.\n"
+
+    try:
+        cs = float(config["curvesSize"])
+        if cs < 0.1 or cs > 1.0:
+            error_string += f"curvesSize: {cs} is not in the allowed range of [0.1, 1.0]\n"
+    except:
+        error_string += "curvesSize: wrong input format. Needs to be a floating point number.\n"
+
     return error_string
 
 
@@ -143,7 +215,7 @@ Flow = 0.8                                               # Choose how fast/flowi
 ParkourType = "Random"    # Spiral, Straight, Curves, Random
 ParkourAscending = True   # Set to True if the parkour should have an upwards elevation change. Set to False for the parkour to stay on the same height/y-level.
 
-curvesSize = 5    # Values: 1 - 10, Changes how frequently the parkour direction changes: 1 - very often, 10 - rarely
+curvesSize = 0.5    # Values: [0.1, 1.0], Changes the size of the curves: 0.1 - small, 1.0 - big
 
 SpiralRotation = "counterclockwise"  # clockwise, counterclockwise
 SpiralType = "Even"                  # Random, Even
