@@ -88,12 +88,13 @@ class Gui():
     def create_menu(self):
 
         menubar = tk.Menu(self.window)
-        settings_menu = tk.Menu(menubar, tearoff = 0) 
-        menubar.add_cascade(label="Settings", menu=settings_menu) 
-        settings_menu.add_command(label="Save", command=None) 
-        settings_menu.add_separator() 
-        settings_menu.add_command(label="Exit", command=self.window.destroy) 
-        self.window.config(menu=menubar) 
+        self.window.config(menu=menubar)
+
+        file_menu = tk.Menu(menubar, tearoff=False)
+        menubar.add_cascade(label="File", menu=file_menu)
+        file_menu.add_command(label="Save Settings", command=self.save_settings)
+        file_menu.add_separator()
+        file_menu.add_command(label="Exit", command=self.window.destroy)
 
     def populate_settings_frame(self):
 
@@ -169,7 +170,7 @@ class Gui():
 
         # File options
         self.plot_file_type_l = ttk.Label(master=self.settings_frame, text="Plot File Type:")
-        self.plot_file_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotFileType"], values=["png", "jpg"], width=10, state="readonly")
+        self.plot_file_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotFileType"], values=["jpg", "png"], width=10, state="readonly")
         self.plot_colorscheme_l = ttk.Label(master=self.settings_frame, text="Plot Colorscheme:")
         self.plot_colorscheme = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotColorScheme"], values=["winter", "viridis", "plasma", "gray", "hot", "summer", "hsv", "copper"], width=10, state="readonly")
         self.plot_commandblocks = ttk.Checkbutton(master=self.settings_frame, text="Plot Commandblocks", variable=self.variables["plotCommandBlocks"], onvalue=True, offvalue=False, command=None)
@@ -474,6 +475,13 @@ class Gui():
             return False
         else:
             return True
+    
+    def save_settings(self):
+        if self.set_config():
+            answer = messagebox.askyesno("Save Settings", "Save current parkour settings as default?")
+            if answer is True:
+                config.export_config(self.settings, gui_enabled=True)
+
 
     def generate_parkour(self):
 

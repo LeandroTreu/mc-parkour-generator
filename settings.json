@@ -1,28 +1,48 @@
 {
-    "parkourVolume": [[0, 100], [0, 100], [0, 100]],
-    "enforceParkourVolume": false,
-    "fillParkourVolumeWithAir": true,
-    "maxParkourLength": 100,
-    "startPosition": [-203, 117, 32],
-    "startForwardDirection": "Xpos",
-    "blockType": "minecraft:stone",
-    "randomSeed": true,
-    "seed": 0,
-    "checkpointsEnabled": true,
-    "checkpointsPeriod": 10,
-    "useAllBlocks": true,
-    "allowedStructureTypes": ["SingleBlock", "TwoBlock"],
-    "difficulty": 0.39,
-    "flow": 0.81,
-    "parkourType": "Random",
-    "parkourAscending": true,
-    "curvesSize": 0.59,
-    "spiralRotation": "counterclockwise",
-    "spiralType": "Even",
-    "spiralTurnRate": 30,
-    "spiralTurnProbability": 0.5,
-    "plotFileType": "png",
-    "plotColorScheme": "winter",
-    "plotCommandBlocks": true,
-    "writeDatapackFiles": true
+ "parkourVolume": [
+  [
+   0,
+   100
+  ],
+  [
+   0,
+   100
+  ],
+  [
+   0,
+   100
+  ]
+ ],
+ "enforceParkourVolume": false,
+ "fillParkourVolumeWithAir": true,
+ "maxParkourLength": 50,
+ "startPosition": [
+  0,
+  150,
+  0
+ ],
+ "startForwardDirection": "Xpos",
+ "blockType": "minecraft:stone",
+ "randomSeed": true,
+ "seed": 13214991025953350661,
+ "checkpointsEnabled": true,
+ "checkpointsPeriod": 10,
+ "useAllBlocks": true,
+ "allowedStructureTypes": [
+  "SingleBlock",
+  "TwoBlock"
+ ],
+ "difficulty": 0.39,
+ "flow": 0.81,
+ "parkourType": "Straight",
+ "parkourAscending": true,
+ "curvesSize": 0.59,
+ "spiralRotation": "counterclockwise",
+ "spiralType": "Even",
+ "spiralTurnRate": 30,
+ "spiralTurnProbability": 0.5,
+ "plotFileType": "jpg",
+ "plotColorScheme": "winter",
+ "plotCommandBlocks": true,
+ "writeDatapackFiles": true
 }

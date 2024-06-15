@@ -59,6 +59,18 @@ def import_config(gui_enabled: bool) -> dict[str, any]:
     
     return config
 
+def export_config(config: dict[str, any], gui_enabled: bool) -> None:
+
+    settings_file = Path("settings.json")
+    try:
+        with open(settings_file, "w") as file:
+            json.dump(config, file, indent=1)
+    except:
+        if gui_enabled:
+            messagebox.showerror("Error in settings.json", "Error opening settings.json")
+        else:
+            raise Exception("Error opening settings.json")
+
 def check_config(config: dict[str, any]) -> str:
 
     error_string = ""
