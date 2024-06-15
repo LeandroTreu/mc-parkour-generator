@@ -502,7 +502,6 @@ class Gui():
 if __name__ == "__main__":
 
     use_gui = True
-    print(2**64)
 
     if use_gui:
         gui = Gui()
