@@ -3,6 +3,15 @@ from pathlib import Path
 import json
 from tkinter import messagebox
 
+# Constants
+MC_WORLD_MAX_X = 29999984
+MC_WORLD_MIN_X = -29999984
+MC_WORLD_MAX_Z = MC_WORLD_MAX_X
+MC_WORLD_MIN_Z = MC_WORLD_MIN_X
+MC_WORLD_MAX_Y = 320
+MC_WORLD_MIN_Y = -64
+MAX_PARKOUR_LENGTH = 10000
+
 def set_default_config() -> dict[str, any]:
 
     config = {}
@@ -90,12 +99,12 @@ def check_config(config: dict[str, any]) -> str:
             error_string += f"parkourVolume: {z_min} > {z_max}\n"
         for l in config["parkourVolume"]:
             for c in l:
-                if c > 29999984 or c < -29999984:
-                    error_string += f"parkourVolume: coordinate {c} is not within the range [-29999984, 29999984]\n"
-        if y_min < -64 or y_max < -64:
-            error_string += f"parkourVolume: minimum build height is Y: -64\n"
-        if y_min > 320 or y_max > 320:
-            error_string += f"parkourVolume: maximum build height is Y: 320\n"
+                if c > MC_WORLD_MAX_X or c < MC_WORLD_MIN_X:
+                    error_string += f"parkourVolume: coordinate {c} is not within the range [{MC_WORLD_MIN_X}, {MC_WORLD_MAX_X}]\n"
+        if y_min < MC_WORLD_MIN_Y or y_max < MC_WORLD_MIN_Y:
+            error_string += f"parkourVolume: minimum build height is Y: {MC_WORLD_MIN_Y}\n"
+        if y_min > MC_WORLD_MAX_Y or y_max > MC_WORLD_MAX_Y:
+            error_string += f"parkourVolume: maximum build height is Y: {MC_WORLD_MAX_Y}\n"
     except:
         error_string += f"parkourVolume: wrong input format. Only integers are allowed.\n"
         return error_string
@@ -107,8 +116,8 @@ def check_config(config: dict[str, any]) -> str:
 
     try:
         pl = int(config["maxParkourLength"]) 
-        if pl < 0 or pl > 1000000:
-            error_string += "maxParkourLength: parkour length not in allowed range of [0, 1000000]\n"
+        if pl < 0 or pl > MAX_PARKOUR_LENGTH:
+            error_string += f"maxParkourLength: parkour length not in allowed range of [0, {MAX_PARKOUR_LENGTH}]\n"
     except:
         error_string += f"maxParkourLength: wrong input format. Only integers are allowed.\n"
         return error_string
@@ -117,12 +126,12 @@ def check_config(config: dict[str, any]) -> str:
         x = int(config["startPosition"][0]) 
         y = int(config["startPosition"][1]) 
         z = int(config["startPosition"][2]) 
-        if x < -29999984 or x > 29999984:
-            error_string += f"startPosition: X: {x} not in allowed range of [-29999984, 29999984]\n"
-        if z < -29999984 or z > 29999984:
-            error_string += f"startPosition: Z: {z} not in allowed range of [-29999984, 29999984]\n"
-        if y < -64 or y > 320:
-            error_string += f"startPosition: Y: {y} not in allowed range of [-64, 320]\n"
+        if x < MC_WORLD_MIN_X or x > MC_WORLD_MAX_X:
+            error_string += f"startPosition: X: {x} not in allowed range of [{MC_WORLD_MIN_X}, {MC_WORLD_MAX_X}]\n"
+        if z < MC_WORLD_MIN_Z or z > MC_WORLD_MAX_Z:
+            error_string += f"startPosition: Z: {z} not in allowed range of [{MC_WORLD_MIN_Z}, {MC_WORLD_MAX_Z}]\n"
+        if y < MC_WORLD_MIN_Y or y > MC_WORLD_MAX_Y:
+            error_string += f"startPosition: Y: {y} not in allowed range of [{MC_WORLD_MIN_Y}, {MC_WORLD_MAX_Y}]\n"
         if type(config["enforceParkourVolume"]) is bool and config["enforceParkourVolume"] is True:
             if x > config["parkourVolume"][0][1] or x < config["parkourVolume"][0][0]:
                 error_string += f"startPosition: X:{x} is not inside the parkour volume\n"
@@ -241,7 +250,7 @@ def check_config(config: dict[str, any]) -> str:
 
 
 
-# ParkourVolume: list[tuple[int, int]] = [(-350, -210), (36, 100), (-190, -50)]  # Absolute X, Y, Z coordinate ranges in the minecraft world. TODO: add check for minecraft build height
+# ParkourVolume: list[tuple[int, int]] = [(-350, -210), (36, 100), (-190, -50)]  # Absolute X, Y, Z coordinate ranges in the minecraft world.
 # EnforceParkourVolume = False                  # If True then the parkour will generate only inside the above defined Parkour Volume. If False it will generate to arbitrary coordinates, depending on the start block.
 # FillParkourVolumeWithAirFirst = True         # Only works when EnforceParkourVolume is set to True
 # MaxParkourLength = 50                       # Maximum length of the parkour including the Start, Checkpoint and Finish structures.

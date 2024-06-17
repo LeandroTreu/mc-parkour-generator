@@ -1,4 +1,5 @@
 from classes import JumpType, Block
+import config
 
 def compute_abs_coordinates_of_start_block(jumptype: JumpType, absolut_pos_of_last_block: tuple[int, int, int], forward_direction: str):
 
@@ -93,23 +94,30 @@ def shortcut_possible(new_block: Block, earlier_structure: JumpType):
     return False
 
 
-# Returns True only if the Block is in the config defined Parkour bounds, else False.
+# Returns True only if the Block is inside the minecraft world bounds and the config defined Parkour bounds, else False.
 # Also considers the height of the player hitbox, leaving 4 blocks headroom below the maximum y value of the volume.
-def in_bounds(block: Block, parkour_volume: list[tuple[int, int]]):
+def in_bounds(block: Block, parkour_volume: list[tuple[int, int]], enforce_parkour_volume: bool):
 
-    # X coordinate
-    if block.abs_position[0] >= parkour_volume[0][0] and block.abs_position[0] <= parkour_volume[0][1]:
-        # Y coordinate
-        if block.abs_position[1] >= parkour_volume[1][0] and block.abs_position[1] <= parkour_volume[1][1] - 4:
-            # Z coordinate
-            if block.abs_position[2] >= parkour_volume[2][0] and block.abs_position[2] <= parkour_volume[2][1]:
-                return True
-            else:
-                return False
-        else:
-            return False
-    else:
+    x = block.abs_position[0]
+    y = block.abs_position[1]
+    z = block.abs_position[2]
+
+    if x < config.MC_WORLD_MIN_X or x > config.MC_WORLD_MAX_X:
         return False
+    if y < config.MC_WORLD_MIN_Y or y > config.MC_WORLD_MAX_Y:
+        return False
+    if z < config.MC_WORLD_MIN_Z or z > config.MC_WORLD_MAX_Z:
+        return False
+
+    if enforce_parkour_volume:
+        if x < parkour_volume[0][0] or x > parkour_volume[0][1]:
+            return False
+        if y < parkour_volume[1][0] or y > parkour_volume[1][1] - 4:
+            return False
+        if z < parkour_volume[2][0] or z > parkour_volume[2][1]:
+            return False
+
+    return True
 
 
 def can_be_placed(jumptype: JumpType, 
@@ -124,15 +132,14 @@ def can_be_placed(jumptype: JumpType,
 
     jumptype.set_absolut_coordinates(abs_position, current_forward_direction)
 
-    # Check if new Structure is in bounds of the parkour_volume
-    if enforce_parkour_volume:
-        if not in_bounds(jumptype.rel_start_block, parkour_volume):
+    # Check if new Structure is in bounds of the minecraft world and parkour volume (if enforced)
+    if not in_bounds(jumptype.rel_start_block, parkour_volume, enforce_parkour_volume):
+        return False
+    if not in_bounds(jumptype.rel_finish_block, parkour_volume, enforce_parkour_volume):
+        return False
+    for block in jumptype.blocks:
+        if not in_bounds(block, parkour_volume, enforce_parkour_volume):
             return False
-        if not in_bounds(jumptype.rel_finish_block, parkour_volume):
-            return False
-        for block in jumptype.blocks:
-            if not in_bounds(block, parkour_volume):
-                return False
 
     # For start and finish blocks
     for earlier_jump in list_of_placed_jumps[:len(list_of_placed_jumps)-1]:
