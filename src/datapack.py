@@ -38,6 +38,7 @@ def write_function_files(list_of_placed_jumps: list[JumpType],
         file.write(f"gamerule commandBlockOutput false\n")
 
         # Fill parkour volume with air first if set in config
+        # TODO: Fill command has limit for how many blocks it can place
         if enforce_parkour_volume and fill_volume_with_air:
             volume = parkour_volume
             file.write(f"fill {volume[0][0]} {volume[1][0]} {volume[2][0]} {
