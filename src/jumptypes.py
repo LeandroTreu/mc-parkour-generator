@@ -1,6 +1,8 @@
 from classes import JumpType
 from classes import Block
-from config import BlockType
+
+# TODO
+BlockType = "minecraft:stone"
 
 StartBlock = JumpType(name="Parkour Start Structure", structure_type="Start", 
                       rel_start_block=Block(BlockType, (0, 0, 0)), 

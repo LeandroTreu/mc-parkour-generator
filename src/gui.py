@@ -1,12 +1,14 @@
-# type: ignore
 import tkinter as tk
 import tkinter.ttk as ttk
 from PIL import ImageTk, Image
 import config
 import time
-import main
 from tkinter import font
 from tkinter import messagebox
+import generator
+import plotting
+import datapack
+from classes import JumpType, Block
 
 class Gui():
 
@@ -62,9 +64,9 @@ class Gui():
             elif type(value) is str:
                 self.variables[name] = tk.StringVar(master=self.window, value=value)
             elif type(value) is int:
-                self.variables[name] = tk.StringVar(master=self.window, value=value)
+                self.variables[name] = tk.StringVar(master=self.window, value=str(value))
             elif type(value) is float:
-                self.variables[name] = tk.StringVar(master=self.window, value=value)
+                self.variables[name] = tk.StringVar(master=self.window, value=str(value))
             else:
                 self.variables[name] = tk.StringVar(master=self.window, value=str(value))
 
@@ -74,14 +76,18 @@ class Gui():
         # Image frame and label
         self.image_frame = ttk.Frame(master=self.window, relief="flat", borderwidth=5)
         self.image_frame.pack(fill=tk.BOTH, expand=True, side=tk.RIGHT)
-        if self.settings["plotFileType"] == "png":
-            self.img = Image.open("parkour_plot.png")
-        else:
-            self.img = Image.open("parkour_plot.jpg")
-        self.img = self.img.resize(self.image_size)
-        self.img = ImageTk.PhotoImage(self.img)
-        self.img_label = tk.Label(self.image_frame, image=self.img)
-        self.img_label.pack(expand=True, fill=tk.BOTH)
+        try:
+            if self.settings["plotFileType"] == "png":
+                self.img = Image.open("parkour_plot.png")
+            else:
+                self.img = Image.open("parkour_plot.jpg")
+            self.img = self.img.resize(self.image_size)
+            self.img = ImageTk.PhotoImage(self.img)
+            self.img_label = tk.Label(self.image_frame, image=self.img) # type: ignore
+            self.img_label.pack(expand=True, fill=tk.BOTH)
+        except:
+            self.img_label = tk.Label(self.image_frame)
+            self.img_label.pack(expand=True, fill=tk.BOTH)
 
         self.populate_settings_frame()
 
@@ -142,8 +148,8 @@ class Gui():
 
         self.use_all_blocks = ttk.Checkbutton(master=self.settings_frame, text="Use all JumpTypes", variable=self.variables["useAllBlocks"], onvalue=True, offvalue=False, command=self.update_vis)
         self.allowed_str_types_l = ttk.Label(master=self.settings_frame, text="Allowed JumpTypes:")
-        self.t_one_block = ttk.Checkbutton(master=self.settings_frame, text="SingleBlock", variable=self.variables["allowedStructureTypes_sb"], onvalue=True, offvalue=False, command=None)
-        self.t_two_block = ttk.Checkbutton(master=self.settings_frame, text="TwoBlock", variable=self.variables["allowedStructureTypes_tb"], onvalue=True, offvalue=False, command=None)
+        self.t_one_block = ttk.Checkbutton(master=self.settings_frame, text="SingleBlock", variable=self.variables["allowedStructureTypes_sb"], onvalue=True, offvalue=False, command=self.update_vis)
+        self.t_two_block = ttk.Checkbutton(master=self.settings_frame, text="TwoBlock", variable=self.variables["allowedStructureTypes_tb"], onvalue=True, offvalue=False, command=self.update_vis)
 
         self.difficulty_l = ttk.Label(master=self.settings_frame, text=f"Difficulty: {(((self.settings["difficulty"]*10)//1) / 10)}")
         self.difficulty = ttk.Scale(master=self.settings_frame, variable=self.variables["difficulty"], from_=0, to=1.0, command=self.show_difficulty)
@@ -152,8 +158,8 @@ class Gui():
 
         self.parkour_type_l = ttk.Label(master=self.settings_frame, text="Parkour Type:")
         self.parkour_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["parkourType"], values=["Straight", "Curves", "Spiral", "Random"], width=10, state="readonly")
-        self.parkour_type.bind("<<ComboboxSelected>>", self.update_vis)
-        self.ascending = ttk.Checkbutton(master=self.settings_frame, text="Parkour Ascending", variable=self.variables["parkourAscending"], onvalue=True, offvalue=False, command=None)
+        self.parkour_type.bind("<<ComboboxSelected>>", self.update_vis) # type: ignore
+        self.ascending = ttk.Checkbutton(master=self.settings_frame, text="Parkour Ascending", variable=self.variables["parkourAscending"], onvalue=True, offvalue=False, command=self.update_vis)
 
         self.curves_size_l = ttk.Label(master=self.settings_frame, text=f"Curves Size: {(((self.settings["curvesSize"]*10)//1) / 10)}")
         self.curves_size = ttk.Scale(master=self.settings_frame, variable=self.variables["curvesSize"], from_=0.1, to=1.0, command=self.show_curves_size)
@@ -162,7 +168,7 @@ class Gui():
         self.spiral_rotation = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["spiralRotation"], values=["counterclockwise", "clockwise"], width=10)
         self.spiral_type_l = ttk.Label(master=self.settings_frame, text="Spiral Type:")
         self.spiral_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["spiralType"], values=["Even", "Random"], width=10)
-        self.spiral_type.bind("<<ComboboxSelected>>", self.update_vis)
+        self.spiral_type.bind("<<ComboboxSelected>>", self.update_vis) # type: ignore
         self.spiral_turnrate_l = ttk.Label(master=self.settings_frame, text="Spiral Turn Rate:")
         self.spiral_turnrate = ttk.Entry(master=self.settings_frame, textvariable=self.variables["spiralTurnRate"], width=10)
         self.spiral_turn_prob_l = ttk.Label(master=self.settings_frame, text=f"Spiral Turn Probability: {(((self.settings["spiralTurnProbability"]*10)//1) / 10)}")
@@ -173,8 +179,8 @@ class Gui():
         self.plot_file_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotFileType"], values=["jpg", "png"], width=10, state="readonly")
         self.plot_colorscheme_l = ttk.Label(master=self.settings_frame, text="Plot Colorscheme:")
         self.plot_colorscheme = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotColorScheme"], values=["winter", "viridis", "plasma", "gray", "hot", "summer", "hsv", "copper"], width=10, state="readonly")
-        self.plot_commandblocks = ttk.Checkbutton(master=self.settings_frame, text="Plot Commandblocks", variable=self.variables["plotCommandBlocks"], onvalue=True, offvalue=False, command=None)
-        self.write_datapack_files = ttk.Checkbutton(master=self.settings_frame, text="Write Datapack Files", variable=self.variables["writeDatapackFiles"], onvalue=True, offvalue=False, command=None)
+        self.plot_commandblocks = ttk.Checkbutton(master=self.settings_frame, text="Plot Commandblocks", variable=self.variables["plotCommandBlocks"], onvalue=True, offvalue=False, command=self.update_vis)
+        self.write_datapack_files = ttk.Checkbutton(master=self.settings_frame, text="Write Datapack Files", variable=self.variables["writeDatapackFiles"], onvalue=True, offvalue=False, command=self.update_vis)
 
 
         self.settings_label = ttk.Label(master=self.settings_frame, text="Parkour Settings", font=self.font_title)
@@ -414,7 +420,7 @@ class Gui():
         self.img = ImageTk.PhotoImage(self.img)
         self.img_label["image"] = self.img
         # Prevent GC
-        self.img_label.image = self.img
+        self.img_label.image = self.img # type: ignore
     
     def set_config(self) -> bool:
 
@@ -486,29 +492,54 @@ class Gui():
     def generate_parkour(self):
 
         self.generate_button["state"] = "disabled"
+
         if self.set_config():
-            seed = main.generate_parkour(self.settings, True, self.loadingbar, self.window)
+            self.list_of_placed_jumps: list[JumpType] = []
+            seed = generator.generate_parkour(list_of_placed_jumps=self.list_of_placed_jumps, 
+                                    random_seed=self.settings["randomSeed"], 
+                                    seed=self.settings["seed"], 
+                                    list_of_allowed_structure_types=self.settings["allowedStructureTypes"],
+                                    parkour_start_position=self.settings["startPosition"],
+                                    parkour_start_forward_direction=self.settings["startForwardDirection"],
+                                    parkour_type=self.settings["parkourType"],
+                                    spiral_rotation=self.settings["spiralRotation"],
+                                    max_parkour_length=self.settings["maxParkourLength"],
+                                    checkpoints_enabled=self.settings["checkpointsEnabled"],
+                                    checkpoints_period=self.settings["checkpointsPeriod"],
+                                    use_all_blocks=self.settings["useAllBlocks"],
+                                    difficulty=self.settings["difficulty"],
+                                    flow=self.settings["flow"],
+                                    ascending=self.settings["parkourAscending"],
+                                    curves_size=self.settings["curvesSize"],
+                                    spiral_type=self.settings["spiralType"],
+                                    spiral_turn_rate=self.settings["spiralTurnRate"],
+                                    spiral_turn_prob=self.settings["spiralTurnProbability"],
+                                    enforce_volume=self.settings["enforceParkourVolume"],
+                                    parkour_volume=self.settings["parkourVolume"],
+                                    gui_enabled=True,
+                                    gui_loading_bar=self.loadingbar,
+                                    gui_window=self.window)
+            
+            if self.settings["writeDatapackFiles"]:
+                datapack.write_function_files(list_of_placed_jumps=self.list_of_placed_jumps, 
+                                        parkour_volume=self.settings["parkourVolume"], 
+                                        enforce_parkour_volume=self.settings["enforceParkourVolume"], 
+                                        fill_volume_with_air=self.settings["fillParkourVolumeWithAir"])
+            
+            plotting.plot_parkour(list_of_placed_jumps=self.list_of_placed_jumps, 
+                            parkour_volume=self.settings["parkourVolume"], 
+                            enforce_parkour_volume=self.settings["enforceParkourVolume"], 
+                            plot_command_blocks=self.settings["plotCommandBlocks"],
+                            plot_color_scheme=self.settings["plotColorScheme"],
+                            plot_file_type=self.settings["plotFileType"])
+            
             self.variables["seed"].set(seed)
             self.refresh_image()
             # Update loading bar to 100%
             self.loadingbar["value"] = 100
             self.window.update_idletasks()
+
         self.generate_button["state"] = "normal"
 
     def run(self) -> None:
         self.window.mainloop()
-
-
-if __name__ == "__main__":
-
-    use_gui = True
-
-    if use_gui:
-        gui = Gui()
-        gui.run()
-    else:
-        settings = config.import_config(gui_enabled=False)
-        error_str = check_config(config)
-        if error_str != "":
-            raise Exception(error_str)
-        main.generate_parkour(settings, False, None, None)

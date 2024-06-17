@@ -12,6 +12,8 @@ import tkinter.ttk as ttk
 
 from copy import deepcopy
 from numpy.random import Generator
+from numpy.random import default_rng
+import numpy as np
 
 DIRECTIONS = ["Xpos", "Zneg", "Xneg", "Zpos"]
 curvesDirection = 0
@@ -288,7 +290,8 @@ def place_checkpoint(current_block_position: tuple[int, int, int],
 
 
 def generate_parkour(list_of_placed_jumps: list[JumpType],
-                     rng: Generator,
+                     random_seed: bool,
+                     seed: int,
                      list_of_allowed_structure_types: list[str],
                      parkour_start_position: tuple[int, int, int],
                      parkour_start_forward_direction: str,
@@ -309,7 +312,13 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                      parkour_volume: list[tuple[int, int]],
                      gui_enabled: bool,
                      gui_loading_bar: ttk.Progressbar,
-                     gui_window: tk.Tk) -> None:
+                     gui_window: tk.Tk) -> int:
+
+    # Set seed for the RNG
+    if random_seed:
+        rng_for_rng = default_rng()
+        seed = rng_for_rng.integers(low=0, high=(2**64), dtype=np.uint64)
+    rng = default_rng(seed)
 
     # Place Start Structure of the Parkour
     current_block_position = parkour_start_position
@@ -444,4 +453,4 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
         list_of_placed_jumps.append(command_blocks_instance)
         list_of_placed_jumps.append(dispenser_instance)
 
-    return
+    return seed
