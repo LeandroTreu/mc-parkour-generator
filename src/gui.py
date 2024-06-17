@@ -518,7 +518,8 @@ class Gui():
                                     parkour_volume=self.settings["parkourVolume"],
                                     gui_enabled=True,
                                     gui_loading_bar=self.loadingbar,
-                                    gui_window=self.window)
+                                    gui_window=self.window,
+                                    block_type=self.settings["blockType"])
             
             if self.settings["writeDatapackFiles"]:
                 datapack.write_function_files(list_of_placed_jumps=self.list_of_placed_jumps, 

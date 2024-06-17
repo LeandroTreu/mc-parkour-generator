@@ -1,12 +1,7 @@
 import util
 from classes import JumpType
 from classes import Block
-from jumptypes import list_of_jumptypes
-from jumptypes import StartBlock
-from jumptypes import FinishBlock
-from jumptypes import CheckpointBlock
-from jumptypes import CommandBlockControl
-from jumptypes import DispenserCommandblock
+import jumptypes
 import tkinter as tk
 import tkinter.ttk as ttk
 
@@ -69,8 +64,9 @@ def place_control_command_blocks(command_blocks_instance: JumpType, dispenser_in
     dispenser_instance.rel_finish_block.name = f"minecraft:stone_button[face=floor, facing={button_facing_direction}]"
 
 
-def filter_jumptypes(list_of_allowed_structure_types: list[str], use_all_blocks: bool, difficulty: float, flow: float, ascending: bool) -> list[JumpType]:
+def filter_jumptypes(list_of_allowed_structure_types: list[str], use_all_blocks: bool, difficulty: float, flow: float, ascending: bool, block_type: str) -> list[JumpType]:
 
+    list_of_jumptypes = jumptypes.init_jumptypes(block_type=block_type)
     list_of_jumptypes_filtered: list[JumpType] = []
     if use_all_blocks:
         list_of_jumptypes_filtered = list_of_jumptypes
@@ -192,12 +188,13 @@ def place_finish_structure(current_block_position: tuple[int, int, int],
                            current_forward_direction: str, 
                            list_of_placed_jumps: list[JumpType], 
                            enforce_volume: bool,
-                           parkour_volume: list[tuple[int, int]]) -> None:
+                           parkour_volume: list[tuple[int, int]],
+                           block_type: str) -> None:
 
     # Place Finish Structure of the Parkour
     # TODO: Maybe try to place in bounds of Parkour Volume
     # TODO: fix parkour length when backtracking happens
-    finishblock_instance = deepcopy(FinishBlock)
+    finishblock_instance = jumptypes.init_finishblock(block_type)
 
     if enforce_volume:
         if not util.can_be_placed(finishblock_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume):
@@ -237,11 +234,12 @@ def place_checkpoint(current_block_position: tuple[int, int, int],
                      try_to_place_cp_here: int,
                      cp_period: int,
                      enforce_parkour_volume: bool,
-                     parkour_volume: list[tuple[int, int]]) -> tuple[int, bool, int, tuple[int, int, int]]:
+                     parkour_volume: list[tuple[int, int]],
+                     block_type: str) -> tuple[int, bool, int, tuple[int, int, int]]:
 
     continue_bool = False
     if try_to_place_cp_here == n_blocks_placed:
-        checkpoint_instance = deepcopy(CheckpointBlock)
+        checkpoint_instance = jumptypes.init_checkpointblock(block_type)
 
         if util.can_be_placed(checkpoint_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_parkour_volume, parkour_volume):
 
@@ -312,7 +310,8 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                      parkour_volume: list[tuple[int, int]],
                      gui_enabled: bool,
                      gui_loading_bar: ttk.Progressbar,
-                     gui_window: tk.Tk) -> int:
+                     gui_window: tk.Tk,
+                     block_type: str) -> int:
 
     # Set seed for the RNG
     if random_seed:
@@ -324,13 +323,13 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
     current_block_position = parkour_start_position
     current_forward_direction = parkour_start_forward_direction
 
-    startblock_instance = deepcopy(StartBlock)
+    startblock_instance = jumptypes.init_startblock(block_type)
     startblock_instance.set_absolut_coordinates(current_block_position, current_forward_direction)
     list_of_placed_jumps.append(startblock_instance)
 
     # Place the Control and Dispenser structures
-    command_blocks_instance = deepcopy(CommandBlockControl)
-    dispenser_instance = deepcopy(DispenserCommandblock)
+    command_blocks_instance = jumptypes.init_commandcontrol(block_type)
+    dispenser_instance = jumptypes.init_dispenser(block_type)
     if checkpoints_enabled:
         place_control_command_blocks(
             command_blocks_instance, 
@@ -340,11 +339,12 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
 
     # Pre-filter allowed jumptypes
     list_of_jumptypes_filtered = filter_jumptypes(
-        list_of_allowed_structure_types, 
-        use_all_blocks, 
-        difficulty, 
-        flow, 
-        ascending)
+        list_of_allowed_structure_types,
+        use_all_blocks,
+        difficulty,
+        flow,
+        ascending,
+        block_type)
 
     print(f"Number of filtered jumptypes: {len(list_of_jumptypes_filtered)}")
 
@@ -375,7 +375,8 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                                                                                                             try_to_place_cp_here, 
                                                                                                             checkpoints_period,
                                                                                                             enforce_volume,
-                                                                                                            parkour_volume)
+                                                                                                            parkour_volume,
+                                                                                                            block_type)
 
             if continue_bool:
                 continue
@@ -441,10 +442,11 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
         n_blocks_placed += 1
 
     place_finish_structure(current_block_position,
-                           current_forward_direction, 
-                           list_of_placed_jumps, 
+                           current_forward_direction,
+                           list_of_placed_jumps,
                            enforce_volume,
-                           parkour_volume)
+                           parkour_volume,
+                           block_type)
 
     print(f"] {len(list_of_placed_jumps)}/{max_parkour_length}")
 
