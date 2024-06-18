@@ -12,12 +12,14 @@ from classes import JumpType, Block
 
 class Gui():
 
-    image_size = (1000, 1000)
+    image_size = (1080, 1080)
     font_title = ("Segoe UI", 11, "bold")
     font_general = ("Segoe UI", 10, "normal")
     label_pad_y = 3
 
     def __init__(self) -> None:
+
+        self.list_of_placed_jumps: list[JumpType] = []
 
         self.window = tk.Tk()
         self.window.title("MC Parkour Generator")
@@ -177,9 +179,11 @@ class Gui():
         # File options
         self.plot_file_type_l = ttk.Label(master=self.settings_frame, text="Plot File Type:")
         self.plot_file_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotFileType"], values=["jpg", "png"], width=10, state="readonly")
+        self.plot_file_type.bind("<<ComboboxSelected>>", self.refresh_plot) # type: ignore
         self.plot_colorscheme_l = ttk.Label(master=self.settings_frame, text="Plot Colorscheme:")
         self.plot_colorscheme = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotColorScheme"], values=["winter", "viridis", "plasma", "gray", "hot", "summer", "hsv", "copper"], width=10, state="readonly")
-        self.plot_commandblocks = ttk.Checkbutton(master=self.settings_frame, text="Plot Commandblocks", variable=self.variables["plotCommandBlocks"], onvalue=True, offvalue=False, command=self.update_vis)
+        self.plot_colorscheme.bind("<<ComboboxSelected>>", self.refresh_plot) # type: ignore
+        self.plot_commandblocks = ttk.Checkbutton(master=self.settings_frame, text="Plot Commandblocks", variable=self.variables["plotCommandBlocks"], onvalue=True, offvalue=False, command=self.refresh_plot)
         self.write_datapack_files = ttk.Checkbutton(master=self.settings_frame, text="Write Datapack Files", variable=self.variables["writeDatapackFiles"], onvalue=True, offvalue=False, command=self.update_vis)
 
 
@@ -291,7 +295,7 @@ class Gui():
         self.loadingbar.pack(fill=tk.BOTH, expand=True, side=tk.TOP, padx=0, pady=5)
 
         # Task Info
-        self.task_info_label = ttk.Label(master=self.generate_frame, text="Task Info")
+        self.task_info_label = ttk.Label(master=self.generate_frame, text="Generation: ... s    Datapack: ... s    Plot: ... s")
         self.task_info_label.pack(side=tk.TOP, padx=5, pady=5)
 
         self.update_vis("")
@@ -412,15 +416,30 @@ class Gui():
         self.curves_size_l["text"] = f"Curves Size: {string}"
 
     def refresh_image(self):
-        if self.settings["plotFileType"] == "png":
-            self.img = Image.open("parkour_plot.png")
-        else:
-            self.img = Image.open("parkour_plot.jpg")
-        self.img = self.img.resize(self.image_size)
-        self.img = ImageTk.PhotoImage(self.img)
-        self.img_label["image"] = self.img
-        # Prevent GC
-        self.img_label.image = self.img # type: ignore
+        try:
+            if self.settings["plotFileType"] == "png":
+                self.img = Image.open("parkour_plot.png")
+            else:
+                self.img = Image.open("parkour_plot.jpg")
+            self.img = self.img.resize(self.image_size)
+            self.img = ImageTk.PhotoImage(self.img)
+            self.img_label["image"] = self.img
+            # Prevent GC
+            self.img_label.image = self.img # type: ignore
+        except:
+            pass
+    
+    def refresh_plot(self, string: str = ""):
+
+        if self.set_config() and len(self.list_of_placed_jumps) != 0:
+            plotting.plot_parkour(list_of_placed_jumps=self.list_of_placed_jumps, 
+                        parkour_volume=self.settings["parkourVolume"], 
+                        enforce_parkour_volume=self.settings["enforceParkourVolume"], 
+                        plot_command_blocks=self.settings["plotCommandBlocks"],
+                        plot_color_scheme=self.settings["plotColorScheme"],
+                        plot_file_type=self.settings["plotFileType"])
+        
+        self.refresh_image()
     
     def set_config(self) -> bool:
 
@@ -494,6 +513,8 @@ class Gui():
         self.generate_button["state"] = "disabled"
 
         if self.set_config():
+            
+            start_time = time.time()
             self.list_of_placed_jumps: list[JumpType] = []
             seed = generator.generate_parkour(list_of_placed_jumps=self.list_of_placed_jumps, 
                                     random_seed=self.settings["randomSeed"], 
@@ -520,22 +541,31 @@ class Gui():
                                     gui_loading_bar=self.loadingbar,
                                     gui_window=self.window,
                                     block_type=self.settings["blockType"])
+            end_time = time.time()
+            generation_time = round(end_time-start_time, 3)
             
+            start_time = time.time()
             if self.settings["writeDatapackFiles"]:
                 datapack.write_function_files(list_of_placed_jumps=self.list_of_placed_jumps, 
                                         parkour_volume=self.settings["parkourVolume"], 
                                         enforce_parkour_volume=self.settings["enforceParkourVolume"], 
                                         fill_volume_with_air=self.settings["fillParkourVolumeWithAir"])
-            
+            end_time = time.time()
+            datapack_time = round(end_time-start_time, 3)
+
+            start_time = time.time()
             plotting.plot_parkour(list_of_placed_jumps=self.list_of_placed_jumps, 
-                            parkour_volume=self.settings["parkourVolume"], 
-                            enforce_parkour_volume=self.settings["enforceParkourVolume"], 
-                            plot_command_blocks=self.settings["plotCommandBlocks"],
-                            plot_color_scheme=self.settings["plotColorScheme"],
-                            plot_file_type=self.settings["plotFileType"])
+                        parkour_volume=self.settings["parkourVolume"], 
+                        enforce_parkour_volume=self.settings["enforceParkourVolume"], 
+                        plot_command_blocks=self.settings["plotCommandBlocks"],
+                        plot_color_scheme=self.settings["plotColorScheme"],
+                        plot_file_type=self.settings["plotFileType"])
+            end_time = time.time()
+            self.refresh_image()
+            plot_time = round(end_time-start_time, 3)
+            self.task_info_label["text"] = f"Generation: {generation_time}s    Datapack: {datapack_time}s    Plot: {plot_time}s"
             
             self.variables["seed"].set(seed)
-            self.refresh_image()
             # Update loading bar to 100%
             self.loadingbar["value"] = 100
             self.window.update_idletasks()
