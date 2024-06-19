@@ -1,25 +1,25 @@
 {
  "parkourVolume": [
   [
-   -10,
-   110
+   0,
+   50
   ],
   [
-   -20,
-   120
+   0,
+   10
   ],
   [
-   -30,
-   130
+   0,
+   20
   ]
  ],
- "enforceParkourVolume": false,
+ "enforceParkourVolume": true,
  "fillParkourVolumeWithAir": true,
  "maxParkourLength": 20,
  "startPosition": [
-  -222,
-  76,
-  119
+  0,
+  0,
+  0
  ],
  "startForwardDirection": "Zneg",
  "blockType": "minecraft:stone",

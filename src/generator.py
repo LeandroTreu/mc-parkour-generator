@@ -15,14 +15,24 @@ curvesDirection = 0
 spiralTurnCounter = 0
 
 
-def place_control_command_blocks(command_blocks_instance: JumpType, dispenser_instance: JumpType, list_of_placed_jumps: list[JumpType], start_forward_direction: str) -> None:
+def place_control_command_blocks(command_blocks_instance: JumpType, 
+                                 dispenser_instance: JumpType,
+                                 list_of_placed_jumps: list[JumpType],
+                                 start_forward_direction: str,
+                                 enforce_volume: bool,
+                                 parkour_volume: list[tuple[int, int]]) -> None:
 
     world_spawn = list_of_placed_jumps[0].rel_start_block.abs_position
-    # TODO: Smart positioning of the command blocks
+    
     if start_forward_direction == "Xpos" or start_forward_direction == "Xneg":
         abs_position = (world_spawn[0], world_spawn[1], world_spawn[2]-5)
+        # Switch side, trying to place it inside the parkour volume
+        if enforce_volume and (abs_position[2] > parkour_volume[2][1] or abs_position[2] < parkour_volume[2][0]):
+            abs_position = (world_spawn[0], world_spawn[1], world_spawn[2]+5)
     else:
         abs_position = (world_spawn[0]-5, world_spawn[1], world_spawn[2])
+        if enforce_volume and (abs_position[0] > parkour_volume[0][1] or abs_position[0] < parkour_volume[0][0]):
+            abs_position = (world_spawn[0]+5, world_spawn[1], world_spawn[2])
 
     if start_forward_direction == "Xpos":
         rotation_degree = -90
@@ -70,13 +80,21 @@ def place_control_command_blocks(command_blocks_instance: JumpType, dispenser_in
 
 
     # Place command block that gives the player a checkpoint teleporter
-    if (start_forward_direction == "Xpos" or start_forward_direction == "Xneg"):
-        dispenser_instance.set_absolut_coordinates(
-            (world_spawn[0], world_spawn[1], world_spawn[2]-2), start_forward_direction)
+    if start_forward_direction == "Xpos" or start_forward_direction == "Xneg":
+        if enforce_volume and (world_spawn[2]-2 > parkour_volume[2][1] or world_spawn[2]-2 < parkour_volume[2][0]):
+            dispenser_instance.set_absolut_coordinates(
+                (world_spawn[0], world_spawn[1], world_spawn[2]+2), start_forward_direction)
+        else:
+            dispenser_instance.set_absolut_coordinates(
+                (world_spawn[0], world_spawn[1], world_spawn[2]-2), start_forward_direction)
         button_facing_direction = "north"
     else:
-        dispenser_instance.set_absolut_coordinates(
-            (world_spawn[0]-2, world_spawn[1], world_spawn[2]), start_forward_direction)
+        if enforce_volume and (world_spawn[0]-2 > parkour_volume[0][1] or world_spawn[0]-2 < parkour_volume[0][0]):
+            dispenser_instance.set_absolut_coordinates(
+                (world_spawn[0]+2, world_spawn[1], world_spawn[2]), start_forward_direction)
+        else:
+            dispenser_instance.set_absolut_coordinates(
+                (world_spawn[0]-2, world_spawn[1], world_spawn[2]), start_forward_direction)
         button_facing_direction = "east"
     
     dispenser_instance.rel_finish_block.name = f"minecraft:stone_button[face=floor, facing={button_facing_direction}]"
@@ -353,7 +371,9 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
             command_blocks_instance, 
             dispenser_instance, 
             list_of_placed_jumps, 
-            parkour_start_forward_direction)
+            parkour_start_forward_direction,
+            enforce_volume=enforce_volume,
+            parkour_volume=parkour_volume)
 
     # Pre-filter allowed jumptypes
     list_of_jumptypes_filtered = filter_jumptypes(

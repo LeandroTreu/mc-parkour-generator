@@ -12,9 +12,9 @@ from classes import JumpType, Block
 
 class Gui():
 
-    image_size = (1080, 1080)
-    font_title = ("Segoe UI", 11, "bold")
-    font_general = ("Segoe UI", 10, "normal")
+    image_size = (800, 800)
+    font_title = ("Segoe UI", 10, "bold")
+    font_general = ("Segoe UI", 9, "normal")
     label_pad_y = 3
 
     def __init__(self) -> None:
