@@ -351,7 +351,6 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
     try_again_counter = 0
     try_to_place_cp_here = checkpoints_period
 
-    # Search for candidates
     list_of_candidates: list[JumpType] = []
     n_blocks_placed = 0
     print("[", end="")
@@ -381,15 +380,24 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
             if continue_bool:
                 continue
 
-        # Search for candidates to be placed
-        for jumptype in list_of_jumptypes_filtered:
-            jumptype_instance = deepcopy(jumptype)
-            if util.can_be_placed(jumptype_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume):
-                list_of_candidates.append(jumptype_instance)
+        list_of_candidates = deepcopy(list_of_jumptypes_filtered)
+        no_placeable_jumps_found = True
+        while len(list_of_candidates) > 0:
 
+            # Choose randomly from list of allowed jumptypes
+            random_index: int = rng.integers(low=0, high=len(list_of_candidates)) # type: ignore
+            candidate_instance = deepcopy(list_of_candidates[random_index])
+            if util.can_be_placed(candidate_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume):
+                list_of_placed_jumps.append(candidate_instance)
+                no_placeable_jumps_found = False
+                break
+            else:
+                list_of_candidates.pop(random_index)
+                continue
+            
         # No placable JumpTypes found
-        if len(list_of_candidates) == 0:
-            if try_again_counter >= 10:
+        if no_placeable_jumps_found:
+            if try_again_counter >= 4:
                 break
             else:
                 try_again_counter += 1
@@ -418,16 +426,9 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
         else:
             try_again_counter = 0
 
-        # Choose randomly from list of candidates
-        random_index: int = rng.integers(low=0, high=len(list_of_candidates)) # type: ignore
-        next_jump = list_of_candidates[random_index]
-        list_of_placed_jumps.append(next_jump)
 
         # Set new absolute coordinates for next iteration
-        current_block_position = next_jump.rel_finish_block.abs_position
-
-        # Clear list of candidates for next iteration
-        list_of_candidates = []
+        current_block_position = list_of_placed_jumps[-1].rel_finish_block.abs_position
 
         # Change direction for next iteration
         current_forward_direction = change_direction(current_forward_direction, 

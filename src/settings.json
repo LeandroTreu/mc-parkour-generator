@@ -15,7 +15,7 @@
  ],
  "enforceParkourVolume": false,
  "fillParkourVolumeWithAir": true,
- "maxParkourLength": 10,
+ "maxParkourLength": 500,
  "startPosition": [
   0,
   50,
