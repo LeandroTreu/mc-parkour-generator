@@ -384,24 +384,27 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
         ascending,
         block_type)
 
-    print(f"Number of filtered jumptypes: {len(list_of_jumptypes_filtered)}")
+    if not gui_enabled:
+        print(f"Number of filtered jumptypes: {len(list_of_jumptypes_filtered)}")
 
     try_again_counter = 0
     try_to_place_cp_here = checkpoints_period
 
     list_of_candidates: list[JumpType] = []
     n_blocks_placed = 0
-    print("[", end="")
-    # Max parkour length minus Start and Finish structures
-    while n_blocks_placed < max_parkour_length - 2:
+    if not gui_enabled:
+        print("[", end="")
+    # Max parkour length minus Finish structure
+    while n_blocks_placed < max_parkour_length - 1:
 
         # Loading bar print
         if n_blocks_placed % max(max_parkour_length//10, 1) == 0:
-            print("=", end="", flush=True)
-
             if gui_enabled:
                 gui_loading_bar["value"] = 100 * (n_blocks_placed / max(max_parkour_length, 1))
                 gui_window.update_idletasks()
+            else:
+                print("=", end="", flush=True)
+
 
         if checkpoints_enabled:
             n_blocks_placed, continue_bool, try_to_place_cp_here, current_block_position = place_checkpoint(current_block_position, 
@@ -487,9 +490,10 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                            parkour_volume,
                            block_type)
 
-    print(f"] {len(list_of_placed_jumps)}/{max_parkour_length}")
+    if not gui_enabled:
+        print(f"] {len(list_of_placed_jumps)-1}/{max_parkour_length}")
 
-    # Place command control blocks last so they don't interfere with the block placing checks
+    # Place command control blocks last so they are not treated as part of the parkour
     if checkpoints_enabled:
         list_of_placed_jumps.append(command_blocks_instance)
         list_of_placed_jumps.append(dispenser_instance)
