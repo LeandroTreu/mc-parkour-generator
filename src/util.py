@@ -140,6 +140,8 @@ def can_be_placed(jumptype: JumpType,
     for block in jumptype.blocks:
         if not in_bounds(block, parkour_volume, enforce_parkour_volume):
             return False
+    
+    # TODO: quick check here if jumptype is even near earlier jump
 
     # For start and finish blocks
     for earlier_jump in list_of_placed_jumps[:len(list_of_placed_jumps)-1]:

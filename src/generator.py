@@ -19,37 +19,55 @@ def place_control_command_blocks(command_blocks_instance: JumpType, dispenser_in
 
     world_spawn = list_of_placed_jumps[0].rel_start_block.abs_position
     # TODO: Smart positioning of the command blocks
-    abs_position = (world_spawn[0]-10, world_spawn[1], world_spawn[2]-10)
+    if start_forward_direction == "Xpos" or start_forward_direction == "Xneg":
+        abs_position = (world_spawn[0], world_spawn[1], world_spawn[2]-5)
+    else:
+        abs_position = (world_spawn[0]-5, world_spawn[1], world_spawn[2])
 
     if start_forward_direction == "Xpos":
         rotation_degree = -90
+        cb_facing_direction = "west"
     elif start_forward_direction == "Xneg":
         rotation_degree = 90
+        cb_facing_direction = "east"
     elif start_forward_direction == "Zpos":
         rotation_degree = 0
+        cb_facing_direction = "north"
     else:
         rotation_degree = -180
+        cb_facing_direction = "south"
 
-    command_block_1_string = 'minecraft:chain_command_block[facing=west]{Command:"' + f'fill {abs_position[0]+6} {abs_position[1]+1} {
-        abs_position[2]} {abs_position[0]+6} {abs_position[1]+1} {abs_position[2]} minecraft:redstone_block replace' + '"}'
-    command_block_2_string = 'minecraft:repeating_command_block[facing=west]{Command:"' + f'fill {abs_position[0]+6} {
-        abs_position[1]+1} {abs_position[2]} {abs_position[0]+6} {abs_position[1]+1} {abs_position[2]} minecraft:air replace' + '"}'
-    command_block_3_string = 'minecraft:repeating_command_block[facing=west]{Command:"' + \
-        f'kill @e[type=minecraft:fishing_bobber]' + '"}'
-    command_block_4_string = 'minecraft:repeating_command_block[facing=west]{Command:"' + f'execute at @e[type=minecraft:fishing_bobber] run tp @p {
-        world_spawn[0]} {world_spawn[1]+1} {world_spawn[2]} {rotation_degree} 25' + '"}'
-
-    blocks = [Block(command_block_1_string, (1, 0, 0)),
-              Block(command_block_2_string, (2, 0, 0)),
-              Block("minecraft:redstone_block", (1, 1, 0)), 
-              Block("minecraft:redstone_block", (2, 1, 0)),
-              Block(command_block_3_string, (4, 0, 0)),
-              Block(command_block_4_string, (6, 0, 0)),
-              Block("minecraft:redstone_block", (4, 1, 0)), 
-              Block("minecraft:redstone_block", (6, 1, 0)),
+    blocks = [Block("command_block_1_string", (0, 0, 0)),
+              Block("command_block_2_string", (1, 0, 0)),
+              Block("minecraft:redstone_block", (0, 1, 0)), 
+              Block("minecraft:redstone_block", (1, 1, 0)),
+              Block("command_block_3_string", (0, 0, -1)),
+              Block("command_block_4_string", (1, 0, -1)),
+              Block("minecraft:redstone_block", (0, 1, -1)), 
+              Block("minecraft:redstone_block", (1, 1, -1)),
     ]
     command_blocks_instance.blocks = blocks
-    command_blocks_instance.set_absolut_coordinates(abs_position, "Xpos")
+    command_blocks_instance.set_absolut_coordinates(abs_position, start_forward_direction)
+
+    for b in command_blocks_instance.blocks:
+        if b.name == "command_block_1_string":
+            t = command_blocks_instance.blocks[7]
+            b.name = f"minecraft:chain_command_block[facing={cb_facing_direction}]" + "{Command:\"" + f"fill {t.abs_position[0]} {t.abs_position[1]} {
+                t.abs_position[2]} {t.abs_position[0]} {t.abs_position[1]} {t.abs_position[2]} minecraft:redstone_block replace\"" + "}"
+    
+        if b.name == "command_block_2_string":
+            t = command_blocks_instance.blocks[7]
+            b.name = f"minecraft:repeating_command_block[facing={cb_facing_direction}]" + "{Command:\"" + f"fill {t.abs_position[0]} {
+                t.abs_position[1]} {t.abs_position[2]} {t.abs_position[0]} {t.abs_position[1]} {t.abs_position[2]} minecraft:air replace\"" + "}"
+    
+        if b.name == "command_block_3_string":
+            b.name = f"minecraft:repeating_command_block[facing={cb_facing_direction}]" + "{Command:\"" + \
+                f"kill @e[type=minecraft:fishing_bobber]\"" + "}"
+
+        if b.name == "command_block_4_string":
+            b.name = f"minecraft:repeating_command_block[facing={cb_facing_direction}]" + "{Command:\"" + f"execute at @e[type=minecraft:fishing_bobber] run tp @p {
+                world_spawn[0]} {world_spawn[1]+1} {world_spawn[2]} {rotation_degree} 25\"" + "}"
+
 
     # Place command block that gives the player a checkpoint teleporter
     if (start_forward_direction == "Xpos" or start_forward_direction == "Xneg"):
@@ -243,11 +261,11 @@ def place_checkpoint(current_block_position: tuple[int, int, int],
 
         if util.can_be_placed(checkpoint_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_parkour_volume, parkour_volume):
 
-            c_block_abs = command_blocks_instance.rel_start_block.abs_position
+            c_block_abs = command_blocks_instance.blocks[5].abs_position
 
             checkpoint_respawn = None
             for block in checkpoint_instance.blocks:
-                if block.name == "minecraft:light_weighted_pressure_plate":
+                if block.name == "minecraft:stone_pressure_plate":
                     checkpoint_respawn = block.abs_position
             
             if checkpoint_respawn is None:
@@ -264,8 +282,8 @@ def place_checkpoint(current_block_position: tuple[int, int, int],
 
             checkpoint_command_string_recursive = 'minecraft:repeating_command_block[facing=west]{Command:\\"' + f'execute at @e[type=minecraft:fishing_bobber] run tp @p {
                 checkpoint_respawn[0]} {checkpoint_respawn[1]} {checkpoint_respawn[2]} {rotation_degree} 25' + '\\"} destroy'
-            checkpoint_command_string = 'minecraft:command_block{Command:"' + f'fill {c_block_abs[0]+6} {c_block_abs[1]} {
-                c_block_abs[2]} {c_block_abs[0]+6} {c_block_abs[1]} {c_block_abs[2]} {checkpoint_command_string_recursive}' + '"}'
+            checkpoint_command_string = 'minecraft:command_block{Command:"' + f'fill {c_block_abs[0]} {c_block_abs[1]} {
+                c_block_abs[2]} {c_block_abs[0]} {c_block_abs[1]} {c_block_abs[2]} {checkpoint_command_string_recursive}' + '"}'
 
             for block in checkpoint_instance.blocks:
                 if block.name == "minecraft:command_block":

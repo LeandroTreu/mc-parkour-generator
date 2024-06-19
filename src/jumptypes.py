@@ -32,7 +32,7 @@ def init_checkpointblock(block_type: str) -> JumpType:
                         blocks=[Block(block_type, (0, 0, -1)), Block(block_type, (0, 0, 1)), 
                                 Block("minecraft:diamond_block", (1, 0, 0)), Block(block_type, (1, 0, -1)), Block(block_type, (1, 0, 1)), 
                                 Block(block_type, (2, 0, 1)), Block(block_type, (2, 0, -1)), 
-                                Block("minecraft:command_block", (1, -1, 0)), Block("minecraft:light_weighted_pressure_plate", (1, 1, 0))
+                                Block("minecraft:command_block", (1, -1, 0)), Block("minecraft:stone_pressure_plate", (1, 1, 0))
                                 ],
                         difficulty=0.0, 
                         flow=1.0)
