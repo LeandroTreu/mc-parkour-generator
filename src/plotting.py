@@ -18,7 +18,7 @@ def plot_parkour(list_of_placed_jumps: list[JumpType],
 
     non_connected_blocks: list[JumpType] = []
     for placed_jump in list_of_placed_jumps:
-    
+
         if placed_jump.structure_type == "CommandControl":
             if plot_command_blocks:
                 non_connected_blocks.append(placed_jump)
@@ -29,13 +29,15 @@ def plot_parkour(list_of_placed_jumps: list[JumpType],
         x_axis.append(placed_jump.rel_start_block.abs_position[0])
         y_axis.append(placed_jump.rel_start_block.abs_position[2])
         z_axis.append(placed_jump.rel_start_block.abs_position[1])
-
         x_axis.append(placed_jump.rel_finish_block.abs_position[0])
         y_axis.append(placed_jump.rel_finish_block.abs_position[2])
         z_axis.append(placed_jump.rel_finish_block.abs_position[1])
 
         for block in placed_jump.blocks:
-
+            if not plot_command_blocks and "command_block" in block.name:
+                continue
+            if "pressure_plate" in block.name:
+                continue
             x_axis.append(block.abs_position[0])
             y_axis.append(block.abs_position[2])
             z_axis.append(block.abs_position[1])
@@ -48,17 +50,13 @@ def plot_parkour(list_of_placed_jumps: list[JumpType],
 
     # Add non-connected blocks for the scatter plot
     for placed_jump in non_connected_blocks:
-
         x_axis.append(placed_jump.rel_start_block.abs_position[0])
         y_axis.append(placed_jump.rel_start_block.abs_position[2])
         z_axis.append(placed_jump.rel_start_block.abs_position[1])
-
         x_axis.append(placed_jump.rel_finish_block.abs_position[0])
         y_axis.append(placed_jump.rel_finish_block.abs_position[2])
         z_axis.append(placed_jump.rel_finish_block.abs_position[1])
-
         for block in placed_jump.blocks:
-
             x_axis.append(block.abs_position[0])
             y_axis.append(block.abs_position[2])
             z_axis.append(block.abs_position[1])
