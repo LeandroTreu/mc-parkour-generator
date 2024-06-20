@@ -68,7 +68,8 @@ def import_config(gui_enabled: bool) -> dict[str, any]:
             else:
                 config[name] = file_dict[name]
     except:
-        print("settings.json file not found")
+        if not gui_enabled:
+            print("settings.json file not found")
     
     return config
 

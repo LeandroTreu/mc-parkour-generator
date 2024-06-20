@@ -5,4 +5,4 @@ parkour_generator_datapack/data/parkour_generator/functions/*
 build
 dist
 __pycache__
-main.spec
+*.spec
