@@ -45,32 +45,7 @@ class Gui():
 
         # Map settings to tkinter Variables
         self.variables = {}
-        for (name, value) in self.settings.items():
-
-            if name == "parkourVolume":
-                self.variables["parkourVolume_x1"] = tk.StringVar(master=self.window, value=value[0][0])
-                self.variables["parkourVolume_x2"] = tk.StringVar(master=self.window, value=value[0][1])
-                self.variables["parkourVolume_y1"] = tk.StringVar(master=self.window, value=value[1][0])
-                self.variables["parkourVolume_y2"] = tk.StringVar(master=self.window, value=value[1][1])
-                self.variables["parkourVolume_z1"] = tk.StringVar(master=self.window, value=value[2][0])
-                self.variables["parkourVolume_z2"] = tk.StringVar(master=self.window, value=value[2][1])
-            elif name == "startPosition":
-                self.variables["startPosition_x"] = tk.StringVar(master=self.window, value=value[0])
-                self.variables["startPosition_y"] = tk.StringVar(master=self.window, value=value[1])
-                self.variables["startPosition_z"] = tk.StringVar(master=self.window, value=value[2])
-            elif name == "allowedStructureTypes":
-                self.variables["allowedStructureTypes_sb"] = tk.BooleanVar(master=self.window, value=True)
-                self.variables["allowedStructureTypes_tb"] = tk.BooleanVar(master=self.window, value=True)
-            elif type(value) is bool:
-                self.variables[name] = tk.BooleanVar(master=self.window, value=value)
-            elif type(value) is str:
-                self.variables[name] = tk.StringVar(master=self.window, value=value)
-            elif type(value) is int:
-                self.variables[name] = tk.StringVar(master=self.window, value=str(value))
-            elif type(value) is float:
-                self.variables[name] = tk.StringVar(master=self.window, value=str(value))
-            else:
-                self.variables[name] = tk.StringVar(master=self.window, value=str(value))
+        self.set_variables()
 
         self.settings_frame = ttk.Frame(master=self.window, relief="flat", borderwidth=5)
         self.settings_frame.pack(expand=False, side=tk.LEFT)
@@ -92,6 +67,74 @@ class Gui():
             self.img_label.pack(expand=True, fill=tk.BOTH)
 
         self.populate_settings_frame()
+    
+    def set_variables(self):
+        for (name, value) in self.settings.items():
+
+            if name == "parkourVolume":
+                self.variables["parkourVolume_x1"] = tk.StringVar(master=self.window, value=value[0][0])
+                self.variables["parkourVolume_x2"] = tk.StringVar(master=self.window, value=value[0][1])
+                self.variables["parkourVolume_y1"] = tk.StringVar(master=self.window, value=value[1][0])
+                self.variables["parkourVolume_y2"] = tk.StringVar(master=self.window, value=value[1][1])
+                self.variables["parkourVolume_z1"] = tk.StringVar(master=self.window, value=value[2][0])
+                self.variables["parkourVolume_z2"] = tk.StringVar(master=self.window, value=value[2][1])
+            elif name == "startPosition":
+                self.variables["startPosition_x"] = tk.StringVar(master=self.window, value=value[0])
+                self.variables["startPosition_y"] = tk.StringVar(master=self.window, value=value[1])
+                self.variables["startPosition_z"] = tk.StringVar(master=self.window, value=value[2])
+            elif name == "allowedStructureTypes":
+                if "SingleBlock" in value:
+                    self.variables["allowedStructureTypes_sb"] = tk.BooleanVar(master=self.window, value=True)
+                else:
+                    self.variables["allowedStructureTypes_sb"] = tk.BooleanVar(master=self.window, value=False)
+                if "TwoBlock" in value:
+                    self.variables["allowedStructureTypes_tb"] = tk.BooleanVar(master=self.window, value=True)
+                else:
+                    self.variables["allowedStructureTypes_tb"] = tk.BooleanVar(master=self.window, value=False)
+            elif type(value) is bool:
+                self.variables[name] = tk.BooleanVar(master=self.window, value=value)
+            elif type(value) is str:
+                self.variables[name] = tk.StringVar(master=self.window, value=value)
+            elif type(value) is int:
+                self.variables[name] = tk.StringVar(master=self.window, value=str(value))
+            elif type(value) is float:
+                self.variables[name] = tk.StringVar(master=self.window, value=str(value))
+            else:
+                self.variables[name] = tk.StringVar(master=self.window, value=str(value))
+
+    def refresh_variables(self):
+        for (name, value) in self.settings.items():
+
+            if name == "parkourVolume":
+                self.variables["parkourVolume_x1"].set(value[0][0])
+                self.variables["parkourVolume_x2"].set(value[0][1])
+                self.variables["parkourVolume_y1"].set(value[1][0])
+                self.variables["parkourVolume_y2"].set(value[1][1])
+                self.variables["parkourVolume_z1"].set(value[2][0])
+                self.variables["parkourVolume_z2"].set(value[2][1])
+            elif name == "startPosition":
+                self.variables["startPosition_x"].set(value[0])
+                self.variables["startPosition_y"].set(value[1])
+                self.variables["startPosition_z"].set(value[2])
+            elif name == "allowedStructureTypes":
+                if "SingleBlock" in value:
+                    self.variables["allowedStructureTypes_sb"].set(True)
+                else:
+                    self.variables["allowedStructureTypes_sb"].set(False)
+                if "TwoBlock" in value:
+                    self.variables["allowedStructureTypes_tb"].set(True)
+                else:
+                    self.variables["allowedStructureTypes_tb"].set(False)
+            elif type(value) is bool:
+                self.variables[name].set(value)
+            elif type(value) is str:
+                self.variables[name].set(value)
+            elif type(value) is int:
+                self.variables[name].set(str(value))
+            elif type(value) is float:
+                self.variables[name].set(str(value))
+            else:
+                self.variables[name].set(str(value))
 
     def create_menu(self):
 
@@ -101,6 +144,7 @@ class Gui():
         file_menu = tk.Menu(menubar, tearoff=False)
         menubar.add_cascade(label="File", menu=file_menu)
         file_menu.add_command(label="Save Settings", command=self.save_settings)
+        file_menu.add_command(label="Reset Settings", command=self.reset_settings)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.window.destroy)
 
@@ -519,6 +563,11 @@ class Gui():
             if answer is True:
                 config.export_config(self.settings, gui_enabled=True)
 
+    def reset_settings(self):
+        answer = messagebox.askyesno("Reset Settings", "Reset to default settings?")
+        if answer is True:
+            self.settings = config.set_default_config()
+            self.refresh_variables()
 
     def generate_parkour(self):
 
