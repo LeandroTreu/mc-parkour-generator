@@ -561,7 +561,8 @@ class Gui():
                 datapack.write_function_files(list_of_placed_jumps=self.list_of_placed_jumps, 
                                         parkour_volume=self.settings["parkourVolume"], 
                                         enforce_parkour_volume=self.settings["enforceParkourVolume"], 
-                                        fill_volume_with_air=self.settings["fillParkourVolumeWithAir"])
+                                        fill_volume_with_air=self.settings["fillParkourVolumeWithAir"],
+                                        gui_enabled=True)
             end_time = time.time()
             datapack_time = round(end_time-start_time, 3)
 

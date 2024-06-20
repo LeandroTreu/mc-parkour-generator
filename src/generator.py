@@ -228,7 +228,6 @@ def place_finish_structure(current_block_position: tuple[int, int, int],
                            block_type: str) -> None:
 
     # Place Finish Structure of the Parkour
-    # TODO: Maybe try to place in bounds of Parkour Volume
     # TODO: fix parkour length when backtracking happens
     finishblock_instance = jumptypes.init_finishblock(block_type)
 

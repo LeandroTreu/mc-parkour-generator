@@ -14,6 +14,7 @@ MC_MAX_COMMANDCHAIN_LENGTH = 65536
 MC_MAX_FILL_VOLUME = 32768
 MC_MAX_FILL_VOLUME_CUBE_WIDTH = 32
 MAX_PARKOUR_LENGTH = 10000
+MAX_VOLUME = 10000 * MC_MAX_FILL_VOLUME
 
 def set_default_config() -> dict[str, any]:
 
@@ -54,7 +55,7 @@ def import_config(gui_enabled: bool) -> dict[str, any]:
     # Import config from file
     settings_file = Path("settings.json")
     try:
-        with open(settings_file, "r") as file:
+        with open(settings_file, "r", encoding="utf-8") as file:
             file_dict = dict(json.load(file))
 
         for name, value in file_dict.items():
@@ -75,7 +76,7 @@ def export_config(config: dict[str, any], gui_enabled: bool) -> None:
 
     settings_file = Path("settings.json")
     try:
-        with open(settings_file, "w") as file:
+        with open(settings_file, "w", encoding="utf-8") as file:
             json.dump(config, file, indent=1)
     except:
         if gui_enabled:
@@ -108,6 +109,12 @@ def check_config(config: dict[str, any]) -> str:
             error_string += f"parkourVolume: minimum build height is Y: {MC_WORLD_MIN_Y}\n"
         if y_min > MC_WORLD_MAX_Y or y_max > MC_WORLD_MAX_Y:
             error_string += f"parkourVolume: maximum build height is Y: {MC_WORLD_MAX_Y}\n"
+        
+        x_len = x_max - x_min
+        y_len = y_max - y_min
+        z_len = z_max - z_min
+        if x_len * y_len * z_len > MAX_VOLUME:
+            error_string += f"parkourVolume: maximum volume size is {MAX_VOLUME}\n"
     except:
         error_string += f"parkourVolume: wrong input format. Only integers are allowed.\n"
         return error_string

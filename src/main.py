@@ -59,7 +59,8 @@ if __name__ == "__main__":
             datapack.write_function_files(list_of_placed_jumps, 
                                     parkour_volume=settings["parkourVolume"], 
                                     enforce_parkour_volume=settings["enforceParkourVolume"], 
-                                    fill_volume_with_air=settings["fillParkourVolumeWithAir"])
+                                    fill_volume_with_air=settings["fillParkourVolumeWithAir"],
+                                    gui_enabled=False)
         end_time = time.time()
         print(f"Datapack time: {round(end_time-start_time, 3)} s")
 
