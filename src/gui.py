@@ -161,7 +161,7 @@ class Gui():
         self.parkour_type_l = ttk.Label(master=self.settings_frame, text="Parkour Type:")
         self.parkour_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["parkourType"], values=["Straight", "Curves", "Spiral", "Random"], width=10, state="readonly")
         self.parkour_type.bind("<<ComboboxSelected>>", self.update_vis) # type: ignore
-        self.ascending = ttk.Checkbutton(master=self.settings_frame, text="Parkour Ascending", variable=self.variables["parkourAscending"], onvalue=True, offvalue=False, command=self.update_vis)
+        self.ascending = ttk.Checkbutton(master=self.settings_frame, text="Ascending Jumps", variable=self.variables["parkourAscending"], onvalue=True, offvalue=False, command=self.update_vis)
 
         self.curves_size_l = ttk.Label(master=self.settings_frame, text=f"Curves Size: {(((self.settings["curvesSize"]*10)//1) / 10)}")
         self.curves_size = ttk.Scale(master=self.settings_frame, variable=self.variables["curvesSize"], from_=0.1, to=1.0, command=self.show_curves_size)
@@ -239,11 +239,12 @@ class Gui():
         self.allowed_str_types_l.grid(row=310, column=101, sticky="W", padx=0, pady=0)
         self.t_one_block.grid(row=310, column=102, sticky="W", padx=0, pady=0)
         self.t_two_block.grid(row=311, column=102, sticky="W", padx=0, pady=0)
+        self.ascending.grid(row=310, column=103, sticky="W", padx=0, pady=self.label_pad_y)
 
-        self.separator_df = ttk.Separator(master=self.settings_frame, orient="horizontal")
-        self.separator_df.grid(row=400, column=100, columnspan=1000, sticky="EW", padx=0, pady=10, ipadx=0, ipady=0)
-        self.d_and_f_label = ttk.Label(master=self.settings_frame, text="Difficulty and Flow", font=self.font_title)
-        self.d_and_f_label.grid(row=401, column=100, sticky="W", padx=0, pady=0)
+        # self.separator_df = ttk.Separator(master=self.settings_frame, orient="horizontal")
+        # self.separator_df.grid(row=400, column=100, columnspan=1000, sticky="EW", padx=0, pady=10, ipadx=0, ipady=0)
+        # self.d_and_f_label = ttk.Label(master=self.settings_frame, text="Difficulty and Flow", font=self.font_title)
+        # self.d_and_f_label.grid(row=401, column=100, sticky="W", padx=0, pady=0)
         self.difficulty_l.grid(row=410, column=100, sticky="W", padx=0, pady=self.label_pad_y)
         self.difficulty.grid(row=411, column=100, sticky="W", padx=0, pady=0)
         self.flow_l.grid(row=410, column=101, sticky="W", padx=0, pady=0)
@@ -253,7 +254,6 @@ class Gui():
         self.separator_pktypes.grid(row=500, column=100, columnspan=1000, sticky="EW", padx=0, pady=10, ipadx=0, ipady=0)
         self.pt_label = ttk.Label(master=self.settings_frame, text="Parkour Type", font=self.font_title)
         self.pt_label.grid(row=501, column=100, sticky="W", padx=0, pady=0)
-        self.ascending.grid(row=502, column=100, sticky="W", padx=0, pady=self.label_pad_y)
         self.parkour_type_l.grid(row=510, column=100, sticky="W", padx=0, pady=self.label_pad_y)
         self.parkour_type.grid(row=510, column=101, sticky="W", padx=0, pady=0)
         self.curves_size_l.grid(row=540, column=100, sticky="W", padx=0, pady=self.label_pad_y)
@@ -294,9 +294,11 @@ class Gui():
         self.loadingbar = ttk.Progressbar(master=self.generate_frame, value=0)
         self.loadingbar.pack(fill=tk.BOTH, expand=True, side=tk.TOP, padx=0, pady=5)
 
-        # Task Info
+        # Task Info Labels
         self.task_info_label = ttk.Label(master=self.generate_frame, text="Generation: ... s    Datapack: ... s    Plot: ... s")
         self.task_info_label.pack(side=tk.TOP, padx=5, pady=5)
+        self.jumps_placed_l = ttk.Label(master=self.generate_frame, text="JumpTypes used: ...    Jumps Placed: ...")
+        self.jumps_placed_l.pack(side=tk.TOP, padx=5, pady=5)
 
         self.update_vis("")
     
@@ -349,10 +351,20 @@ class Gui():
             self.allowed_str_types_l["state"] = "disabled"
             self.t_one_block["state"] = "disabled"
             self.t_two_block["state"] = "disabled"
+            self.ascending["state"] = "disabled"
+            self.difficulty_l["state"] = "disabled"
+            self.difficulty["state"] = "disabled"
+            self.flow_l["state"] = "disabled"
+            self.flow["state"] = "disabled"
         else:
             self.allowed_str_types_l["state"] = "normal"
             self.t_one_block["state"] = "normal"
             self.t_two_block["state"] = "normal"
+            self.ascending["state"] = "normal"
+            self.difficulty_l["state"] = "normal"
+            self.difficulty["state"] = "normal"
+            self.flow_l["state"] = "normal"
+            self.flow["state"] = "normal"
 
         p_type = self.variables["parkourType"].get()
         if p_type == "Straight" or p_type == "Random":
@@ -516,7 +528,7 @@ class Gui():
             
             start_time = time.time()
             self.list_of_placed_jumps: list[JumpType] = []
-            seed = generator.generate_parkour(list_of_placed_jumps=self.list_of_placed_jumps, 
+            seed, nr_jumptypes_filtered, nr_total_jumptypes = generator.generate_parkour(list_of_placed_jumps=self.list_of_placed_jumps, 
                                     random_seed=self.settings["randomSeed"], 
                                     seed=self.settings["seed"], 
                                     list_of_allowed_structure_types=self.settings["allowedStructureTypes"],
@@ -564,7 +576,8 @@ class Gui():
             self.refresh_image()
             plot_time = round(end_time-start_time, 3)
             self.task_info_label["text"] = f"Generation: {generation_time}s    Datapack: {datapack_time}s    Plot: {plot_time}s"
-            
+            self.jumps_placed_l["text"] = f"JumpTypes used: {nr_jumptypes_filtered}/{nr_total_jumptypes}    Jumps placed: {len(self.list_of_placed_jumps)-3}/{self.settings["maxParkourLength"]}"
+
             self.variables["seed"].set(seed)
             # Update loading bar to 100%
             self.loadingbar["value"] = 100

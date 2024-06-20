@@ -13,17 +13,17 @@
    20
   ]
  ],
- "enforceParkourVolume": true,
+ "enforceParkourVolume": false,
  "fillParkourVolumeWithAir": true,
- "maxParkourLength": 20,
+ "maxParkourLength": 50,
  "startPosition": [
   0,
   0,
   0
  ],
- "startForwardDirection": "Zneg",
+ "startForwardDirection": "Xpos",
  "blockType": "minecraft:stone",
- "randomSeed": false,
+ "randomSeed": true,
  "seed": 7778418475731893207,
  "checkpointsEnabled": true,
  "checkpointsPeriod": 5,

@@ -100,7 +100,7 @@ def place_control_command_blocks(command_blocks_instance: JumpType,
     dispenser_instance.rel_finish_block.name = f"minecraft:stone_button[face=floor, facing={button_facing_direction}]"
 
 
-def filter_jumptypes(list_of_allowed_structure_types: list[str], use_all_blocks: bool, difficulty: float, flow: float, ascending: bool, block_type: str) -> list[JumpType]:
+def filter_jumptypes(list_of_allowed_structure_types: list[str], use_all_blocks: bool, difficulty: float, flow: float, ascending: bool, block_type: str) -> tuple[list[JumpType], int , int]:
 
     list_of_jumptypes = jumptypes.init_jumptypes(block_type=block_type)
     list_of_jumptypes_filtered: list[JumpType] = []
@@ -111,11 +111,11 @@ def filter_jumptypes(list_of_allowed_structure_types: list[str], use_all_blocks:
             if jumptype.structure_type in list_of_allowed_structure_types:
                 if jumptype.difficulty >= difficulty - 0.2 and jumptype.difficulty <= difficulty + 0.2:
                     if jumptype.flow >= flow - 0.2 and jumptype.flow <= flow + 0.2:
-                        if not ascending and util.is_Ascending(jumptype):
+                        if not ascending and util.is_ascending(jumptype):
                             continue
                         list_of_jumptypes_filtered.append(jumptype)
 
-    return list_of_jumptypes_filtered
+    return list_of_jumptypes_filtered, len(list_of_jumptypes_filtered), len(list_of_jumptypes)
 
 
 def change_direction(current_forward_direction: str,
@@ -347,7 +347,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                      gui_enabled: bool,
                      gui_loading_bar: ttk.Progressbar,
                      gui_window: tk.Tk,
-                     block_type: str) -> int:
+                     block_type: str) -> tuple[int, int, int]:
 
     # Set seed for the RNG
     if random_seed:
@@ -376,7 +376,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
             parkour_volume=parkour_volume)
 
     # Pre-filter allowed jumptypes
-    list_of_jumptypes_filtered = filter_jumptypes(
+    list_of_jumptypes_filtered, nr_jumptypes_filtered, nr_total_jumptypes = filter_jumptypes(
         list_of_allowed_structure_types,
         use_all_blocks,
         difficulty,
@@ -498,4 +498,4 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
         list_of_placed_jumps.append(command_blocks_instance)
         list_of_placed_jumps.append(dispenser_instance)
 
-    return seed
+    return seed, nr_jumptypes_filtered, nr_total_jumptypes

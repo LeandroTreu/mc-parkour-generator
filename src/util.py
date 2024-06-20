@@ -159,10 +159,9 @@ def can_be_placed(jumptype: JumpType,
     return True
 
 
-def is_Ascending(jumptype: JumpType) -> bool:
+def is_ascending(jumptype: JumpType) -> bool:
 
-    # TODO: also for rel_finish_block of more complex structures
-    if jumptype.rel_start_block.rel_position[1] > 0:
+    if jumptype.rel_start_block.rel_position[1] + jumptype.rel_finish_block.rel_position[1] > 0:
         return True
 
     return False
