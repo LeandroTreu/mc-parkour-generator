@@ -25,7 +25,7 @@ def set_default_config() -> dict[str, any]:
     config["maxParkourLength"] = 50
     config["startPosition"] = [0, 150, 0]
     config["startForwardDirection"] = "Xpos"
-    config["blockType"] = "minecraft:stone"
+    config["blockType"] = "minecraft:quartz_block"
     config["randomSeed"] = True
     config["seed"] = 0
     config["checkpointsEnabled"] = True
@@ -85,6 +85,8 @@ def export_config(config: dict[str, any], gui_enabled: bool) -> None:
         else:
             raise Exception("Error opening settings.json")
 
+# Checks all config variables for type and range
+# For parkourVolume it silently switches the coordinates such that e.g. x_min < x_max
 def check_config(config: dict[str, any]) -> str:
 
     error_string = ""
@@ -96,12 +98,24 @@ def check_config(config: dict[str, any]) -> str:
         y_max = int(config["parkourVolume"][1][1])
         z_min = int(config["parkourVolume"][2][0])
         z_max = int(config["parkourVolume"][2][1])
-        if x_min > x_max: 
-            error_string += f"parkourVolume: {x_min} > {x_max}\n"
+        if x_min > x_max:
+            temp = x_min
+            x_min = x_max
+            x_max = temp
+            config["parkourVolume"][0][0] = x_min
+            config["parkourVolume"][0][1] = x_max
         if y_min > y_max: 
-            error_string += f"parkourVolume: {y_min} > {y_max}\n"
+            temp = y_min
+            y_min = y_max
+            y_max = temp
+            config["parkourVolume"][1][0] = y_min
+            config["parkourVolume"][1][1] = y_max
         if z_min > z_max: 
-            error_string += f"parkourVolume: {z_min} > {z_max}\n"
+            temp = z_min
+            z_min = z_max
+            z_max = temp
+            config["parkourVolume"][2][0] = z_min
+            config["parkourVolume"][2][1] = z_max
         for l in config["parkourVolume"]:
             for c in l:
                 if c > MC_WORLD_MAX_X or c < MC_WORLD_MIN_X:
@@ -111,9 +125,9 @@ def check_config(config: dict[str, any]) -> str:
         if y_min > MC_WORLD_MAX_Y or y_max > MC_WORLD_MAX_Y:
             error_string += f"parkourVolume: maximum build height is Y: {MC_WORLD_MAX_Y}\n"
         
-        x_len = x_max - x_min
-        y_len = y_max - y_min
-        z_len = z_max - z_min
+        x_len = abs(x_max - x_min)
+        y_len = abs(y_max - y_min)
+        z_len = abs(z_max - z_min)
         if x_len * y_len * z_len > MAX_VOLUME:
             error_string += f"parkourVolume: maximum volume size is {MAX_VOLUME}\n"
     except:

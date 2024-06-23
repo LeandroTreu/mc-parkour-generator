@@ -18,9 +18,9 @@ def split_volume(volume: list[tuple[int, int]]) -> list[str]:
     v_y_max = volume[1][1]
     v_z_max = volume[2][1]
 
-    v_x_len = v_x_max - v_x_min
-    v_y_len = v_y_max - v_y_min
-    v_z_len = v_z_max - v_z_min
+    v_x_len = abs(v_x_max - v_x_min)
+    v_y_len = abs(v_y_max - v_y_min)
+    v_z_len = abs(v_z_max - v_z_min)
 
     n_x_fill = int(np.ceil(v_x_len / cube_width))
     n_y_fill = int(np.ceil(v_y_len / cube_width))
@@ -87,7 +87,7 @@ def write_function_files(list_of_placed_jumps: list[JumpType],
 
             # Fill parkour volume with air first if set in config
             if enforce_parkour_volume and fill_volume_with_air:
-                fill_commands = split_volume(parkour_volume)  # TODO: check correctness ingame
+                fill_commands = split_volume(parkour_volume)
                 for line in fill_commands:
                     lines_list.append(line)
 
