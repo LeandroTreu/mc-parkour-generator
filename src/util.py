@@ -119,6 +119,20 @@ def in_bounds(block: Block, parkour_volume: list[tuple[int, int]], enforce_parko
 
     return True
 
+def near_jump(block: Block, earlier_jump: JumpType) -> bool:
+
+    radius = 20
+    x = block.abs_position[0]
+    y = block.abs_position[1]
+    z = block.abs_position[2]
+    e_x = earlier_jump.rel_finish_block.abs_position[0]
+    e_y = earlier_jump.rel_finish_block.abs_position[1]
+    e_z = earlier_jump.rel_finish_block.abs_position[2]
+
+    if abs(x - e_x) < radius and abs(y - e_y) < radius and abs(z - e_z) < radius:
+        return True
+    
+    return False
 
 def can_be_placed(jumptype: JumpType, 
                   current_block_position: tuple[int, int, int], 
@@ -141,18 +155,17 @@ def can_be_placed(jumptype: JumpType,
         if not in_bounds(block, parkour_volume, enforce_parkour_volume):
             return False
     
-    # TODO: quick check here if jumptype is even near earlier jump
-
-    # For start and finish blocks
+    # Check if shortcut possible
     for earlier_jump in list_of_placed_jumps[:len(list_of_placed_jumps)-1]:
+        # If start block not near earlier jump the no detailed checks necessary
+        if not near_jump(jumptype.rel_start_block, earlier_jump):
+            continue
+
         if shortcut_possible(jumptype.rel_start_block, earlier_jump):
             return False
         if shortcut_possible(jumptype.rel_finish_block, earlier_jump):
             return False
-
-    # For rest of the structure
-    for block in jumptype.blocks:
-        for earlier_jump in list_of_placed_jumps[:len(list_of_placed_jumps)-1]:
+        for block in jumptype.blocks:
             if shortcut_possible(block, earlier_jump):
                 return False
 
