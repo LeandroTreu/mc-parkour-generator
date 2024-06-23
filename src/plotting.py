@@ -111,20 +111,27 @@ def plot_parkour(list_of_placed_jumps: list[JumpType],
         y_min = (y_min // 10) * 10
         z_min = (z_min // 10) * 10
 
-    max_axis_distance = max(x_max, y_max, z_max)
-    min_axis_distance = min(x_min, y_min, z_min)
-    stepsize = max(abs(max_axis_distance-min_axis_distance)//10, 10)
-    stepsize = max((stepsize // 10) * 10, 10)
+    # max_axis_distance = max(x_max, y_max, z_max)
+    # min_axis_distance = min(x_min, y_min, z_min)
+    # stepsize = max(abs(max_axis_distance-min_axis_distance)//10, 10)
+    # stepsize = max((stepsize // 10) * 10, 10)
 
-    ax.set_xticks(np.arange(x_min, # type: ignore
-                    x_max+stepsize, stepsize))
-    ax.set_yticks(np.arange(y_min, # type: ignore
-                    y_max+stepsize, stepsize))
-    ax.set_zticks(np.arange(z_min, # type: ignore
-                    z_max+stepsize, stepsize))
+    # ax.set_xticks(np.arange(x_min, # type: ignore
+    #                 x_max+stepsize, stepsize))
+    # ax.set_yticks(np.arange(y_min, # type: ignore
+    #                 y_max+stepsize, stepsize))
+    # ax.set_zticks(np.arange(z_min, # type: ignore
+    #                 z_max+stepsize, stepsize))
+
+    ax.set_xticks([x_min, x_max])
+    ax.set_yticks([y_min, y_max])
+    ax.set_zticks([z_min, z_max]) # type: ignore
 
     ax.set_box_aspect((abs(x_max-x_min), abs(y_max-y_min), abs(z_max-z_min))) # type: ignore
     plt.tick_params(labelsize=10) # type: ignore
+    ax.set_xlabel("X", labelpad=10)
+    ax.set_ylabel("Z", labelpad=10)
+    ax.set_zlabel("Y", labelpad=10) # type: ignore
 
     if plot_file_type == "jpg":
         plt.savefig("parkour_plot.jpg", dpi=150) # type: ignore
