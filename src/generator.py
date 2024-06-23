@@ -11,9 +11,6 @@ from numpy.random import default_rng
 import numpy as np
 
 DIRECTIONS = ["Xpos", "Zneg", "Xneg", "Zpos"]
-curvesDirection = 0
-spiralTurnCounter = 0
-
 
 def place_control_command_blocks(command_blocks_instance: JumpType, 
                                  dispenser_instance: JumpType,
@@ -121,13 +118,12 @@ def filter_jumptypes(list_of_allowed_structure_types: list[str], use_all_blocks:
 def change_direction(current_forward_direction: str,
                      rng: Generator, parkour_type: str,
                      curves_size: float,
+                     curves_direction: int,
                      spiral_type: str,
                      spiral_turn_rate: int,
                      spiral_turn_prob: float,
-                     spiral_rotation: str) -> str:
-
-    global curvesDirection
-    global spiralTurnCounter
+                     spiral_rotation: str,
+                     spiral_turn_counter: int) -> str:
 
     if parkour_type == "Random":
         # Choose possible other directions at random
@@ -160,19 +156,19 @@ def change_direction(current_forward_direction: str,
             old_direction_index = DIRECTIONS.index(
                 current_forward_direction)
 
-            if curvesDirection == -1:
-                curvesDirection = 0
+            if curves_direction == -1:
+                curves_direction = 0
                 new_direction_index = (old_direction_index + 1) % 4
-            elif curvesDirection == 0:
+            elif curves_direction == 0:
                 random_bit = rng.integers(low=0, high=2) # type: ignore
                 if random_bit == 0:
-                    curvesDirection = -1
+                    curves_direction = -1
                     new_direction_index = (old_direction_index - 1)
                 else:
-                    curvesDirection = 1
+                    curves_direction = 1
                     new_direction_index = (old_direction_index + 1) % 4
             else:
-                curvesDirection = 0
+                curves_direction = 0
                 new_direction_index = (old_direction_index - 1)
 
             if new_direction_index < 0:
@@ -184,12 +180,12 @@ def change_direction(current_forward_direction: str,
 
     elif parkour_type == "Spiral":
         if spiral_type == "Even":
-            if spiralTurnCounter + 1 >= spiral_turn_rate:
+            if spiral_turn_counter + 1 >= spiral_turn_rate:
                 spiral_turn_prob = 100
-                spiralTurnCounter = 0
+                spiral_turn_counter = 0
             else:
                 spiral_turn_prob = 0
-                spiralTurnCounter += 1
+                spiral_turn_counter += 1
         else:
             spiral_turn_prob = int(spiral_turn_prob * 100)
             if spiral_turn_prob > 100:
@@ -386,11 +382,14 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
     if not gui_enabled:
         print(f"Number of filtered jumptypes: {len(list_of_jumptypes_filtered)}")
 
+    curves_direction = 0
+    spiral_turn_counter = 0
     try_again_counter = 0
     try_to_place_cp_here = checkpoints_period
 
     list_of_candidates: list[JumpType] = []
     n_blocks_placed = 0
+
     if not gui_enabled:
         print("[", end="")
     # Max parkour length minus Finish structure
@@ -425,7 +424,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
         while len(list_of_candidates) > 0:
 
             # Choose randomly from list of allowed jumptypes
-            random_index: int = rng.integers(low=0, high=len(list_of_candidates)) # type: ignore
+            random_index = rng.integers(low=0, high=len(list_of_candidates)) # type: ignore
             candidate_instance = deepcopy(list_of_candidates[random_index])
             if util.can_be_placed(candidate_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume):
                 list_of_placed_jumps.append(candidate_instance)
@@ -434,7 +433,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
             else:
                 list_of_candidates.pop(random_index)
                 continue
-            
+
         # No placable JumpTypes found
         if no_placeable_jumps_found:
             if try_again_counter >= 4:
@@ -475,10 +474,12 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                                                      rng, 
                                                      parkour_type, 
                                                      curves_size, 
+                                                     curves_direction,
                                                      spiral_type, 
                                                      spiral_turn_rate, 
                                                      spiral_turn_prob, 
-                                                     spiral_rotation)
+                                                     spiral_rotation,
+                                                     spiral_turn_counter)
 
         n_blocks_placed += 1
 
