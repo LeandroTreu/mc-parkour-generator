@@ -6,3 +6,5 @@ build
 dist
 __pycache__
 *.spec
+
+!mpg_icon.png

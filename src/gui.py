@@ -31,7 +31,11 @@ class Gui():
         self.list_of_placed_jumps: list[JumpType] = []
 
         self.window = tk.Tk()
-        self.window.title("MC Parkour Generator")
+        self.window.title("Minecraft Parkour Generator")
+        mpg_icon = Image.open("mpg_icon.png")
+        # mpg_icon = mpg_icon.resize((50, 50))
+        mpg_icon = ImageTk.PhotoImage(mpg_icon)
+        self.window.iconphoto(False, mpg_icon) # type: ignore
 
         default_font = font.nametofont("TkDefaultFont")
         text_font = font.nametofont("TkTextFont")

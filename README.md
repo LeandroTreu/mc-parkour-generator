@@ -1,4 +1,7 @@
 # Minecraft Parkour Generator (MPG)
+<p align="center">
+    <img src="src/mpg_icon.png" width="190" height="80">
+</p>
 This is a parkour generator for Minecraft Java Edition (Vanilla). It is based on Minecraft function files which allow to place multiple blocks in a Minecraft world with only one in-game command.
 
 Supported Minecraft Java Edition versions: 1.13 (TODO: test 1.13 - 1.21)
