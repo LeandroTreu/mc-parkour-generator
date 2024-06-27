@@ -32,10 +32,14 @@ class Gui():
 
         self.window = tk.Tk()
         self.window.title("Minecraft Parkour Generator")
-        mpg_icon = Image.open("mpg_icon.png")
-        # mpg_icon = mpg_icon.resize((50, 50))
-        mpg_icon = ImageTk.PhotoImage(mpg_icon)
-        self.window.iconphoto(False, mpg_icon) # type: ignore
+        # TODO: create .ico file
+        try:
+            mpg_icon = Image.open("mpg_icon.png")
+            # mpg_icon = mpg_icon.resize((50, 50))
+            mpg_icon = ImageTk.PhotoImage(mpg_icon)
+            self.window.iconphoto(False, mpg_icon) # type: ignore
+        except:
+            print("Info: mpg_icon.png not found")
 
         default_font = font.nametofont("TkDefaultFont")
         text_font = font.nametofont("TkTextFont")

@@ -20,8 +20,15 @@ if __name__ == "__main__":
     use_gui = True
 
     if use_gui:
-        gui = gui.Gui()
-        gui.run()
+        print("Minecraft Parkour Generator (MPG) - Version 0.1.0\n")
+
+        try:
+            gui = gui.Gui()
+            gui.run()
+        except Exception as err:
+            print(f"Error: {err}")
+
+        key_press = input("\nYou can close this window now.")
     else:
         settings = config.import_config(gui_enabled=False)
         error_str = config.check_config(settings)
