@@ -1,4 +1,3 @@
-# type: ignore
 import config
 from classes import JumpType
 import generator

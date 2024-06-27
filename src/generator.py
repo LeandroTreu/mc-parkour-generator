@@ -340,8 +340,8 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                      enforce_volume: bool,
                      parkour_volume: list[tuple[int, int]],
                      gui_enabled: bool,
-                     gui_loading_bar: ttk.Progressbar,
-                     gui_window: tk.Tk,
+                     gui_loading_bar: ttk.Progressbar | None,
+                     gui_window: tk.Tk | None,
                      block_type: str) -> tuple[int, int, int]:
 
     # Set seed for the RNG
@@ -397,7 +397,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
 
         # Loading bar print
         if n_blocks_placed % max(max_parkour_length//10, 1) == 0:
-            if gui_enabled:
+            if gui_enabled and gui_loading_bar != None and gui_window != None:
                 gui_loading_bar["value"] = 100 * (n_blocks_placed / max(max_parkour_length, 1))
                 gui_window.update_idletasks()
             else:

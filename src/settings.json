@@ -1,30 +1,30 @@
 {
  "parkourVolume": [
   [
-   -539,
-   -488
+   0,
+   100
   ],
   [
-   70,
-   85
+   100,
+   300
   ],
   [
-   52,
-   131
+   0,
+   100
   ]
  ],
  "enforceParkourVolume": false,
- "fillParkourVolumeWithAir": true,
- "maxParkourLength": 10000,
+ "fillParkourVolumeWithAir": false,
+ "maxParkourLength": 50,
  "startPosition": [
-  -488,
-  70,
-  52
+  0,
+  150,
+  0
  ],
- "startForwardDirection": "Zpos",
+ "startForwardDirection": "Xpos",
  "blockType": "minecraft:quartz_block",
- "randomSeed": false,
- "seed": 4073862755572394330,
+ "randomSeed": true,
+ "seed": 0,
  "checkpointsEnabled": true,
  "checkpointsPeriod": 10,
  "useAllBlocks": true,
@@ -34,7 +34,7 @@
  ],
  "difficulty": 0.2,
  "flow": 0.5,
- "parkourType": "Straight",
+ "parkourType": "Spiral",
  "parkourAscending": true,
  "curvesSize": 0.5,
  "spiralRotation": "counterclockwise",

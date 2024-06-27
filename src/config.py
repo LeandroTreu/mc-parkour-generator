@@ -1,7 +1,7 @@
-# type: ignore
 from pathlib import Path
 import json
 from tkinter import messagebox
+from typing import Any
 
 # Constants
 MC_WORLD_MAX_X = 29999984
@@ -16,7 +16,7 @@ MC_MAX_FILL_VOLUME_CUBE_WIDTH = 32
 MAX_PARKOUR_LENGTH = 10000
 MAX_VOLUME = 10000 * MC_MAX_FILL_VOLUME
 
-def set_default_config() -> dict[str, any]:
+def set_default_config() -> dict[str, Any]:
 
     config = {}
     config["parkourVolume"] = [[0, 100], [100, 300], [0, 100]]
@@ -48,7 +48,7 @@ def set_default_config() -> dict[str, any]:
 
     return config
 
-def import_config(gui_enabled: bool) -> dict[str, any]:
+def import_config(gui_enabled: bool) -> dict[str, Any]:
     
     config = set_default_config()
 
@@ -73,7 +73,7 @@ def import_config(gui_enabled: bool) -> dict[str, any]:
     
     return config
 
-def export_config(config: dict[str, any], gui_enabled: bool) -> None:
+def export_config(config: dict[str, Any], gui_enabled: bool) -> None:
 
     settings_file = Path("settings.json")
     try:
@@ -87,7 +87,7 @@ def export_config(config: dict[str, any], gui_enabled: bool) -> None:
 
 # Checks all config variables for type and range
 # For parkourVolume it silently switches the coordinates such that e.g. x_min < x_max
-def check_config(config: dict[str, any]) -> str:
+def check_config(config: dict[str, Any]) -> str:
 
     error_string = ""
 
