@@ -4,7 +4,7 @@
 </p>
 This is a parkour generator for Minecraft Java Edition (Vanilla). It is based on Minecraft function files which allow to place multiple blocks in a Minecraft world with only one in-game command.
 
-Supported Minecraft Java Edition versions: 1.13 (TODO: test 1.13 - 1.21)
+Supported Java Edition versions: 1.13 - 1.21
 
 ## How to use
 The app creates a datapack which you can copy and paste into your Minecraft world's datapack folder.
@@ -23,7 +23,7 @@ The app creates a datapack which you can copy and paste into your Minecraft worl
 You can find the explanation for all the parkour settings in [SETTINGS.md](SETTINGS.md)
 
 ## Installation
-1. Download the latest release [here](TODO). 
+1. Download the latest release [here](https://github.com/LeandroTreu/mc-parkour-generator/releases). 
 2. Extract the `zip` file and move the Minecraft Parkour Generator folder to your Desktop or where you can find it again. The entire application is inside the folder (no installation needed).
 3. Double-click `MPG.exe`.
 

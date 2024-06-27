@@ -29,7 +29,7 @@ ALLOWED_STRUCTURE_TYPES_NAMES = ["SingleBlock", "TwoBlock"]
 PARKOUR_TYPE_NAMES = ["Straight", "Curves", "Spiral", "Random"]
 PLOT_COLORSCHEMES = ["winter", "viridis", "plasma", "gray", "hot", "summer", "hsv", "copper"]
 PLOT_FILE_TYPES = ["jpg", "png"]
-MC_VERSIONS = ["1.21+", "1.13 - 1.20.6"]
+MC_VERSIONS = ["1.21+", "1.13 - 1.20.6"]  # TODO: test 1.13 - 1.18
 SPIRAL_TYPES = ["Even", "Random"]
 SPIRAL_ROTATIONS = ["counterclockwise", "clockwise"]
 
