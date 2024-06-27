@@ -44,5 +44,6 @@
  "plotFileType": "jpg",
  "plotColorScheme": "winter",
  "plotCommandBlocks": true,
- "writeDatapackFiles": true
+ "writeDatapackFiles": true,
+ "mcVersion": "1.21+"
 }

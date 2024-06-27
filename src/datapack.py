@@ -57,33 +57,39 @@ def write_function_files(list_of_placed_jumps: list[JumpType],
                          parkour_volume: list[tuple[int, int]], 
                          enforce_parkour_volume: bool, 
                          fill_volume_with_air: bool,
-                         gui_enabled: bool) -> None:
+                         gui_enabled: bool,
+                         minecraft_version: str) -> None:
 
     try:
         cwd = Path.cwd()
         datapack_dir = cwd / "parkour_generator_datapack"
-        functions_dir = cwd / "parkour_generator_datapack/data/parkour_generator/functions"
+        if minecraft_version == "1.21+":
+            functions_dir = cwd / "parkour_generator_datapack/data/parkour_generator/function"
+        else:
+            functions_dir = cwd / "parkour_generator_datapack/data/parkour_generator/functions"
+
         functions_dir.mkdir(parents=True, exist_ok=True)
 
         generate_file = functions_dir / "generate.mcfunction"
         remove_file = functions_dir / "remove.mcfunction"
         meta_file = datapack_dir / "pack.mcmeta"
 
+        # Create pack.mcmeta file
         with open(meta_file, "w", encoding="utf-8") as file:
             file_dict = {"pack": {"pack_format": 48, "description": "Parkour Generator Datapack"}}
             json.dump(file_dict, file, indent=1)
 
-        # TODO: Write config file variables as a text header into the file
-        # TODO: Command limit per function file is 65,536: gamerule maxCommandChainLength: set to 2,147,483,648 lag? --> create multiple function files
+        # Command limit per function file is 65,536: gamerule maxCommandChainLength: set to 2,147,483,648 lag? --> create multiple function files
         with open(generate_file, "w", encoding="utf-8") as file:
 
             lines_list = []
+            # TODO: Write config file variables as a text header into the file
             lines_list.append(f"# Headerline\n")
 
             lines_list.append(f"gamerule spawnRadius 0\n")
             world_spawn = list_of_placed_jumps[0].rel_start_block.abs_position
-            lines_list.append(f"setworldspawn {world_spawn[0]} {world_spawn[1]+1} {world_spawn[2]}\n")
-            lines_list.append(f"spawnpoint @a {world_spawn[0]} {world_spawn[1]+1} {world_spawn[2]}\n")
+            lines_list.append(f"setworldspawn {world_spawn[0]} {world_spawn[1]+1} {world_spawn[2]}\n")  # TODO: user settings for enabling/disabling this
+            lines_list.append(f"spawnpoint @a {world_spawn[0]} {world_spawn[1]+1} {world_spawn[2]}\n")  # TODO: user settings for enabling/disabling this
             lines_list.append(f"tp @a {world_spawn[0]} {world_spawn[1]+1} {world_spawn[2]}\n")
 
             # lines_list.append(f"gamemode adventure @a\n")

@@ -24,6 +24,14 @@ MC_MAX_FILL_VOLUME = 32768
 MC_MAX_FILL_VOLUME_CUBE_WIDTH = 32
 MAX_PARKOUR_LENGTH = 10000
 MAX_VOLUME = 10000 * MC_MAX_FILL_VOLUME
+DIRECTIONS = ["Xpos", "Zneg", "Xneg", "Zpos"]
+ALLOWED_STRUCTURE_TYPES_NAMES = ["SingleBlock", "TwoBlock"]
+PARKOUR_TYPE_NAMES = ["Straight", "Curves", "Spiral", "Random"]
+PLOT_COLORSCHEMES = ["winter", "viridis", "plasma", "gray", "hot", "summer", "hsv", "copper"]
+PLOT_FILE_TYPES = ["jpg", "png"]
+MC_VERSIONS = ["1.21+", "1.13 - 1.20.6"]
+SPIRAL_TYPES = ["Even", "Random"]
+SPIRAL_ROTATIONS = ["counterclockwise", "clockwise"]
 
 def set_default_config() -> dict[str, Any]:
 
@@ -54,6 +62,7 @@ def set_default_config() -> dict[str, Any]:
     config["plotColorScheme"] = "winter"
     config["plotCommandBlocks"] = True
     config["writeDatapackFiles"] = True
+    config["mcVersion"] = "1.21+"
 
     return config
 
@@ -178,7 +187,7 @@ def check_config(config: dict[str, Any]) -> str:
         return error_string
 
     fd = config["startForwardDirection"]
-    if fd != "Xpos" and fd != "Xneg" and fd != "Zpos" and fd != "Zneg":
+    if fd not in DIRECTIONS:
         error_string += "startForwardDirection: wrong input format. Allowed values are: Xpos, Xneg, Zpos, Zneg.\n"
 
     if type(config["blockType"]) is not str:
@@ -209,8 +218,8 @@ def check_config(config: dict[str, Any]) -> str:
     
     try:
         for e in config["allowedStructureTypes"]:
-            if e != "SingleBlock" and e != "TwoBlock":
-                error_string += "allowedStructureTypes: allowed strings are: SingleBlock, TwoBlock\n"
+            if e not in ALLOWED_STRUCTURE_TYPES_NAMES:
+                error_string += f"allowedStructureTypes: {e} is not a valid structure type. Allowed strings are: {ALLOWED_STRUCTURE_TYPES_NAMES}\n"
     except:
         error_string += "allowedStructureTypes: wrong input format. Needs to be a list of strings.\n"
 
@@ -229,8 +238,8 @@ def check_config(config: dict[str, Any]) -> str:
         error_string += "flow: wrong input format. Needs to be a floating point number.\n"
 
     t = config["parkourType"]
-    if t != "Straight" and t != "Curves" and t != "Spiral" and t != "Random":
-        error_string += "parkourType: wrong input format. Allowed values are: Straight, Curves, Spiral, Random.\n"
+    if t not in PARKOUR_TYPE_NAMES:
+        error_string += f"parkourType: {t} is not a valid parkour type. Allowed strings are: {PARKOUR_TYPE_NAMES}\n"
 
     if type(config["parkourAscending"]) is not bool:
         error_string += "parkourAscending: wrong input format. Only true or false are allowed.\n"
@@ -243,12 +252,12 @@ def check_config(config: dict[str, Any]) -> str:
         error_string += "curvesSize: wrong input format. Needs to be a floating point number.\n"
 
     r = config["spiralRotation"]
-    if r != "counterclockwise" and r != "clockwise":
-        error_string += "spiralRotation: wrong input format. Allowed values are: counterclockwise and clockwise.\n"
+    if r not in SPIRAL_ROTATIONS:
+        error_string += f"spiralRotation: wrong input format. Allowed values are: {SPIRAL_ROTATIONS}.\n"
 
     r = config["spiralType"]
-    if r != "Even" and r != "Random":
-        error_string += "spiralType: wrong input format. Allowed values are: Even and Random.\n"
+    if r not in SPIRAL_TYPES:
+        error_string += f"spiralType: wrong input format. Allowed values are: {SPIRAL_TYPES}.\n"
 
     try:
         tr = int(config["spiralTurnRate"])
@@ -264,13 +273,12 @@ def check_config(config: dict[str, Any]) -> str:
     except:
         error_string += "spiralTurnProbability: wrong input format. Needs to be a floating point number.\n"
 
-    if config["plotFileType"] != "png" and config["plotFileType"] != "jpg":
-        error_string += "plotFileType: wrong input format. Allowed values are: png and jpg.\n"
+    if config["plotFileType"] not in PLOT_FILE_TYPES:
+        error_string += f"plotFileType: wrong input format. Allowed values are: {PLOT_FILE_TYPES}.\n"
 
     c = config["plotColorScheme"]
-    colorschemes = ["winter", "viridis", "plasma", "gray", "hot", "summer", "hsv", "copper"]
-    if c not in colorschemes:
-        error_string += f"plotColorScheme: wrong input format. Allowed values are: {colorschemes}.\n"
+    if c not in PLOT_COLORSCHEMES:
+        error_string += f"plotColorScheme: {c} is not a valid colorscheme. Allowed values are: {PLOT_COLORSCHEMES}.\n"
 
     if type(config["plotCommandBlocks"]) is not bool:
         error_string += "plotCommandBlocks: wrong input format. Only true or false are allowed.\n"
@@ -278,5 +286,8 @@ def check_config(config: dict[str, Any]) -> str:
     if type(config["writeDatapackFiles"]) is not bool:
         error_string += "writeDatapackFiles: wrong input format. Only true or false are allowed.\n"
     
+    mc_version = config["mcVersion"]
+    if mc_version not in MC_VERSIONS:
+        error_string += f"mcVersion: wrong input format. Allowed values are: {MC_VERSIONS}"
 
     return error_string

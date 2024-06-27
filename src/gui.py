@@ -164,6 +164,9 @@ class Gui():
     def populate_settings_frame(self):
 
         # Settings
+        self.minecraft_version_l = ttk.Label(master=self.settings_frame, text="Minecraft Version:")
+        self.minecraft_version = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["mcVersion"], values=config.MC_VERSIONS)
+
         self.enforce_cb = ttk.Checkbutton(master=self.settings_frame, text="Enforce Parkour Volume", variable=self.variables["enforceParkourVolume"], onvalue=True, offvalue=False, command=self.update_vis)
         self.fill_air_cb = ttk.Checkbutton(master=self.settings_frame, text="Fill Volume with Air", variable=self.variables["fillParkourVolumeWithAir"], onvalue=True, offvalue=False, state="disabled", command=self.update_vis)
 
@@ -193,13 +196,13 @@ class Gui():
         self.start_position_z = ttk.Entry(master=self.settings_frame, textvariable=self.variables["startPosition_z"], width=10)
 
         self.start_forward_dir_l = ttk.Label(master=self.settings_frame, text="Start Forward Direction:")
-        self.start_forward_dir = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["startForwardDirection"], values=["Xpos", "Xneg", "Zpos", "Zneg"], width=10, state="readonly")
+        self.start_forward_dir = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["startForwardDirection"], values=config.DIRECTIONS, width=10, state="readonly")
 
         self.block_type_l = ttk.Label(master=self.settings_frame, text="Parkour Block Type:")
-        self.block_type = ttk.Entry(master=self.settings_frame, textvariable=self.variables["blockType"], width=22)
+        self.block_type = ttk.Entry(master=self.settings_frame, textvariable=self.variables["blockType"], width=25)
 
         self.random_seed = ttk.Checkbutton(master=self.settings_frame, text="Random Seed", variable=self.variables["randomSeed"], onvalue=True, offvalue=False, command=self.update_vis)
-        self.seed = ttk.Entry(master=self.settings_frame, textvariable=self.variables["seed"], width=22)
+        self.seed = ttk.Entry(master=self.settings_frame, textvariable=self.variables["seed"], width=25)
 
         self.cp_enabled = ttk.Checkbutton(master=self.settings_frame, text="Checkpoints", variable=self.variables["checkpointsEnabled"], onvalue=True, offvalue=False, command=self.update_vis)
         self.cp_period_l = ttk.Label(master=self.settings_frame, text="Checkpoints Period:")
@@ -216,7 +219,7 @@ class Gui():
         self.flow = ttk.Scale(master=self.settings_frame, variable=self.variables["flow"], from_=0, to=1.0, command=self.show_flow)
 
         self.parkour_type_l = ttk.Label(master=self.settings_frame, text="Parkour Type:")
-        self.parkour_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["parkourType"], values=["Straight", "Curves", "Spiral", "Random"], width=10, state="readonly")
+        self.parkour_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["parkourType"], values=config.PARKOUR_TYPE_NAMES, width=10, state="readonly")
         self.parkour_type.bind("<<ComboboxSelected>>", self.update_vis) # type: ignore
         self.ascending = ttk.Checkbutton(master=self.settings_frame, text="Ascending Jumps", variable=self.variables["parkourAscending"], onvalue=True, offvalue=False, command=self.update_vis)
 
@@ -224,9 +227,9 @@ class Gui():
         self.curves_size = ttk.Scale(master=self.settings_frame, variable=self.variables["curvesSize"], from_=0.1, to=1.0, command=self.show_curves_size)
 
         self.spiral_rotation_l = ttk.Label(master=self.settings_frame, text="Spiral Rotation:")
-        self.spiral_rotation = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["spiralRotation"], values=["counterclockwise", "clockwise"], width=10)
+        self.spiral_rotation = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["spiralRotation"], values=config.SPIRAL_ROTATIONS, width=10)
         self.spiral_type_l = ttk.Label(master=self.settings_frame, text="Spiral Type:")
-        self.spiral_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["spiralType"], values=["Even", "Random"], width=10)
+        self.spiral_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["spiralType"], values=config.SPIRAL_TYPES, width=10)
         self.spiral_type.bind("<<ComboboxSelected>>", self.update_vis) # type: ignore
         self.spiral_turnrate_l = ttk.Label(master=self.settings_frame, text="Spiral Turn Rate:")
         self.spiral_turnrate = ttk.Entry(master=self.settings_frame, textvariable=self.variables["spiralTurnRate"], width=10)
@@ -235,14 +238,21 @@ class Gui():
 
         # File options
         self.plot_file_type_l = ttk.Label(master=self.settings_frame, text="Plot File Type:")
-        self.plot_file_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotFileType"], values=["jpg", "png"], width=10, state="readonly")
+        self.plot_file_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotFileType"], values=config.PLOT_FILE_TYPES, width=10, state="readonly")
         self.plot_file_type.bind("<<ComboboxSelected>>", self.refresh_plot) # type: ignore
         self.plot_colorscheme_l = ttk.Label(master=self.settings_frame, text="Plot Colorscheme:")
-        self.plot_colorscheme = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotColorScheme"], values=["winter", "viridis", "plasma", "gray", "hot", "summer", "hsv", "copper"], width=10, state="readonly")
+        self.plot_colorscheme = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotColorScheme"], values=config.PLOT_COLORSCHEMES, width=10, state="readonly")
         self.plot_colorscheme.bind("<<ComboboxSelected>>", self.refresh_plot) # type: ignore
         self.plot_commandblocks = ttk.Checkbutton(master=self.settings_frame, text="Plot Commandblocks", variable=self.variables["plotCommandBlocks"], onvalue=True, offvalue=False, command=self.refresh_plot)
         self.write_datapack_files = ttk.Checkbutton(master=self.settings_frame, text="Write Datapack Files", variable=self.variables["writeDatapackFiles"], onvalue=True, offvalue=False, command=self.update_vis)
 
+        self.mc_settings_l = ttk.Label(master=self.settings_frame, text="Minecraft Settings", font=self.font_title)
+        self.mc_settings_l.grid(row=49, column=100, sticky="W", padx=0, pady=0)
+        self.minecraft_version_l.grid(row=50, column=100, sticky="W", padx=0, pady=self.label_pad_y)
+        self.minecraft_version.grid(row=50, column=101, sticky="W", padx=0, pady=0)
+
+        self.separator_mc = ttk.Separator(master=self.settings_frame, orient="horizontal")
+        self.separator_mc.grid(row=80, columns=100, columnspan=1000, sticky="EW", padx=0, pady=10, ipadx=0, ipady=0)
 
         self.settings_label = ttk.Label(master=self.settings_frame, text="Parkour Settings", font=self.font_title)
         self.settings_label.grid(row=101, column=100, sticky="W", padx=0, pady=0)
@@ -624,7 +634,8 @@ class Gui():
                                         parkour_volume=self.settings["parkourVolume"], 
                                         enforce_parkour_volume=self.settings["enforceParkourVolume"], 
                                         fill_volume_with_air=self.settings["fillParkourVolumeWithAir"],
-                                        gui_enabled=True)
+                                        gui_enabled=True,
+                                        minecraft_version=self.settings["mcVersion"])
             end_time = time.time()
             datapack_time = round(end_time-start_time, 3)
 

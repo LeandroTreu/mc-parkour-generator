@@ -17,8 +17,7 @@ from copy import deepcopy
 from numpy.random import Generator
 from numpy.random import default_rng
 import numpy as np
-
-DIRECTIONS = ["Xpos", "Zneg", "Xneg", "Zpos"]
+import config
 
 def place_control_command_blocks(command_blocks_instance: JumpType, 
                                  dispenser_instance: JumpType,
@@ -136,7 +135,7 @@ def change_direction(current_forward_direction: str,
     if parkour_type == "Random":
         # Choose possible other directions at random
         random_bit = rng.integers(low=0, high=2) # type: ignore
-        old_direction_index = DIRECTIONS.index(
+        old_direction_index = config.DIRECTIONS.index(
             current_forward_direction)
 
         if random_bit == 0:
@@ -147,7 +146,7 @@ def change_direction(current_forward_direction: str,
         else:
             new_direction_index = (old_direction_index + 1) % 4
 
-        return DIRECTIONS[new_direction_index], curves_direction, spiral_turn_counter
+        return config.DIRECTIONS[new_direction_index], curves_direction, spiral_turn_counter
 
     elif parkour_type == "Straight":
         return current_forward_direction, curves_direction, spiral_turn_counter  # Keep same direction
@@ -161,7 +160,7 @@ def change_direction(current_forward_direction: str,
 
         if random_nr == 0:
 
-            old_direction_index = DIRECTIONS.index(
+            old_direction_index = config.DIRECTIONS.index(
                 current_forward_direction)
 
             if curves_direction == -1:
@@ -182,7 +181,7 @@ def change_direction(current_forward_direction: str,
             if new_direction_index < 0:
                 new_direction_index = 3
 
-            return DIRECTIONS[new_direction_index], curves_direction, spiral_turn_counter
+            return config.DIRECTIONS[new_direction_index], curves_direction, spiral_turn_counter
         else:
             return current_forward_direction, curves_direction, spiral_turn_counter
 
@@ -204,7 +203,7 @@ def change_direction(current_forward_direction: str,
         random_nr = rng.integers(low=0, high=101) # type: ignore
         if random_nr <= spiral_turn_prob:
 
-            old_direction_index = DIRECTIONS.index(
+            old_direction_index = config.DIRECTIONS.index(
                 current_forward_direction)
 
             if spiral_rotation == "clockwise":
@@ -216,7 +215,7 @@ def change_direction(current_forward_direction: str,
             if new_direction_index < 0:
                 new_direction_index = 3
 
-            return DIRECTIONS[new_direction_index], curves_direction, spiral_turn_counter
+            return config.DIRECTIONS[new_direction_index], curves_direction, spiral_turn_counter
         else:
             return current_forward_direction, curves_direction, spiral_turn_counter
 
@@ -449,7 +448,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
             else:
                 try_again_counter += 1
 
-                old_direction_index = DIRECTIONS.index(
+                old_direction_index = config.DIRECTIONS.index(
                     current_forward_direction)
 
                 if parkour_type == "Random":
@@ -468,7 +467,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                 else:
                     new_direction_index = old_direction_index
 
-                current_forward_direction = DIRECTIONS[new_direction_index]
+                current_forward_direction = config.DIRECTIONS[new_direction_index]
                 continue
         else:
             try_again_counter = 0
