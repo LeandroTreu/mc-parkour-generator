@@ -123,7 +123,7 @@ def change_direction(current_forward_direction: str,
                      spiral_turn_rate: int,
                      spiral_turn_prob: float,
                      spiral_rotation: str,
-                     spiral_turn_counter: int) -> str:
+                     spiral_turn_counter: int) -> tuple[str, int, int]:
 
     if parkour_type == "Random":
         # Choose possible other directions at random
@@ -139,10 +139,10 @@ def change_direction(current_forward_direction: str,
         else:
             new_direction_index = (old_direction_index + 1) % 4
 
-        return DIRECTIONS[new_direction_index]
+        return DIRECTIONS[new_direction_index], curves_direction, spiral_turn_counter
 
     elif parkour_type == "Straight":
-        return current_forward_direction  # Keep same direction
+        return current_forward_direction, curves_direction, spiral_turn_counter  # Keep same direction
 
     elif parkour_type == "Curves":
 
@@ -174,9 +174,9 @@ def change_direction(current_forward_direction: str,
             if new_direction_index < 0:
                 new_direction_index = 3
 
-            return DIRECTIONS[new_direction_index]
+            return DIRECTIONS[new_direction_index], curves_direction, spiral_turn_counter
         else:
-            return current_forward_direction
+            return current_forward_direction, curves_direction, spiral_turn_counter
 
     elif parkour_type == "Spiral":
         if spiral_type == "Even":
@@ -208,12 +208,12 @@ def change_direction(current_forward_direction: str,
             if new_direction_index < 0:
                 new_direction_index = 3
 
-            return DIRECTIONS[new_direction_index]
+            return DIRECTIONS[new_direction_index], curves_direction, spiral_turn_counter
         else:
-            return current_forward_direction
+            return current_forward_direction, curves_direction, spiral_turn_counter
 
     # Default case
-    return current_forward_direction
+    return current_forward_direction, curves_direction, spiral_turn_counter
 
 
 def place_finish_structure(current_block_position: tuple[int, int, int], 
@@ -470,16 +470,18 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
         current_block_position = list_of_placed_jumps[-1].rel_finish_block.abs_position
 
         # Change direction for next iteration
-        current_forward_direction = change_direction(current_forward_direction, 
-                                                     rng, 
-                                                     parkour_type, 
-                                                     curves_size, 
-                                                     curves_direction,
-                                                     spiral_type, 
-                                                     spiral_turn_rate, 
-                                                     spiral_turn_prob, 
-                                                     spiral_rotation,
-                                                     spiral_turn_counter)
+        current_forward_direction, \
+        curves_direction, \
+        spiral_turn_counter = change_direction( current_forward_direction, 
+                                                rng, 
+                                                parkour_type, 
+                                                curves_size, 
+                                                curves_direction,
+                                                spiral_type, 
+                                                spiral_turn_rate, 
+                                                spiral_turn_prob, 
+                                                spiral_rotation,
+                                                spiral_turn_counter)
 
         n_blocks_placed += 1
 
