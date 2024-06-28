@@ -2,9 +2,9 @@
 <p align="center">
     <img src="src/mpg_icon.png" width="190" height="80">
 </p>
-This is a parkour generator for Minecraft Java Edition (Vanilla). It is based on Minecraft function files which allow to place multiple blocks in a Minecraft world with only one in-game command.
+MPG is a parkour generator for Minecraft Java Edition (Vanilla). It is based on Minecraft function files which allow to place multiple blocks in a Minecraft world with only one in-game command.
 
-Supported Java Edition versions: 1.13 - 1.21
+Supported Java Edition versions: `1.13 - 1.21`
 
 ## How to use
 The app creates a datapack which you can copy and paste into your Minecraft world's datapack folder.
@@ -19,6 +19,8 @@ The app creates a datapack which you can copy and paste into your Minecraft worl
 8. Use the command `/function parkour_generator:generate` to place the parkour.
 
 (Optional) You can use `/function parkour_generator:remove` to fill the placed parkour blocks with air. This will not revert any blocks that were destroyed by generating the parkour or filling the parkour volume with air. It will only fill the placed parkour blocks with air.
+
+If you generate a new parkour, you have to copy and paste the datapack into the datapack folder again such that the function files get overwritten. You can stay in the Minecraft world while doing this, but you have to use the `/reload` command to load the new function files.
 
 You can find the explanation for all the parkour settings in [SETTINGS.md](SETTINGS.md)
 
