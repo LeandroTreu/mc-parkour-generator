@@ -34,7 +34,7 @@ class Gui():
         self.window.title("Minecraft Parkour Generator")
         # TODO: create .ico file
         try:
-            mpg_icon = Image.open("mpg_icon.png")
+            mpg_icon = Image.open("mpg_icon_256.png")
             # mpg_icon = mpg_icon.resize((50, 50))
             mpg_icon = ImageTk.PhotoImage(mpg_icon)
             self.window.iconphoto(False, mpg_icon) # type: ignore

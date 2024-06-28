@@ -32,8 +32,10 @@ You can find the explanation for all the parkour settings in [SETTINGS.md](SETTI
 Python version 3.12.3 was used to develop the application. You can find all needed pip packages in [requirements.txt](requirements.txt). The main imports are NumPy, Matplotlib and Pillow. PyInstaller was used to build the executable.
 
 MPG can also be used as a CLI application. Just disable the GUI by setting use_gui to False in MPG.py . All settings can be set in the `settings.json` file and are documented in [SETTINGS.md](SETTINGS.md).
-### License
+## License
 Minecraft Parkour Generator (MPG) is licensed under GPL-3.0-or-later.
+
+<p xmlns:cc="http://creativecommons.org/ns#" >The MPG logos and icons are licensed under <a href="https://creativecommons.org/licenses/by-nd/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-ND 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/nd.svg?ref=chooser-v1" alt=""></a></p>
 
 ## Credits
 ### Idea for the Checkpoint System
