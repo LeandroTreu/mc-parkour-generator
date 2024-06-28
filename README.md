@@ -24,7 +24,7 @@ You can find the explanation for all the parkour settings in [SETTINGS.md](SETTI
 
 ## Installation
 1. Download the latest release [here](https://github.com/LeandroTreu/mc-parkour-generator/releases). 
-2. Extract the `zip` file and move the Minecraft Parkour Generator folder to your Desktop or where you can find it again. The entire application is inside the folder (no installation needed).
+2. Extract the `zip` file and move the `MPG` folder to your Desktop or where you can find it again. The entire application is inside the folder (no installation needed).
 3. Double-click `MPG.exe`.
 
 
