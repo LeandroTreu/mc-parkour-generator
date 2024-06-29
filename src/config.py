@@ -32,6 +32,8 @@ PLOT_FILE_TYPES = ["jpg", "png"]
 MC_VERSIONS = ["1.21+", "1.13 - 1.20.6"]  # TODO: test 1.13 - 1.18
 SPIRAL_TYPES = ["Even", "Random"]
 SPIRAL_ROTATIONS = ["counterclockwise", "clockwise"]
+DIFFICULTIES = ["easy", "medium", "hard"]
+PACE = ["slow", "medium", "fast"]
 
 def set_default_config() -> dict[str, Any]:
 
@@ -47,10 +49,10 @@ def set_default_config() -> dict[str, Any]:
     config["seed"] = 0
     config["checkpointsEnabled"] = True
     config["checkpointsPeriod"] = 10
-    config["useAllBlocks"] = True
+    config["useAllBlocks"] = False
     config["allowedStructureTypes"] = ALLOWED_STRUCTURE_TYPES_NAMES
-    config["difficulty"] = 0.2
-    config["flow"] = 0.5
+    config["difficulty"] = "medium"
+    config["pace"] = "medium"
     config["parkourType"] = "Spiral"
     config["parkourAscending"] = True
     config["parkourDescending"] = False
@@ -224,19 +226,10 @@ def check_config(config: dict[str, Any]) -> str:
     except:
         error_string += "allowedStructureTypes: wrong input format. Needs to be a list of strings.\n"
 
-    try:
-        d = float(config["difficulty"])
-        if d < 0.0 or d > 1.0:
-            error_string += f"difficulty: {d} is not in the allowed range of [0.0, 1.0]\n"
-    except:
-        error_string += "difficulty: wrong input format. Needs to be a floating point number.\n"
-
-    try:
-        f = float(config["flow"])
-        if f < 0.0 or f > 1.0:
-            error_string += f"flow: {f} is not in the allowed range of [0.0, 1.0]\n"
-    except:
-        error_string += "flow: wrong input format. Needs to be a floating point number.\n"
+    if config["difficulty"] not in DIFFICULTIES:
+        error_string += f"difficulty: wrong input format. Allowed strings are: {DIFFICULTIES}\n"
+    if config["pace"] not in PACE:
+        error_string += f"pace: wrong input format. Allowed strings are: {PACE}\n"
 
     t = config["parkourType"]
     if t not in PARKOUR_TYPE_NAMES:

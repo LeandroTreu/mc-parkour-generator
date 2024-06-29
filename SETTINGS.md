@@ -13,11 +13,11 @@ randomSeed|true/false|Set true for a randomised seed. Set false for a fixed seed
 seed|int|Sets a seed for the random number generator used by the parkour generation. Only works when randomSeed is set to false.
 checkpointsEnabled|true/false|If true then a checkpoint structure will be placed periodically with the defined checkpointsPeriod below.
 checkpointsPeriod|int|After this many normal jumptypes, one checkpoint is placed. If not possible the checkpoint is placed as soon as possible later in the parkour.
-useAllBlocks|true/false|Set to true to use all JumpTypes for generation, which will ignore allowedStructureTypes, difficulty, flow, parkourAscending below.
+useAllBlocks|true/false|Set to true to use all JumpTypes for generation, which will ignore allowedStructureTypes, difficulty, pace, parkourAscending below.
 allowedStructureTypes|SingleBlock, TwoBlock, FourBlock| Sets which JumpTypes are allowed.
 parkourAscending|true/false|If true then JumpTypes which are ascending (relative y-level > 0) will be used.
-difficulty|float|Choose parkour difficulty in range [0.0, 1.0]. 0.0 - very easy, 1.0 - very hard
-flow|float|Choose how fast/flowing/fluent the parkour is to traverse in range [0.0, 1.0]. 0.0 - slow/halting, 1.0 - fast/fluent
+difficulty|easy, medium, hard|Choose parkour difficulty.
+pace|slow, medium, fast|Choose how fast/fluent the parkour is to traverse.
 parkourType|Straight, Curves, Spiral, Random|Straight: Parkour only goes in the direction set by startForwardDirection. Curves: parkour goes left and right randomly. Spiral: parkour spiral with rotation and type set below. Random: completely random direction changes.
 curvesSize|float|Values: [0.1, 1.0], Changes the size of the curves: 0.1 - small, 1.0 - big
 spiralRotation|clockwise, counterclockwise|

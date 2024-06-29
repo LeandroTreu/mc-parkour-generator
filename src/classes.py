@@ -31,7 +31,7 @@ class Block:
 
 class JumpType:
 
-    def __init__(self, name: str, structure_type: str, rel_start_block: Block, rel_finish_block: Block, blocks: list[Block], difficulty: float, flow: float) -> None:
+    def __init__(self, name: str, structure_type: str, rel_start_block: Block, rel_finish_block: Block, blocks: list[Block], difficulty: str, pace: str) -> None:
         
         self.name = name                            # Name of the jump type
         self.structure_type = structure_type        # Name of the structure type
@@ -40,7 +40,7 @@ class JumpType:
         self.blocks = blocks                        # List of all remaining blocks in the structure (excluding the rel_start_block and the rel_finish_block) defined relative to the start block of this JumpType
         
         self.difficulty = difficulty
-        self.flow = flow
+        self.pace = pace
     
     def __str__(self) -> str:
         

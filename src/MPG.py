@@ -52,7 +52,7 @@ if __name__ == "__main__":
                                 checkpoints_period=settings["checkpointsPeriod"],
                                 use_all_blocks=settings["useAllBlocks"],
                                 difficulty=settings["difficulty"],
-                                flow=settings["flow"],
+                                pace=settings["pace"],
                                 ascending=settings["parkourAscending"],
                                 descending=settings["parkourDescending"],
                                 curves_size=settings["curvesSize"],

@@ -226,10 +226,10 @@ class Gui():
         self.t_two_block = ttk.Checkbutton(master=self.settings_frame, text="TwoBlock", variable=self.variables["allowedStructureTypes_tb"], onvalue=True, offvalue=False, command=self.update_vis)
         self.t_four_block = ttk.Checkbutton(master=self.settings_frame, text="FourBlock", variable=self.variables["allowedStructureTypes_fb"], onvalue=True, offvalue=False, command=self.update_vis)
 
-        self.difficulty_l = ttk.Label(master=self.settings_frame, text=f"Difficulty: {(((self.settings["difficulty"]*10)//1) / 10)}")
-        self.difficulty = ttk.Scale(master=self.settings_frame, variable=self.variables["difficulty"], from_=0, to=1.0, command=self.show_difficulty)
-        self.flow_l = ttk.Label(master=self.settings_frame, text=f"Flow: {(((self.settings["flow"]*10)//1) / 10)}")
-        self.flow = ttk.Scale(master=self.settings_frame, variable=self.variables["flow"], from_=0, to=1.0, command=self.show_flow)
+        self.difficulty_l = ttk.Label(master=self.settings_frame, text=f"Difficulty")
+        self.difficulty = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["difficulty"], values=config.DIFFICULTIES)
+        self.pace_l = ttk.Label(master=self.settings_frame, text=f"Pace")
+        self.pace = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["pace"], values=config.PACE)
 
         self.parkour_type_l = ttk.Label(master=self.settings_frame, text="Parkour Type:")
         self.parkour_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["parkourType"], values=config.PARKOUR_TYPE_NAMES, width=10, state="readonly")
@@ -324,14 +324,10 @@ class Gui():
         self.ascending.grid(row=310, column=102, sticky="W", padx=0, pady=self.label_pad_y)
         self.descending.grid(row=311, column=102, sticky="W", padx=0, pady=self.label_pad_y)
 
-        # self.separator_df = ttk.Separator(master=self.settings_frame, orient="horizontal")
-        # self.separator_df.grid(row=400, column=100, columnspan=1000, sticky="EW", padx=0, pady=10, ipadx=0, ipady=0)
-        # self.d_and_f_label = ttk.Label(master=self.settings_frame, text="Difficulty and Flow", font=self.font_title)
-        # self.d_and_f_label.grid(row=401, column=100, sticky="W", padx=0, pady=0)
         self.difficulty_l.grid(row=410, column=100, sticky="W", padx=0, pady=self.label_pad_y)
         self.difficulty.grid(row=411, column=100, sticky="W", padx=0, pady=0)
-        self.flow_l.grid(row=410, column=101, sticky="W", padx=0, pady=0)
-        self.flow.grid(row=411, column=101, sticky="W", padx=0, pady=0)
+        self.pace_l.grid(row=410, column=101, sticky="W", padx=0, pady=0)
+        self.pace.grid(row=411, column=101, sticky="W", padx=0, pady=0)
 
         self.separator_pktypes = ttk.Separator(master=self.settings_frame, orient="horizontal")
         self.separator_pktypes.grid(row=500, column=100, columnspan=1000, sticky="EW", padx=0, pady=10, ipadx=0, ipady=0)
@@ -439,8 +435,8 @@ class Gui():
             self.descending["state"] = "disabled"
             self.difficulty_l["state"] = "disabled"
             self.difficulty["state"] = "disabled"
-            self.flow_l["state"] = "disabled"
-            self.flow["state"] = "disabled"
+            self.pace_l["state"] = "disabled"
+            self.pace["state"] = "disabled"
         else:
             self.allowed_str_types_l["state"] = "normal"
             self.t_one_block["state"] = "normal"
@@ -450,8 +446,8 @@ class Gui():
             self.descending["state"] = "normal"
             self.difficulty_l["state"] = "normal"
             self.difficulty["state"] = "normal"
-            self.flow_l["state"] = "normal"
-            self.flow["state"] = "normal"
+            self.pace_l["state"] = "normal"
+            self.pace["state"] = "normal"
 
         p_type = self.variables["parkourType"].get()
         if p_type == "Straight" or p_type == "Random":
@@ -498,14 +494,6 @@ class Gui():
 
 
     
-    def show_difficulty(self, string):
-        string = ((float(string)*10)//1) / 10
-        self.difficulty_l["text"] = f"Difficulty: {string}"
-
-    def show_flow(self, string):
-        string = ((float(string)*10)//1) / 10
-        self.flow_l["text"] = f"Flow: {string}"
-
     def show_spiral_prob(self, string):
         string = ((float(string)*10)//1) / 10
         self.spiral_turn_prob_l["text"] = f"Spiral Turn Probability: {string}"
@@ -635,7 +623,7 @@ class Gui():
                                     checkpoints_period=self.settings["checkpointsPeriod"],
                                     use_all_blocks=self.settings["useAllBlocks"],
                                     difficulty=self.settings["difficulty"],
-                                    flow=self.settings["flow"],
+                                    pace=self.settings["pace"],
                                     ascending=self.settings["parkourAscending"],
                                     descending=self.settings["parkourDescending"],
                                     curves_size=self.settings["curvesSize"],

@@ -27,14 +27,14 @@
  "seed": 0,
  "checkpointsEnabled": true,
  "checkpointsPeriod": 10,
- "useAllBlocks": true,
+ "useAllBlocks": false,
  "allowedStructureTypes": [
   "SingleBlock",
   "TwoBlock",
   "FourBlock"
  ],
- "difficulty": 0.2,
- "flow": 0.5,
+ "difficulty": "medium",
+ "pace": "medium",
  "parkourType": "Spiral",
  "parkourAscending": true,
  "parkourDescending": false,

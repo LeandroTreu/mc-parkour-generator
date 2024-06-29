@@ -18,8 +18,8 @@ def init_startblock(block_type: str) -> JumpType:
                                 Block(block_type, (1, 0, -1)), Block(block_type, (1, 0, 1)), 
                                 Block(block_type, (-1, 0, 1)), Block(block_type, (-1, 0, -1)), 
                                 Block(block_type, (-1, 0, 0))],
-                        difficulty=0.0, 
-                        flow=1.0)
+                        difficulty="easy", 
+                        pace="fast")
     return b
 
 def init_finishblock(block_type: str) -> JumpType:
@@ -30,8 +30,8 @@ def init_finishblock(block_type: str) -> JumpType:
                                 Block(block_type, (1, 0, -1)), Block(block_type, (1, 0, 1)), 
                                 Block(block_type, (-1, 0, 1)), Block(block_type, (-1, 0, -1)), 
                                 Block(block_type, (-1, 0, 0))],
-                        difficulty=0.0, 
-                        flow=1.0)
+                        difficulty="easy", 
+                        pace="fast")
     return b
 
 def init_checkpointblock(block_type: str) -> JumpType:
@@ -43,8 +43,8 @@ def init_checkpointblock(block_type: str) -> JumpType:
                                 Block(block_type, (2, 0, 1)), Block(block_type, (2, 0, -1)), 
                                 Block("minecraft:command_block", (1, -1, 0)), Block("minecraft:stone_pressure_plate", (1, 1, 0))
                                 ],
-                        difficulty=0.0, 
-                        flow=1.0)
+                        difficulty="easy", 
+                        pace="fast")
     return b
 
 def init_commandcontrol(block_type: str) -> JumpType:
@@ -52,8 +52,8 @@ def init_commandcontrol(block_type: str) -> JumpType:
                         rel_start_block=Block("minecraft:air", (0, 0, 0)), 
                         rel_finish_block=Block("minecraft:air", (0, 0, 0)),
                             blocks=[],
-                        difficulty=0.0, 
-                        flow=1.0)
+                        difficulty="easy", 
+                        pace="fast")
     return b
 
 def init_dispenser(block_type: str) -> JumpType:
@@ -61,8 +61,8 @@ def init_dispenser(block_type: str) -> JumpType:
                                         rel_start_block=Block('minecraft:command_block{Command: "give @p minecraft:fishing_rod"}', (0, 0, 0)), 
                                         rel_finish_block=Block("minecraft:stone_button", (0, 1, 0)),
                                         blocks=[],
-                                        difficulty=0.0, 
-                                        flow=1.0)
+                                        difficulty="easy", 
+                                        pace="fast")
     return b
 
 def init_jumptypes(block_type: str) -> list[JumpType]:
@@ -83,52 +83,61 @@ def init_jumptypes(block_type: str) -> list[JumpType]:
                     if abs(displacement) == 3 and gap == 5:
                         continue
 
-                # SingleBlock Structures
+                # Set difficulty
+                if gap == 5:
+                    d = "hard"
+                elif y_level == 1 and gap > 3:
+                    d = "hard"
+                elif y_level == 1 and abs(displacement) > 2:
+                    d = "hard"
+                else:
+                    d = "medium"
+
+                # Set pace
+                if gap > 3:
+                    p = "fast"
+                elif gap < 3:
+                    p = "slow"
+                else:
+                    p = "medium"
+                
                 start_block_tuple = (gap, y_level, displacement)
                 name = str(start_block_tuple)
+
+                # SingleBlock Structures
                 st = "SingleBlock"
                 finish_block_tuple = (0, 0, 0)
                 blocks = []
-                d = 0.5
-                f = 0.5
                 list_of_jumptypes.append(
                     JumpType(name=name, structure_type=st,
                             rel_start_block=Block(block_type, start_block_tuple),
                             rel_finish_block=Block(block_type, finish_block_tuple),
                             blocks=blocks,
-                            difficulty=d, flow=f)
+                            difficulty=d, pace=p)
                 )
 
                 # TwoBlock Structures
-                start_block_tuple = (gap, y_level, displacement)
-                name = str(start_block_tuple)
                 st = "TwoBlock"
                 finish_block_tuple = (1, 0, 0)
                 blocks = []
-                d = 0.5
-                f = 0.5
                 list_of_jumptypes.append(
                     JumpType(name=name, structure_type=st,
                             rel_start_block=Block(block_type, start_block_tuple),
                             rel_finish_block=Block(block_type, finish_block_tuple),
                             blocks=blocks,
-                            difficulty=d, flow=f)
+                            difficulty=d, pace=p)
                 )
 
                 # FourBlock Structures
-                start_block_tuple = (gap, y_level, displacement)
-                name = str(start_block_tuple)
                 st = "FourBlock"
                 finish_block_tuple = (1, 0, 0)
                 blocks = [Block(block_type, (0, 0, -1)), Block(block_type, (1, 0, -1))]
-                d = 0.5
-                f = 0.5
                 list_of_jumptypes.append(
                     JumpType(name=name, structure_type=st,
                             rel_start_block=Block(block_type, start_block_tuple),
                             rel_finish_block=Block(block_type, finish_block_tuple),
                             blocks=blocks,
-                            difficulty=d, flow=f)
+                            difficulty=d, pace=p)
                 )
 
     return list_of_jumptypes
