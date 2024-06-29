@@ -14,7 +14,7 @@ seed|int|Sets a seed for the random number generator used by the parkour generat
 checkpointsEnabled|true/false|If true then a checkpoint structure will be placed periodically with the defined checkpointsPeriod below.
 checkpointsPeriod|int|After this many normal jumptypes, one checkpoint is placed. If not possible the checkpoint is placed as soon as possible later in the parkour.
 useAllBlocks|true/false|Set to true to use all JumpTypes for generation, which will ignore allowedStructureTypes, difficulty, flow, parkourAscending below.
-allowedStructureTypes|SingleBlock, TwoBlock| Sets which JumpTypes are allowed.
+allowedStructureTypes|SingleBlock, TwoBlock, FourBlock| Sets which JumpTypes are allowed.
 parkourAscending|true/false|If true then JumpTypes which are ascending (relative y-level > 0) will be used.
 difficulty|float|Choose parkour difficulty in range [0.0, 1.0]. 0.0 - very easy, 1.0 - very hard
 flow|float|Choose how fast/flowing/fluent the parkour is to traverse in range [0.0, 1.0]. 0.0 - slow/halting, 1.0 - fast/fluent

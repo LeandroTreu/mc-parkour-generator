@@ -104,7 +104,7 @@ def place_control_command_blocks(command_blocks_instance: JumpType,
     dispenser_instance.rel_finish_block.name = f"minecraft:stone_button[face=floor, facing={button_facing_direction}]"
 
 
-def filter_jumptypes(list_of_allowed_structure_types: list[str], use_all_blocks: bool, difficulty: float, flow: float, ascending: bool, block_type: str) -> tuple[list[JumpType], int , int]:
+def filter_jumptypes(list_of_allowed_structure_types: list[str], use_all_blocks: bool, difficulty: float, flow: float, ascending: bool, descending: bool, block_type: str) -> tuple[list[JumpType], int , int]:
 
     list_of_jumptypes = jumptypes.init_jumptypes(block_type=block_type)
     list_of_jumptypes_filtered: list[JumpType] = []
@@ -116,6 +116,8 @@ def filter_jumptypes(list_of_allowed_structure_types: list[str], use_all_blocks:
                 if jumptype.difficulty >= difficulty - 0.2 and jumptype.difficulty <= difficulty + 0.2:
                     if jumptype.flow >= flow - 0.2 and jumptype.flow <= flow + 0.2:
                         if not ascending and util.is_ascending(jumptype):
+                            continue
+                        if not descending and util.is_descending(jumptype):
                             continue
                         list_of_jumptypes_filtered.append(jumptype)
 
@@ -340,6 +342,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                      difficulty: float,
                      flow: float,
                      ascending: bool,
+                     descending: bool,
                      curves_size: float,
                      spiral_type: str,
                      spiral_turn_rate: int,
@@ -384,6 +387,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
         difficulty,
         flow,
         ascending,
+        descending,
         block_type)
 
     if not gui_enabled:

@@ -108,6 +108,10 @@ class Gui():
                     self.variables["allowedStructureTypes_tb"] = tk.BooleanVar(master=self.window, value=True)
                 else:
                     self.variables["allowedStructureTypes_tb"] = tk.BooleanVar(master=self.window, value=False)
+                if "FourBlock" in value:
+                    self.variables["allowedStructureTypes_fb"] = tk.BooleanVar(master=self.window, value=True)
+                else:
+                    self.variables["allowedStructureTypes_fb"] = tk.BooleanVar(master=self.window, value=False)
             elif type(value) is bool:
                 self.variables[name] = tk.BooleanVar(master=self.window, value=value)
             elif type(value) is str:
@@ -142,6 +146,10 @@ class Gui():
                     self.variables["allowedStructureTypes_tb"].set(True)
                 else:
                     self.variables["allowedStructureTypes_tb"].set(False)
+                if "FourBlock" in value:
+                    self.variables["allowedStructureTypes_fb"].set(True)
+                else:
+                    self.variables["allowedStructureTypes_fb"].set(False)
             elif type(value) is bool:
                 self.variables[name].set(value)
             elif type(value) is str:
@@ -216,6 +224,7 @@ class Gui():
         self.allowed_str_types_l = ttk.Label(master=self.settings_frame, text="Allowed JumpTypes:")
         self.t_one_block = ttk.Checkbutton(master=self.settings_frame, text="SingleBlock", variable=self.variables["allowedStructureTypes_sb"], onvalue=True, offvalue=False, command=self.update_vis)
         self.t_two_block = ttk.Checkbutton(master=self.settings_frame, text="TwoBlock", variable=self.variables["allowedStructureTypes_tb"], onvalue=True, offvalue=False, command=self.update_vis)
+        self.t_four_block = ttk.Checkbutton(master=self.settings_frame, text="FourBlock", variable=self.variables["allowedStructureTypes_fb"], onvalue=True, offvalue=False, command=self.update_vis)
 
         self.difficulty_l = ttk.Label(master=self.settings_frame, text=f"Difficulty: {(((self.settings["difficulty"]*10)//1) / 10)}")
         self.difficulty = ttk.Scale(master=self.settings_frame, variable=self.variables["difficulty"], from_=0, to=1.0, command=self.show_difficulty)
@@ -226,6 +235,7 @@ class Gui():
         self.parkour_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["parkourType"], values=config.PARKOUR_TYPE_NAMES, width=10, state="readonly")
         self.parkour_type.bind("<<ComboboxSelected>>", self.update_vis) # type: ignore
         self.ascending = ttk.Checkbutton(master=self.settings_frame, text="Ascending Jumps", variable=self.variables["parkourAscending"], onvalue=True, offvalue=False, command=self.update_vis)
+        self.descending = ttk.Checkbutton(master=self.settings_frame, text="Descending Jumps", variable=self.variables["parkourDescending"], onvalue=True, offvalue=False, command=self.update_vis)
 
         self.curves_size_l = ttk.Label(master=self.settings_frame, text=f"Curves Size: {(((self.settings["curvesSize"]*10)//1) / 10)}")
         self.curves_size = ttk.Scale(master=self.settings_frame, variable=self.variables["curvesSize"], from_=0.1, to=1.0, command=self.show_curves_size)
@@ -308,9 +318,11 @@ class Gui():
         self.jt_label.grid(row=301, column=100, sticky="W", padx=0, pady=self.label_pad_y)
         self.use_all_blocks.grid(row=310, column=100, sticky="W", padx=0, pady=0)
         self.allowed_str_types_l.grid(row=310, column=101, sticky="W", padx=0, pady=0)
-        self.t_one_block.grid(row=310, column=102, sticky="W", padx=0, pady=0)
-        self.t_two_block.grid(row=311, column=102, sticky="W", padx=0, pady=0)
-        self.ascending.grid(row=310, column=103, sticky="W", padx=0, pady=self.label_pad_y)
+        self.t_one_block.grid(row=310, column=103, sticky="W", padx=0, pady=0)
+        self.t_two_block.grid(row=311, column=103, sticky="W", padx=0, pady=0)
+        self.t_four_block.grid(row=312, column=103, sticky="W", padx=0, pady=0)
+        self.ascending.grid(row=310, column=102, sticky="W", padx=0, pady=self.label_pad_y)
+        self.descending.grid(row=311, column=102, sticky="W", padx=0, pady=self.label_pad_y)
 
         # self.separator_df = ttk.Separator(master=self.settings_frame, orient="horizontal")
         # self.separator_df.grid(row=400, column=100, columnspan=1000, sticky="EW", padx=0, pady=10, ipadx=0, ipady=0)
@@ -422,7 +434,9 @@ class Gui():
             self.allowed_str_types_l["state"] = "disabled"
             self.t_one_block["state"] = "disabled"
             self.t_two_block["state"] = "disabled"
+            self.t_four_block["state"] = "disabled"
             self.ascending["state"] = "disabled"
+            self.descending["state"] = "disabled"
             self.difficulty_l["state"] = "disabled"
             self.difficulty["state"] = "disabled"
             self.flow_l["state"] = "disabled"
@@ -431,7 +445,9 @@ class Gui():
             self.allowed_str_types_l["state"] = "normal"
             self.t_one_block["state"] = "normal"
             self.t_two_block["state"] = "normal"
+            self.t_four_block["state"] = "normal"
             self.ascending["state"] = "normal"
+            self.descending["state"] = "normal"
             self.difficulty_l["state"] = "normal"
             self.difficulty["state"] = "normal"
             self.flow_l["state"] = "normal"
@@ -560,6 +576,8 @@ class Gui():
                     self.settings[name].append("SingleBlock")
                 if v["allowedStructureTypes_tb"].get():
                     self.settings[name].append("TwoBlock")
+                if v["allowedStructureTypes_fb"].get():
+                    self.settings[name].append("FourBlock")
             else:
                 t = type(self.settings[name])
                 if t is bool or t is str:
@@ -619,6 +637,7 @@ class Gui():
                                     difficulty=self.settings["difficulty"],
                                     flow=self.settings["flow"],
                                     ascending=self.settings["parkourAscending"],
+                                    descending=self.settings["parkourDescending"],
                                     curves_size=self.settings["curvesSize"],
                                     spiral_type=self.settings["spiralType"],
                                     spiral_turn_rate=self.settings["spiralTurnRate"],

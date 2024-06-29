@@ -54,6 +54,7 @@ if __name__ == "__main__":
                                 difficulty=settings["difficulty"],
                                 flow=settings["flow"],
                                 ascending=settings["parkourAscending"],
+                                descending=settings["parkourDescending"],
                                 curves_size=settings["curvesSize"],
                                 spiral_type=settings["spiralType"],
                                 spiral_turn_rate=settings["spiralTurnRate"],

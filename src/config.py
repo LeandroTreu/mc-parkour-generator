@@ -25,7 +25,7 @@ MC_MAX_FILL_VOLUME_CUBE_WIDTH = 32
 MAX_PARKOUR_LENGTH = 10000
 MAX_VOLUME = 10000 * MC_MAX_FILL_VOLUME
 DIRECTIONS = ["Xpos", "Zneg", "Xneg", "Zpos"]
-ALLOWED_STRUCTURE_TYPES_NAMES = ["SingleBlock", "TwoBlock"]
+ALLOWED_STRUCTURE_TYPES_NAMES = ["SingleBlock", "TwoBlock", "FourBlock"]
 PARKOUR_TYPE_NAMES = ["Straight", "Curves", "Spiral", "Random"]
 PLOT_COLORSCHEMES = ["winter", "viridis", "plasma", "gray", "hot", "summer", "hsv", "copper"]
 PLOT_FILE_TYPES = ["jpg", "png"]
@@ -48,11 +48,12 @@ def set_default_config() -> dict[str, Any]:
     config["checkpointsEnabled"] = True
     config["checkpointsPeriod"] = 10
     config["useAllBlocks"] = True
-    config["allowedStructureTypes"] = ["SingleBlock", "TwoBlock"]
+    config["allowedStructureTypes"] = ALLOWED_STRUCTURE_TYPES_NAMES
     config["difficulty"] = 0.2
     config["flow"] = 0.5
     config["parkourType"] = "Spiral"
     config["parkourAscending"] = True
+    config["parkourDescending"] = False
     config["curvesSize"] = 0.5
     config["spiralRotation"] = "counterclockwise"
     config["spiralType"] = "Even"
@@ -243,6 +244,8 @@ def check_config(config: dict[str, Any]) -> str:
 
     if type(config["parkourAscending"]) is not bool:
         error_string += "parkourAscending: wrong input format. Only true or false are allowed.\n"
+    if type(config["parkourDescending"]) is not bool:
+        error_string += "parkourDescending: wrong input format. Only true or false are allowed.\n"
 
     try:
         cs = float(config["curvesSize"])

@@ -65,159 +65,70 @@ def init_dispenser(block_type: str) -> JumpType:
                                         flow=1.0)
     return b
 
-
-
 def init_jumptypes(block_type: str) -> list[JumpType]:
     
     list_of_jumptypes: list[JumpType] = []
 
-    # SingleBlock Structures
-    list_of_jumptypes.append(JumpType(name="1 block gap straight", structure_type="SingleBlock",    #
-                                    rel_start_block=Block(block_type, (2, 0, 0)),                  #
-                                    rel_finish_block=Block(block_type, (0, 0, 0)),                 #  +  +
-                                    blocks=[],                                                    #
-                                    difficulty=0.1, flow=0.2))                                    #
+    for gap in [2, 3, 4, 5]:
+        for y_level in [-3, -2, -1, 0, 1]:
+            for displacement in [-3, -2, -1, 0, 1, 2, 3]:
 
-    list_of_jumptypes.append(JumpType(name="2 blocks gap straight", structure_type="SingleBlock",   #
-                                    rel_start_block=Block(block_type, (3, 0, 0)),                  #
-                                    rel_finish_block=Block(block_type, (0, 0, 0)),                 #  +    +
-                                    blocks=[],                                                    #
-                                    difficulty=0.1, flow=0.7))                                    #
+                # Non-possible jumps
+                if y_level == 1:
+                    if gap > 4:
+                        continue
+                    if gap == 4 and abs(displacement) == 3:
+                        continue
+                if y_level == 0:
+                    if abs(displacement) == 3 and gap == 5:
+                        continue
 
-    list_of_jumptypes.append(JumpType(name="3 blocks gap straight", structure_type="SingleBlock",     #
-                                    rel_start_block=Block(block_type, (4, 0, 0)),                    #
-                                    rel_finish_block=Block(block_type, (0, 0, 0)),                   #  +      +
-                                    blocks=[],                                                      #
-                                    difficulty=0.1, flow=1.0))                                      #
+                # SingleBlock Structures
+                start_block_tuple = (gap, y_level, displacement)
+                name = str(start_block_tuple)
+                st = "SingleBlock"
+                finish_block_tuple = (0, 0, 0)
+                blocks = []
+                d = 0.5
+                f = 0.5
+                list_of_jumptypes.append(
+                    JumpType(name=name, structure_type=st,
+                            rel_start_block=Block(block_type, start_block_tuple),
+                            rel_finish_block=Block(block_type, finish_block_tuple),
+                            blocks=blocks,
+                            difficulty=d, flow=f)
+                )
 
-    list_of_jumptypes.append(JumpType(name="4 blocks gap straight", structure_type="SingleBlock",     #
-                                    rel_start_block=Block(block_type, (5, 0, 0)),                    #
-                                    rel_finish_block=Block(block_type, (0, 0, 0)),                   #  +        +
-                                    blocks=[],                                                      #
-                                    difficulty=0.8, flow=1.0))                                      #
+                # TwoBlock Structures
+                start_block_tuple = (gap, y_level, displacement)
+                name = str(start_block_tuple)
+                st = "TwoBlock"
+                finish_block_tuple = (1, 0, 0)
+                blocks = []
+                d = 0.5
+                f = 0.5
+                list_of_jumptypes.append(
+                    JumpType(name=name, structure_type=st,
+                            rel_start_block=Block(block_type, start_block_tuple),
+                            rel_finish_block=Block(block_type, finish_block_tuple),
+                            blocks=blocks,
+                            difficulty=d, flow=f)
+                )
 
-    list_of_jumptypes.append(JumpType(name="2 blocks gap displaced left", structure_type="SingleBlock",    #
-                                    rel_start_block=Block(block_type, (3, 0, -1)),                        #       +
-                                    rel_finish_block=Block(block_type, (0, 0, 0)),                        #  +
-                                    blocks=[],                                                           #
-                                    difficulty=0.3, flow=0.8))                                           #
+                # FourBlock Structures
+                start_block_tuple = (gap, y_level, displacement)
+                name = str(start_block_tuple)
+                st = "FourBlock"
+                finish_block_tuple = (1, 0, 0)
+                blocks = [Block(block_type, (0, 0, -1)), Block(block_type, (1, 0, -1))]
+                d = 0.5
+                f = 0.5
+                list_of_jumptypes.append(
+                    JumpType(name=name, structure_type=st,
+                            rel_start_block=Block(block_type, start_block_tuple),
+                            rel_finish_block=Block(block_type, finish_block_tuple),
+                            blocks=blocks,
+                            difficulty=d, flow=f)
+                )
 
-    list_of_jumptypes.append(JumpType(name="2 blocks gap displaced right", structure_type="SingleBlock",    #
-                                    rel_start_block=Block(block_type, (3, 0, 1)),                          #
-                                    rel_finish_block=Block(block_type, (0, 0, 0)),                         #  +
-                                    blocks=[],                                                            #       +
-                                    difficulty=0.3, flow=0.8))                                            #
-
-    list_of_jumptypes.append(JumpType(name="2 blocks gap diagonal left", structure_type="SingleBlock",  #       +
-                                    rel_start_block=Block(block_type, (3, 0, -2)),                     #
-                                    rel_finish_block=Block(block_type, (0, 0, 0)),                     #  +
-                                    blocks=[],                                                        #
-                                    difficulty=0.6, flow=0.8))                                        #
-
-    list_of_jumptypes.append(JumpType(name="2 blocks gap diagonal right", structure_type="SingleBlock",  #
-                                    rel_start_block=Block(block_type, (3, 0, 2)),                       #
-                                    rel_finish_block=Block(block_type, (0, 0, 0)),                      #  +
-                                    blocks=[],                                                         #
-                                    difficulty=0.6, flow=0.8))                                         #       +
-
-    list_of_jumptypes.append(JumpType(name="1 block gap one up", structure_type="SingleBlock",           #
-                                    rel_start_block=Block(block_type, (2, 1, 0)),                       #
-                                    rel_finish_block=Block(block_type, (0, 0, 0)),                      #  +  +
-                                    blocks=[],                                                         #
-                                    difficulty=0.2, flow=0.5))                                         #
-
-    list_of_jumptypes.append(JumpType(name="2 block gap one up", structure_type="SingleBlock",           #
-                                    rel_start_block=Block(block_type, (3, 1, 0)),                       #
-                                    rel_finish_block=Block(block_type, (0, 0, 0)),                      #  +    +
-                                    blocks=[],                                                         #
-                                    difficulty=0.9, flow=0.7))                                         #
-
-    list_of_jumptypes.append(JumpType(name="1 block gap one up displaced left", structure_type="SingleBlock",  #
-                                    rel_start_block=Block(block_type, (2, 1, -1)),                            #     +
-                                    rel_finish_block=Block(block_type, (0, 0, 0)),                            #  +
-                                    blocks=[],                                                               #
-                                    difficulty=0.3, flow=0.5))                                               #
-
-    list_of_jumptypes.append(JumpType(name="1 block gap one up displaced right", structure_type="SingleBlock", #
-                                    rel_start_block=Block(block_type, (2, 1, 1)),                             #
-                                    rel_finish_block=Block(block_type, (0, 0, 0)),                            #  +
-                                    blocks=[],                                                               #     +
-                                    difficulty=0.3, flow=0.5))                                               #
-
-
-
-    # TwoBlock Structures
-    list_of_jumptypes.append(JumpType(name="1 block gap straight", structure_type="TwoBlock",       #
-                                    rel_start_block=Block(block_type, (2, 0, 0)),                  #
-                                    rel_finish_block=Block(block_type, (1, 0, 0)),                 #  +  ++
-                                    blocks=[],                                                    #
-                                    difficulty=0.1, flow=0.4))                                    #
-
-    list_of_jumptypes.append(JumpType(name="2 blocks gap straight", structure_type="TwoBlock",      #
-                                    rel_start_block=Block(block_type, (3, 0, 0)),                  #
-                                    rel_finish_block=Block(block_type, (1, 0, 0)),                 #  +    ++
-                                    blocks=[],                                                    #
-                                    difficulty=0.1, flow=0.8))                                    #
-
-    list_of_jumptypes.append(JumpType(name="3 blocks gap straight", structure_type="TwoBlock",        #
-                                    rel_start_block=Block(block_type, (4, 0, 0)),                    #
-                                    rel_finish_block=Block(block_type, (1, 0, 0)),                   #  +      ++
-                                    blocks=[],                                                      #
-                                    difficulty=0.1, flow=1.0))                                      #
-
-    list_of_jumptypes.append(JumpType(name="4 blocks gap straight", structure_type="TwoBlock",        #
-                                    rel_start_block=Block(block_type, (5, 0, 0)),                    #
-                                    rel_finish_block=Block(block_type, (1, 0, 0)),                   #  +        ++
-                                    blocks=[],                                                      #
-                                    difficulty=0.8, flow=1.0))                                      #
-
-    list_of_jumptypes.append(JumpType(name="2 blocks gap displaced left", structure_type="TwoBlock",       #
-                                    rel_start_block=Block(block_type, (3, 0, -1)),                        #       ++
-                                    rel_finish_block=Block(block_type, (1, 0, 0)),                        #  +
-                                    blocks=[],                                                           #
-                                    difficulty=0.3, flow=0.8))                                           #
-
-    list_of_jumptypes.append(JumpType(name="2 blocks gap displaced right", structure_type="TwoBlock",       #
-                                    rel_start_block=Block(block_type, (3, 0, 1)),                          #
-                                    rel_finish_block=Block(block_type, (1, 0, 0)),                         #  +
-                                    blocks=[],                                                            #       ++
-                                    difficulty=0.3, flow=0.8))                                            #
-
-    list_of_jumptypes.append(JumpType(name="2 blocks gap diagonal left", structure_type="TwoBlock",     #       ++
-                                    rel_start_block=Block(block_type, (3, 0, -2)),                     #
-                                    rel_finish_block=Block(block_type, (1, 0, 0)),                     #  +
-                                    blocks=[],                                                        #
-                                    difficulty=0.6, flow=0.8))                                        #
-
-    list_of_jumptypes.append(JumpType(name="2 blocks gap diagonal right", structure_type="TwoBlock",     #
-                                    rel_start_block=Block(block_type, (3, 0, 2)),                       #
-                                    rel_finish_block=Block(block_type, (1, 0, 0)),                      #  +
-                                    blocks=[],                                                         #
-                                    difficulty=0.6, flow=0.8))                                         #       ++
-
-    list_of_jumptypes.append(JumpType(name="1 block gap one up", structure_type="TwoBlock",              #
-                                    rel_start_block=Block(block_type, (2, 1, 0)),                       #
-                                    rel_finish_block=Block(block_type, (1, 0, 0)),                      #  +  ++
-                                    blocks=[],                                                         #
-                                    difficulty=0.2, flow=0.5))                                         #
-
-    list_of_jumptypes.append(JumpType(name="2 block gap one up", structure_type="TwoBlock",              #
-                                    rel_start_block=Block(block_type, (3, 1, 0)),                       #
-                                    rel_finish_block=Block(block_type, (1, 0, 0)),                      #  +    ++
-                                    blocks=[],                                                         #
-                                    difficulty=0.9, flow=0.7))                                         #
-
-    list_of_jumptypes.append(JumpType(name="1 block gap one up displaced left", structure_type="TwoBlock",     #
-                                    rel_start_block=Block(block_type, (2, 1, -1)),                            #     ++
-                                    rel_finish_block=Block(block_type, (1, 0, 0)),                            #  +
-                                    blocks=[],                                                               #
-                                    difficulty=0.3, flow=0.5))                                               #
-
-    list_of_jumptypes.append(JumpType(name="1 block gap one up displaced right", structure_type="TwoBlock",    #
-                                    rel_start_block=Block(block_type, (2, 1, 1)),                             #
-                                    rel_finish_block=Block(block_type, (1, 0, 0)),                            #  +
-                                    blocks=[],                                                               #     ++
-                                    difficulty=0.3, flow=0.5))                                               #
-    
     return list_of_jumptypes
-

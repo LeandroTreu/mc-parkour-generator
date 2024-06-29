@@ -30,12 +30,14 @@
  "useAllBlocks": true,
  "allowedStructureTypes": [
   "SingleBlock",
-  "TwoBlock"
+  "TwoBlock",
+  "FourBlock"
  ],
  "difficulty": 0.2,
  "flow": 0.5,
  "parkourType": "Spiral",
  "parkourAscending": true,
+ "parkourDescending": false,
  "curvesSize": 0.5,
  "spiralRotation": "counterclockwise",
  "spiralType": "Even",

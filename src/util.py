@@ -187,3 +187,10 @@ def is_ascending(jumptype: JumpType) -> bool:
         return True
 
     return False
+
+def is_descending(jumptype: JumpType) -> bool:
+
+    if jumptype.rel_start_block.rel_position[1] + jumptype.rel_finish_block.rel_position[1] < 0:
+        return True
+
+    return False
