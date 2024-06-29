@@ -113,7 +113,7 @@ def filter_jumptypes(list_of_allowed_structure_types: list[str], use_all_blocks:
     else:
         for jumptype in list_of_jumptypes:
             if jumptype.structure_type in list_of_allowed_structure_types:
-                if jumptype.pace == pace:
+                if (pace == "fast" and jumptype.pace in ["fast", "medium"]) or (pace == "medium" and jumptype.pace in ["medium", "slow"]) or (pace == "slow" and jumptype.pace == "slow"):
                     if difficulty == "hard" or (difficulty == "medium" and (jumptype.difficulty in ["easy", "medium"])) or (difficulty == "easy" and jumptype.difficulty == "easy"):
                         if not ascending and util.is_ascending(jumptype):
                             continue

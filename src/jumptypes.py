@@ -69,39 +69,44 @@ def init_jumptypes(block_type: str) -> list[JumpType]:
     
     list_of_jumptypes: list[JumpType] = []
 
-    for gap in [2, 3, 4, 5]:
+    for fw_delta in [2, 3, 4, 5]:
         for y_level in [-3, -2, -1, 0, 1]:
-            for displacement in [-3, -2, -1, 0, 1, 2, 3]:
+            for lr_delta in [-3, -2, -1, 0, 1, 2, 3]:
 
                 # Non-possible jumps
                 if y_level == 1:
-                    if gap > 4:
+                    if fw_delta > 4:
                         continue
-                    if gap == 4 and abs(displacement) == 3:
+                    if fw_delta == 4 and abs(lr_delta) == 3:
                         continue
                 if y_level == 0:
-                    if abs(displacement) == 3 and gap == 5:
+                    if abs(lr_delta) == 3 and fw_delta == 5:
                         continue
 
+                # TODO: check difficulty and pace in-game
                 # Set difficulty
-                if gap == 5:
+                if fw_delta == 5:
                     d = "hard"
-                elif y_level == 1 and gap > 3:
+                elif y_level == 1 and fw_delta > 3:
                     d = "hard"
-                elif y_level == 1 and abs(displacement) > 2:
+                elif y_level == 1 and abs(lr_delta) > 2:
                     d = "hard"
-                else:
+                elif fw_delta > 3:
                     d = "medium"
+                elif fw_delta == 3 and abs(lr_delta) > 2:
+                    d = "medium"
+                else:
+                    d = "easy"
 
                 # Set pace
-                if gap > 3:
+                if fw_delta > 3:
                     p = "fast"
-                elif gap < 3:
+                elif fw_delta == 2:
                     p = "slow"
                 else:
                     p = "medium"
                 
-                start_block_tuple = (gap, y_level, displacement)
+                start_block_tuple = (fw_delta, y_level, lr_delta)
                 name = str(start_block_tuple)
 
                 # SingleBlock Structures
