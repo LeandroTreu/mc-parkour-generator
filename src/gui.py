@@ -610,7 +610,7 @@ class Gui():
             
             start_time = time.time()
             self.list_of_placed_jumps: list[JumpType] = []
-            seed, nr_jumptypes_filtered, nr_total_jumptypes = generator.generate_parkour(list_of_placed_jumps=self.list_of_placed_jumps, 
+            seed, nr_jumptypes_filtered, nr_total_jumptypes, self.list_of_placed_jumps = generator.generate_parkour(list_of_placed_jumps=self.list_of_placed_jumps, 
                                     random_seed=self.settings["randomSeed"], 
                                     seed=self.settings["seed"], 
                                     list_of_allowed_structure_types=self.settings["allowedStructureTypes"],

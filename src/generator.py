@@ -224,109 +224,6 @@ def change_direction(current_forward_direction: str,
     # Default case
     return current_forward_direction, curves_direction, spiral_turn_counter
 
-
-def place_finish_structure(current_block_position: tuple[int, int, int], 
-                           current_forward_direction: str, 
-                           list_of_placed_jumps: list[JumpType], 
-                           enforce_volume: bool,
-                           parkour_volume: list[tuple[int, int]],
-                           block_type: str) -> None:
-
-    # Place Finish Structure of the Parkour
-    # TODO: fix parkour length when backtracking happens
-    finishblock_instance = jumptypes.init_finishblock(block_type)
-
-    if enforce_volume:
-        if not util.can_be_placed(finishblock_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume):
-
-            for index in range(len(list_of_placed_jumps)):
-
-                placed_jump = list_of_placed_jumps[len(
-                    list_of_placed_jumps) - 2 - index]
-
-                placed_jump_position = placed_jump.rel_finish_block.abs_position
-
-                if util.can_be_placed(finishblock_instance, placed_jump_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume):
-
-                    list_of_placed_jumps = list_of_placed_jumps[0:len(
-                        list_of_placed_jumps) - 2 - index + 1]
-                    list_of_placed_jumps.append(finishblock_instance)
-
-                    break
-                else:
-                    continue
-        else:
-            list_of_placed_jumps.append(finishblock_instance)
-    else:
-        abs_position = util.compute_abs_coordinates_of_start_block(
-            finishblock_instance, current_block_position, current_forward_direction)
-        finishblock_instance.set_absolut_coordinates(
-            abs_position, current_forward_direction)
-        list_of_placed_jumps.append(finishblock_instance)
-
-
-# TODO: fix checkpoints never placed for Random parkour_type, because no space
-def place_checkpoint(current_block_position: tuple[int, int, int],
-                     current_forward_direction: str,
-                     list_of_placed_jumps: list[JumpType],
-                     command_blocks_instance: JumpType,
-                     n_blocks_placed: int,
-                     try_to_place_cp_here: int,
-                     cp_period: int,
-                     enforce_parkour_volume: bool,
-                     parkour_volume: list[tuple[int, int]],
-                     block_type: str) -> tuple[int, bool, int, tuple[int, int, int]]:
-
-    continue_bool = False
-    if try_to_place_cp_here == n_blocks_placed:
-        checkpoint_instance = jumptypes.init_checkpointblock(block_type)
-
-        if util.can_be_placed(checkpoint_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_parkour_volume, parkour_volume):
-
-            c_block_abs = command_blocks_instance.blocks[5].abs_position
-
-            checkpoint_respawn = None
-            for block in checkpoint_instance.blocks:
-                if block.name == "minecraft:stone_pressure_plate":
-                    checkpoint_respawn = block.abs_position
-            
-            if checkpoint_respawn is None:
-                raise Exception("Error: checkpoint_respawn not found")
-
-            if current_forward_direction == "Xpos":
-                rotation_degree = -90
-            elif current_forward_direction == "Xneg":
-                rotation_degree = 90
-            elif current_forward_direction == "Zpos":
-                rotation_degree = 0
-            else:
-                rotation_degree = -180
-
-            checkpoint_command_string_recursive = 'minecraft:repeating_command_block[facing=west]{Command:\\"' + f'execute at @e[type=minecraft:fishing_bobber] run tp @p {
-                checkpoint_respawn[0]} {checkpoint_respawn[1]} {checkpoint_respawn[2]} {rotation_degree} 25' + '\\"} destroy'
-            checkpoint_command_string = 'minecraft:command_block{Command:"' + f'fill {c_block_abs[0]} {c_block_abs[1]} {
-                c_block_abs[2]} {c_block_abs[0]} {c_block_abs[1]} {c_block_abs[2]} {checkpoint_command_string_recursive}' + '"}'
-
-            for block in checkpoint_instance.blocks:
-                if block.name == "minecraft:command_block":
-                    block.name = checkpoint_command_string
-
-            list_of_placed_jumps.append(checkpoint_instance)
-
-            # Set new absolute coordinates for next iteration
-            current_block_position = checkpoint_instance.rel_finish_block.abs_position
-
-            try_to_place_cp_here = n_blocks_placed + cp_period
-            n_blocks_placed += 1
-            continue_bool = True
-            return n_blocks_placed, continue_bool, try_to_place_cp_here, current_block_position
-        else:
-            try_to_place_cp_here = n_blocks_placed + 1
-            return n_blocks_placed, continue_bool, try_to_place_cp_here, current_block_position
-    else:
-        return n_blocks_placed, continue_bool, try_to_place_cp_here, current_block_position
-
-
 def generate_parkour(list_of_placed_jumps: list[JumpType],
                      random_seed: bool,
                      seed: int,
@@ -352,7 +249,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                      gui_enabled: bool,
                      gui_loading_bar: ttk.Progressbar | None,
                      gui_window: tk.Tk | None,
-                     block_type: str) -> tuple[int, int, int]:
+                     block_type: str) -> tuple[int, int, int, list[JumpType]]:
 
     # Set seed for the RNG
     if random_seed:
@@ -360,10 +257,10 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
         seed = rng_for_rng.integers(low=0, high=(2**64), dtype=np.uint64)
     rng = default_rng(seed)
 
-    # Place Start Structure of the Parkour
     current_block_position = parkour_start_position
     current_forward_direction = parkour_start_forward_direction
 
+    # Place Start Structure of the Parkour
     startblock_instance = jumptypes.init_startblock(block_type)
     startblock_instance.set_absolut_coordinates(current_block_position, current_forward_direction)
     list_of_placed_jumps.append(startblock_instance)
@@ -396,112 +293,130 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
     curves_direction = 0
     spiral_turn_counter = 0
     try_again_counter = 0
+    backtrack_counter = 0
     try_to_place_cp_here = checkpoints_period
 
-    list_of_candidates: list[JumpType] = []
-    n_blocks_placed = 0
+    backtrack_depth = 1
+    jump_to_fix = -1
 
     if not gui_enabled:
         print("[", end="")
-    # Max parkour length minus Finish structure
-    while n_blocks_placed < max_parkour_length - 1:
+    
+    while len(list_of_placed_jumps) < max_parkour_length + 1:
 
         # Loading bar print
-        if n_blocks_placed % max(max_parkour_length//10, 1) == 0:
+        if len(list_of_placed_jumps) % max(max_parkour_length//10, 1) == 0:
             if gui_enabled and gui_loading_bar != None and gui_window != None:
-                gui_loading_bar["value"] = 100 * (n_blocks_placed / max(max_parkour_length, 1))
+                gui_loading_bar["value"] = 100 * (len(list_of_placed_jumps) / max(max_parkour_length, 1))
                 gui_window.update_idletasks()
             else:
                 print("=", end="", flush=True)
 
-
-        if checkpoints_enabled:
-            n_blocks_placed, continue_bool, try_to_place_cp_here, current_block_position = place_checkpoint(current_block_position, 
-                                                                                                            current_forward_direction,
-                                                                                                            list_of_placed_jumps, 
-                                                                                                            command_blocks_instance, 
-                                                                                                            n_blocks_placed, 
-                                                                                                            try_to_place_cp_here, 
-                                                                                                            checkpoints_period,
-                                                                                                            enforce_volume,
-                                                                                                            parkour_volume,
-                                                                                                            block_type)
-
-            if continue_bool:
-                continue
-
-        list_of_candidates = deepcopy(list_of_jumptypes_filtered)
         no_placeable_jumps_found = True
-        while len(list_of_candidates) > 0:
-
-            # Choose randomly from list of allowed jumptypes
-            random_index = rng.integers(low=0, high=len(list_of_candidates)) # type: ignore
-            candidate_instance = deepcopy(list_of_candidates[random_index])
-            if util.can_be_placed(candidate_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume):
-                list_of_placed_jumps.append(candidate_instance)
+        if len(list_of_placed_jumps) == max_parkour_length:
+            # Place Finish Structure of the Parkour
+            finishblock_instance = jumptypes.init_finishblock(block_type)
+            if util.can_be_placed(finishblock_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume):
+                list_of_placed_jumps.append(finishblock_instance)
                 no_placeable_jumps_found = False
-                break
+                print(len(list_of_placed_jumps), "Finish")
             else:
-                list_of_candidates.pop(random_index)
-                continue
+                no_placeable_jumps_found = True
+        elif checkpoints_enabled and try_to_place_cp_here == len(list_of_placed_jumps):
+            checkpoint_instance = jumptypes.init_checkpointblock(block_type)
+
+            if util.can_be_placed(checkpoint_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume):
+
+                c_block_abs = command_blocks_instance.blocks[5].abs_position
+
+                checkpoint_respawn = None
+                for block in checkpoint_instance.blocks:
+                    if block.name == "minecraft:stone_pressure_plate":
+                        checkpoint_respawn = block.abs_position
+                
+                if checkpoint_respawn is None:
+                    raise Exception("Error: checkpoint_respawn not found")
+
+                if current_forward_direction == "Xpos":
+                    rotation_degree = -90
+                elif current_forward_direction == "Xneg":
+                    rotation_degree = 90
+                elif current_forward_direction == "Zpos":
+                    rotation_degree = 0
+                else:
+                    rotation_degree = -180
+
+                checkpoint_command_string_recursive = 'minecraft:repeating_command_block[facing=west]{Command:\\"' + f'execute at @e[type=minecraft:fishing_bobber] run tp @p {
+                    checkpoint_respawn[0]} {checkpoint_respawn[1]} {checkpoint_respawn[2]} {rotation_degree} 25' + '\\"} destroy'
+                checkpoint_command_string = 'minecraft:command_block{Command:"' + f'fill {c_block_abs[0]} {c_block_abs[1]} {
+                    c_block_abs[2]} {c_block_abs[0]} {c_block_abs[1]} {c_block_abs[2]} {checkpoint_command_string_recursive}' + '"}'
+
+                for block in checkpoint_instance.blocks:
+                    if block.name == "minecraft:command_block":
+                        block.name = checkpoint_command_string
+
+                list_of_placed_jumps.append(checkpoint_instance)
+                no_placeable_jumps_found = False
+                print(len(list_of_placed_jumps), "Checkpoint")
+                try_to_place_cp_here = try_to_place_cp_here + checkpoints_period
+            else:
+                no_placeable_jumps_found = True
+        else:
+            list_of_candidates = deepcopy(list_of_jumptypes_filtered)
+            no_placeable_jumps_found = True
+            while len(list_of_candidates) > 0:
+
+                # Choose randomly from list of allowed jumptypes
+                random_index = rng.integers(low=0, high=len(list_of_candidates)) # type: ignore
+                candidate_instance = deepcopy(list_of_candidates[random_index])
+                if util.can_be_placed(candidate_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume):
+                    list_of_placed_jumps.append(candidate_instance)
+                    no_placeable_jumps_found = False
+                    print(len(list_of_placed_jumps), "Normal")
+                    break
+                else:
+                    list_of_candidates.pop(random_index)
+                    continue
 
         # No placable JumpTypes found
+        # TODO: better backtracking depth adjustment, fix for random parkour type where checkpoints can't be placed
         if no_placeable_jumps_found:
-            if try_again_counter >= 4:
+            print(len(list_of_placed_jumps), jump_to_fix, backtrack_depth, try_again_counter)
+            if try_again_counter >= 10 or backtrack_counter > 100:
+                print("WARNING: too many backtrack attempts")
                 break
             else:
-                try_again_counter += 1
-
-                old_direction_index = config.DIRECTIONS.index(
-                    current_forward_direction)
-
-                if parkour_type == "Random":
-                    new_direction_index = (old_direction_index + 1) % 4
-                elif parkour_type == "Straight":
-                    new_direction_index = old_direction_index
-                elif parkour_type == "Curves":
-                    new_direction_index = (old_direction_index + 1) % 4
-                elif parkour_type == "Spiral":
-                    if spiral_rotation == "clockwise":
-                        new_direction_index = (old_direction_index + 1) % 4
-                    else:
-                        new_direction_index = old_direction_index - 1
-                    if new_direction_index < 0:
-                        new_direction_index = 3
+                if jump_to_fix == len(list_of_placed_jumps):
+                    backtrack_depth += 1
+                    try_again_counter += 1
+                    backtrack_counter += 1
                 else:
-                    new_direction_index = old_direction_index
-
-                current_forward_direction = config.DIRECTIONS[new_direction_index]
+                    jump_to_fix = len(list_of_placed_jumps)
+                    # backtrack_depth = max(backtrack_depth-1, 1)
+                    try_again_counter = 0
+                bt_len = max(len(list_of_placed_jumps) - backtrack_depth, 1)
+                list_of_placed_jumps = list_of_placed_jumps[0:bt_len]
+                # Set new absolute coordinates for next iteration
+                current_block_position = list_of_placed_jumps[-1].rel_finish_block.abs_position
                 continue
         else:
-            try_again_counter = 0
 
+            # Set new absolute coordinates for next iteration
+            current_block_position = list_of_placed_jumps[-1].rel_finish_block.abs_position
 
-        # Set new absolute coordinates for next iteration
-        current_block_position = list_of_placed_jumps[-1].rel_finish_block.abs_position
-
-        # Change direction for next iteration
-        current_forward_direction, \
-        curves_direction, \
-        spiral_turn_counter = change_direction( current_forward_direction, 
-                                                rng, 
-                                                parkour_type, 
-                                                curves_size, 
-                                                curves_direction,
-                                                spiral_type, 
-                                                spiral_turn_rate, 
-                                                spiral_turn_prob, 
-                                                spiral_rotation,
-                                                spiral_turn_counter)
-
-        n_blocks_placed += 1
-
-    place_finish_structure(current_block_position,
-                           current_forward_direction,
-                           list_of_placed_jumps,
-                           enforce_volume,
-                           parkour_volume,
-                           block_type)
+            # Change direction for next iteration
+            current_forward_direction, \
+            curves_direction, \
+            spiral_turn_counter = change_direction( current_forward_direction, 
+                                                    rng, 
+                                                    parkour_type, 
+                                                    curves_size, 
+                                                    curves_direction,
+                                                    spiral_type, 
+                                                    spiral_turn_rate, 
+                                                    spiral_turn_prob, 
+                                                    spiral_rotation,
+                                                    spiral_turn_counter)
 
     if not gui_enabled:
         print(f"] {len(list_of_placed_jumps)-1}/{max_parkour_length}")
@@ -511,4 +426,4 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
         list_of_placed_jumps.append(command_blocks_instance)
         list_of_placed_jumps.append(dispenser_instance)
 
-    return seed, nr_jumptypes_filtered, nr_total_jumptypes
+    return seed, nr_jumptypes_filtered, nr_total_jumptypes, list_of_placed_jumps

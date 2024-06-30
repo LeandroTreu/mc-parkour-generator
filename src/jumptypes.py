@@ -24,12 +24,12 @@ def init_startblock(block_type: str) -> JumpType:
 
 def init_finishblock(block_type: str) -> JumpType:
     b = JumpType(name="Parkour Finish Structure", structure_type="Finish", 
-                        rel_start_block=Block(block_type, (0, 0, 0)), 
+                        rel_start_block=Block(block_type, (2, 0, 0)), 
                         rel_finish_block=Block(block_type, (1, 0, 0)),
                         blocks=[Block(block_type, (0, 0, -1)), Block(block_type, (0, 0, 1)), 
                                 Block(block_type, (1, 0, -1)), Block(block_type, (1, 0, 1)), 
-                                Block(block_type, (-1, 0, 1)), Block(block_type, (-1, 0, -1)), 
-                                Block(block_type, (-1, 0, 0))],
+                                Block(block_type, (2, 0, 1)), Block(block_type, (2, 0, -1)), 
+                                Block(block_type, (2, 0, 0))],
                         difficulty="easy", 
                         pace="fast")
     return b

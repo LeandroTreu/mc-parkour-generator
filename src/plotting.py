@@ -11,6 +11,7 @@ from classes import JumpType, Block
 import matplotlib.pyplot as plt
 import numpy as np
 
+# TODO: Only draw line between blocks and not inside
 def plot_parkour(list_of_placed_jumps: list[JumpType], 
                  parkour_volume: list[tuple[int, int]], 
                  enforce_parkour_volume: bool, 
@@ -28,7 +29,7 @@ def plot_parkour(list_of_placed_jumps: list[JumpType],
     non_connected_blocks: list[JumpType] = []
     for index, placed_jump in enumerate(list_of_placed_jumps):
 
-        # Start and Finish structure re-drawn separately
+        # Start and Finish structure text
         if index == 0 or index == len(list_of_placed_jumps) - 3:
             x = placed_jump.rel_start_block.abs_position[0]
             y = placed_jump.rel_start_block.abs_position[2]
@@ -37,7 +38,6 @@ def plot_parkour(list_of_placed_jumps: list[JumpType],
                 ax.text(x+1, y+1, z+1, "S", fontsize=8) # type: ignore
             else:
                 ax.text(x+1, y+1, z+1, "F", fontsize=8) # type: ignore
-
 
         if placed_jump.structure_type == "CommandControl":
             if plot_command_blocks:
