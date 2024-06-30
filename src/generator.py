@@ -379,20 +379,21 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                     continue
 
         # No placable JumpTypes found
-        # TODO: better backtracking depth adjustment, fix for random parkour type where checkpoints can't be placed
+        # TODO: fix for random parkour type where checkpoints can't be placed, max/min minecraft height
         if no_placeable_jumps_found:
-            print(len(list_of_placed_jumps), jump_to_fix, backtrack_depth, try_again_counter)
+            print(f"{len(list_of_placed_jumps)} jump_to_fix={jump_to_fix}, backtrack_depth={backtrack_depth}, try_again_counter={try_again_counter}")
             if try_again_counter >= 10 or backtrack_counter > 100:
+                # TODO: save longest generated parkour as best
                 print("WARNING: too many backtrack attempts")
                 break
             else:
                 if jump_to_fix == len(list_of_placed_jumps):
-                    backtrack_depth += 1
+                    backtrack_depth = min(backtrack_depth*2, 32)
                     try_again_counter += 1
                     backtrack_counter += 1
                 else:
                     jump_to_fix = len(list_of_placed_jumps)
-                    # backtrack_depth = max(backtrack_depth-1, 1)
+                    backtrack_depth = max(backtrack_depth-2, 1)
                     try_again_counter = 0
                 bt_len = max(len(list_of_placed_jumps) - backtrack_depth, 1)
                 list_of_placed_jumps = list_of_placed_jumps[0:bt_len]
