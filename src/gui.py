@@ -524,7 +524,8 @@ class Gui():
                         enforce_parkour_volume=self.settings["enforceParkourVolume"], 
                         plot_command_blocks=self.settings["plotCommandBlocks"],
                         plot_color_scheme=self.settings["plotColorScheme"],
-                        plot_file_type=self.settings["plotFileType"])
+                        plot_file_type=self.settings["plotFileType"],
+                        checkpoints_enabled=self.settings["checkpointsEnabled"])
         
         self.refresh_image()
     
@@ -656,12 +657,16 @@ class Gui():
                         enforce_parkour_volume=self.settings["enforceParkourVolume"], 
                         plot_command_blocks=self.settings["plotCommandBlocks"],
                         plot_color_scheme=self.settings["plotColorScheme"],
-                        plot_file_type=self.settings["plotFileType"])
+                        plot_file_type=self.settings["plotFileType"],
+                        checkpoints_enabled=self.settings["checkpointsEnabled"])
             end_time = time.time()
             self.refresh_image()
             plot_time = round(end_time-start_time, 3)
             self.task_info_label["text"] = f"Generation: {generation_time}s    Datapack: {datapack_time}s    Plot: {plot_time}s"
-            self.jumps_placed_l["text"] = f"JumpTypes used: {nr_jumptypes_filtered}/{nr_total_jumptypes}    Jumps placed: {len(self.list_of_placed_jumps)-3}/{self.settings["maxParkourLength"]}"
+            if self.settings["checkpointsEnabled"]:
+                self.jumps_placed_l["text"] = f"JumpTypes used: {nr_jumptypes_filtered}/{nr_total_jumptypes}    Jumps placed: {len(self.list_of_placed_jumps)-3}/{self.settings["maxParkourLength"]}"
+            else:
+                self.jumps_placed_l["text"] = f"JumpTypes used: {nr_jumptypes_filtered}/{nr_total_jumptypes}    Jumps placed: {len(self.list_of_placed_jumps)-1}/{self.settings["maxParkourLength"]}"
 
             self.variables["seed"].set(seed)
             # Update loading bar to 100%

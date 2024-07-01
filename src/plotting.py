@@ -11,13 +11,13 @@ from classes import JumpType, Block
 import matplotlib.pyplot as plt
 import numpy as np
 
-# TODO: Only draw line between blocks and not inside
 def plot_parkour(list_of_placed_jumps: list[JumpType], 
                  parkour_volume: list[tuple[int, int]], 
                  enforce_parkour_volume: bool, 
                  plot_command_blocks: bool,
                  plot_color_scheme: str,
-                 plot_file_type: str) -> None:
+                 plot_file_type: str,
+                 checkpoints_enabled: bool) -> None:
 
     fig = plt.figure(figsize=(8, 8)) # type: ignore
     ax = fig.add_subplot(projection='3d') # type: ignore
@@ -26,22 +26,27 @@ def plot_parkour(list_of_placed_jumps: list[JumpType],
     y_axis: list[int] = []
     z_axis: list[int] = []
 
-    non_connected_blocks: list[JumpType] = []
+    non_connected_jumps: list[JumpType] = []
+    non_connected_blocks: list[Block] = []
     for index, placed_jump in enumerate(list_of_placed_jumps):
 
         # Start and Finish structure text
-        if index == 0 or index == len(list_of_placed_jumps) - 3:
+        if index == 0 or index == len(list_of_placed_jumps) - 3 or index == len(list_of_placed_jumps) - 1 or placed_jump.structure_type == "Checkpoint":
             x = placed_jump.rel_start_block.abs_position[0]
             y = placed_jump.rel_start_block.abs_position[2]
             z = placed_jump.rel_start_block.abs_position[1]
             if index == 0:
                 ax.text(x+1, y+1, z+1, "S", fontsize=8) # type: ignore
-            else:
+            elif checkpoints_enabled and index == len(list_of_placed_jumps) - 3:
                 ax.text(x+1, y+1, z+1, "F", fontsize=8) # type: ignore
+            elif not checkpoints_enabled and index == len(list_of_placed_jumps) - 1:
+                ax.text(x+1, y+1, z+1, "F", fontsize=8) # type: ignore
+            elif placed_jump.structure_type == "Checkpoint":
+                ax.text(x+1, y+1, z+1, "C", fontsize=6) # type: ignore
 
         if placed_jump.structure_type == "CommandControl":
             if plot_command_blocks:
-                non_connected_blocks.append(placed_jump)
+                non_connected_jumps.append(placed_jump)
                 continue
             else:
                 continue
@@ -58,9 +63,7 @@ def plot_parkour(list_of_placed_jumps: list[JumpType],
                 continue
             if "pressure_plate" in block.name:
                 continue
-            x_axis.append(block.abs_position[0])
-            y_axis.append(block.abs_position[2])
-            z_axis.append(block.abs_position[1])
+            non_connected_blocks.append(block)
 
     # Plot line connecting the blocks
     line_color = "black"
@@ -69,7 +72,7 @@ def plot_parkour(list_of_placed_jumps: list[JumpType],
             c=line_color, marker="s", markersize=0)
 
     # Add non-connected blocks for the scatter plot
-    for placed_jump in non_connected_blocks:
+    for placed_jump in non_connected_jumps:
         x_axis.append(placed_jump.rel_start_block.abs_position[0])
         y_axis.append(placed_jump.rel_start_block.abs_position[2])
         z_axis.append(placed_jump.rel_start_block.abs_position[1])
@@ -80,6 +83,10 @@ def plot_parkour(list_of_placed_jumps: list[JumpType],
             x_axis.append(block.abs_position[0])
             y_axis.append(block.abs_position[2])
             z_axis.append(block.abs_position[1])
+    for block in non_connected_blocks:
+        x_axis.append(block.abs_position[0])
+        y_axis.append(block.abs_position[2])
+        z_axis.append(block.abs_position[1])
     
     # Plot the blocks
     ax.scatter(x_axis, y_axis, z_axis, c=z_axis, # type: ignore

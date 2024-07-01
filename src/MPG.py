@@ -88,6 +88,7 @@ if __name__ == "__main__":
                         enforce_parkour_volume=settings["enforceParkourVolume"], 
                         plot_command_blocks=settings["plotCommandBlocks"],
                         plot_color_scheme=settings["plotColorScheme"],
-                        plot_file_type=settings["plotFileType"])
+                        plot_file_type=settings["plotFileType"],
+                        checkpoints_enabled=settings["checkpointsEnabled"])
         end_time = time.time()
         print(f"Plot time: {round(end_time-start_time, 3)} s")

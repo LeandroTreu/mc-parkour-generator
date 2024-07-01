@@ -307,7 +307,9 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
         # Loading bar print
         if len(list_of_placed_jumps) % max(max_parkour_length//10, 1) == 0:
             if gui_enabled and gui_loading_bar != None and gui_window != None:
-                gui_loading_bar["value"] = 100 * (len(list_of_placed_jumps) / max(max_parkour_length, 1))
+                # Leave 5% for other gui tasks
+                percentage = min(100 * (len(list_of_placed_jumps) / max(max_parkour_length, 1)), 95)
+                gui_loading_bar["value"] = percentage
                 gui_window.update_idletasks()
             else:
                 print("=", end="", flush=True)
@@ -323,44 +325,45 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
             else:
                 no_placeable_jumps_found = True
         elif checkpoints_enabled and try_to_place_cp_here == len(list_of_placed_jumps):
-            checkpoint_instance = jumptypes.init_checkpointblock(block_type)
+            no_placeable_jumps_found = True
+            checkpoint_instances = jumptypes.init_checkpointblocks(block_type)
 
-            if util.can_be_placed(checkpoint_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume):
+            for cp_instance in checkpoint_instances:
+                if util.can_be_placed(cp_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume):
 
-                c_block_abs = command_blocks_instance.blocks[5].abs_position
+                    c_block_abs = command_blocks_instance.blocks[5].abs_position
 
-                checkpoint_respawn = None
-                for block in checkpoint_instance.blocks:
-                    if block.name == "minecraft:stone_pressure_plate":
-                        checkpoint_respawn = block.abs_position
-                
-                if checkpoint_respawn is None:
-                    raise Exception("Error: checkpoint_respawn not found")
+                    checkpoint_respawn = None
+                    for block in cp_instance.blocks:
+                        if block.name == "minecraft:stone_pressure_plate":
+                            checkpoint_respawn = block.abs_position
+                    
+                    if checkpoint_respawn is None:
+                        raise Exception("Error: checkpoint_respawn not found")
 
-                if current_forward_direction == "Xpos":
-                    rotation_degree = -90
-                elif current_forward_direction == "Xneg":
-                    rotation_degree = 90
-                elif current_forward_direction == "Zpos":
-                    rotation_degree = 0
-                else:
-                    rotation_degree = -180
+                    if current_forward_direction == "Xpos":
+                        rotation_degree = -90
+                    elif current_forward_direction == "Xneg":
+                        rotation_degree = 90
+                    elif current_forward_direction == "Zpos":
+                        rotation_degree = 0
+                    else:
+                        rotation_degree = -180
 
-                checkpoint_command_string_recursive = 'minecraft:repeating_command_block[facing=west]{Command:\\"' + f'execute at @e[type=minecraft:fishing_bobber] run tp @p {
-                    checkpoint_respawn[0]} {checkpoint_respawn[1]} {checkpoint_respawn[2]} {rotation_degree} 25' + '\\"} destroy'
-                checkpoint_command_string = 'minecraft:command_block{Command:"' + f'fill {c_block_abs[0]} {c_block_abs[1]} {
-                    c_block_abs[2]} {c_block_abs[0]} {c_block_abs[1]} {c_block_abs[2]} {checkpoint_command_string_recursive}' + '"}'
+                    checkpoint_command_string_recursive = 'minecraft:repeating_command_block[facing=west]{Command:\\"' + f'execute at @e[type=minecraft:fishing_bobber] run tp @p {
+                        checkpoint_respawn[0]} {checkpoint_respawn[1]} {checkpoint_respawn[2]} {rotation_degree} 25' + '\\"} destroy'
+                    checkpoint_command_string = 'minecraft:command_block{Command:"' + f'fill {c_block_abs[0]} {c_block_abs[1]} {
+                        c_block_abs[2]} {c_block_abs[0]} {c_block_abs[1]} {c_block_abs[2]} {checkpoint_command_string_recursive}' + '"}'
 
-                for block in checkpoint_instance.blocks:
-                    if block.name == "minecraft:command_block":
-                        block.name = checkpoint_command_string
+                    for block in cp_instance.blocks:
+                        if block.name == "minecraft:command_block":
+                            block.name = checkpoint_command_string
 
-                list_of_placed_jumps.append(checkpoint_instance)
-                no_placeable_jumps_found = False
-                print(len(list_of_placed_jumps), "Checkpoint")
-                try_to_place_cp_here = try_to_place_cp_here + checkpoints_period
-            else:
-                no_placeable_jumps_found = True
+                    list_of_placed_jumps.append(cp_instance)
+                    no_placeable_jumps_found = False
+                    print(len(list_of_placed_jumps), "Checkpoint", cp_instance.name)
+                    try_to_place_cp_here = try_to_place_cp_here + checkpoints_period
+                    break
         else:
             list_of_candidates = deepcopy(list_of_jumptypes_filtered)
             no_placeable_jumps_found = True
@@ -396,6 +399,10 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                     backtrack_depth = max(backtrack_depth-2, 1)
                     try_again_counter = 0
                 bt_len = max(len(list_of_placed_jumps) - backtrack_depth, 1)
+                for replaced_jump in list_of_placed_jumps[bt_len:len(list_of_placed_jumps)]:
+                    if replaced_jump.structure_type == "Checkpoint":
+                        try_to_place_cp_here = try_to_place_cp_here - checkpoints_period
+
                 list_of_placed_jumps = list_of_placed_jumps[0:bt_len]
                 # Set new absolute coordinates for next iteration
                 current_block_position = list_of_placed_jumps[-1].rel_finish_block.abs_position
