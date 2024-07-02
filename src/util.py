@@ -63,8 +63,8 @@ def shortcut_possible_checker(old_X: int, old_Y: int, old_Z: int, new_X: int, ne
         if old_Y == new_Y + 1 and (old_X <= new_X + 6 and old_X >= new_X - 6) and (old_Z <= new_Z + 6 and old_Z >= new_Z - 6):
             return True
 
-        # Rest of the volume above the block in a 16x10x16 volume
-        if (old_Y >= new_Y + 2 and old_Y <= new_Y + 12) and (old_X <= new_X + 8 and old_X >= new_X - 8) and (old_Z <= new_Z + 8 and old_Z >= new_Z - 8):
+        # Rest of the volume above the block in a 12x5x12 volume
+        if (old_Y >= new_Y + 2 and old_Y <= new_Y + 7) and (old_X <= new_X + 6 and old_X >= new_X - 6) and (old_Z <= new_Z + 6 and old_Z >= new_Z - 6):
             return True
 
     return False
