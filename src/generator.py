@@ -251,6 +251,8 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                      gui_window: tk.Tk | None,
                      block_type: str) -> tuple[int, int, int, list[JumpType]]:
 
+    best_parkour_generated: list[JumpType] = []
+
     # Set seed for the RNG
     if random_seed:
         rng_for_rng = default_rng()
@@ -380,7 +382,6 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                     continue
 
         # No placable JumpTypes found
-        # TODO: fix for random parkour type where checkpoints can't be placed, max/min minecraft height
         if no_placeable_jumps_found:
             print(f"{len(list_of_placed_jumps)} jump_to_fix={jump_to_fix}, backtrack_depth={backtrack_depth}, try_again_counter={try_again_counter}")
             if try_again_counter >= 10 or backtrack_counter > 100:
@@ -409,7 +410,6 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                 current_block_position = list_of_placed_jumps[-1].rel_finish_block.abs_position
                 continue
         else:
-
             # Set new absolute coordinates for next iteration
             current_block_position = list_of_placed_jumps[-1].rel_finish_block.abs_position
 
@@ -426,13 +426,16 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                                                     spiral_turn_prob, 
                                                     spiral_rotation,
                                                     spiral_turn_counter)
+            
+            if len(list_of_placed_jumps) > len(best_parkour_generated):
+                best_parkour_generated = deepcopy(list_of_placed_jumps)
 
     if not gui_enabled:
-        print(f"] {len(list_of_placed_jumps)-1}/{max_parkour_length}")
+        print(f"] {len(best_parkour_generated)-1}/{max_parkour_length}")
 
     # Place command control blocks last so they are not treated as part of the parkour
     if checkpoints_enabled:
-        list_of_placed_jumps.append(command_blocks_instance)
-        list_of_placed_jumps.append(dispenser_instance)
+        best_parkour_generated.append(command_blocks_instance)
+        best_parkour_generated.append(dispenser_instance)
 
-    return seed, nr_jumptypes_filtered, nr_total_jumptypes, list_of_placed_jumps
+    return seed, nr_jumptypes_filtered, nr_total_jumptypes, best_parkour_generated
