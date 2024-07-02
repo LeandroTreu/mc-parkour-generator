@@ -9,7 +9,6 @@ You should have received a copy of the GNU General Public License along with MPG
 """
 from classes import JumpType, Block
 import matplotlib.pyplot as plt
-import numpy as np
 
 def plot_parkour(list_of_placed_jumps: list[JumpType], 
                  parkour_volume: list[tuple[int, int]], 
@@ -137,18 +136,6 @@ def plot_parkour(list_of_placed_jumps: list[JumpType],
         x_min = (x_min // 10) * 10
         y_min = (y_min // 10) * 10
         z_min = (z_min // 10) * 10
-
-    # max_axis_distance = max(x_max, y_max, z_max)
-    # min_axis_distance = min(x_min, y_min, z_min)
-    # stepsize = max(abs(max_axis_distance-min_axis_distance)//10, 10)
-    # stepsize = max((stepsize // 10) * 10, 10)
-
-    # ax.set_xticks(np.arange(x_min, # type: ignore
-    #                 x_max+stepsize, stepsize))
-    # ax.set_yticks(np.arange(y_min, # type: ignore
-    #                 y_max+stepsize, stepsize))
-    # ax.set_zticks(np.arange(z_min, # type: ignore
-    #                 z_max+stepsize, stepsize))
 
     ax.set_xticks([x_min, x_max])
     ax.set_yticks([y_min, y_max])

@@ -10,7 +10,7 @@ You should have received a copy of the GNU General Public License along with MPG
 from classes import JumpType, Block
 from pathlib import Path
 import config
-import numpy as np
+from math import ceil
 from tkinter import messagebox
 import json
 
@@ -31,9 +31,9 @@ def split_volume(volume: list[tuple[int, int]]) -> list[str]:
     v_y_len = abs(v_y_max - v_y_min)
     v_z_len = abs(v_z_max - v_z_min)
 
-    n_x_fill = int(np.ceil(v_x_len / cube_width))
-    n_y_fill = int(np.ceil(v_y_len / cube_width))
-    n_z_fill = int(np.ceil(v_z_len / cube_width))
+    n_x_fill = int(ceil(v_x_len / cube_width))
+    n_y_fill = int(ceil(v_y_len / cube_width))
+    n_z_fill = int(ceil(v_z_len / cube_width))
     if n_x_fill <= 0: n_x_fill = 1
     if n_y_fill <= 0: n_y_fill = 1
     if n_z_fill <= 0: n_z_fill = 1

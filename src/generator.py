@@ -16,7 +16,7 @@ import tkinter.ttk as ttk
 from copy import deepcopy
 from numpy.random import Generator
 from numpy.random import default_rng
-import numpy as np
+from numpy import uint64
 import config
 
 def place_control_command_blocks(command_blocks_instance: JumpType, 
@@ -254,7 +254,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
     # Set seed for the RNG
     if random_seed:
         rng_for_rng = default_rng()
-        seed = rng_for_rng.integers(low=0, high=(2**64), dtype=np.uint64)
+        seed = rng_for_rng.integers(low=0, high=(2**64), dtype=uint64)
     rng = default_rng(seed)
 
     current_block_position = parkour_start_position
