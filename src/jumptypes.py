@@ -46,26 +46,26 @@ def init_checkpointblocks(block_type: str) -> list[JumpType]:
                                 ],
                         difficulty="easy", 
                         pace="fast"))
-    # list_of_jumptypes.append(JumpType(name="Parkour Checkpoint Structure standard up", structure_type="Checkpoint", 
-    #                     rel_start_block=Block(block_type, (3, 1, 0)), 
-    #                     rel_finish_block=Block(block_type, (2, 0, 0)),
-    #                     blocks=[Block(block_type, (0, 0, -1)), Block(block_type, (0, 0, 1)), 
-    #                             Block("minecraft:diamond_block", (1, 0, 0)), Block(block_type, (1, 0, -1)), Block(block_type, (1, 0, 1)), 
-    #                             Block(block_type, (2, 0, 1)), Block(block_type, (2, 0, -1)), 
-    #                             Block("minecraft:command_block", (1, -1, 0)), Block("minecraft:stone_pressure_plate", (1, 1, 0))
-    #                             ],
-    #                     difficulty="easy", 
-    #                     pace="fast"))
-    # list_of_jumptypes.append(JumpType(name="Parkour Checkpoint Structure standard down", structure_type="Checkpoint", 
-    #                     rel_start_block=Block(block_type, (3, -1, 0)), 
-    #                     rel_finish_block=Block(block_type, (2, 0, 0)),
-    #                     blocks=[Block(block_type, (0, 0, -1)), Block(block_type, (0, 0, 1)), 
-    #                             Block("minecraft:diamond_block", (1, 0, 0)), Block(block_type, (1, 0, -1)), Block(block_type, (1, 0, 1)), 
-    #                             Block(block_type, (2, 0, 1)), Block(block_type, (2, 0, -1)), 
-    #                             Block("minecraft:command_block", (1, -1, 0)), Block("minecraft:stone_pressure_plate", (1, 1, 0))
-    #                             ],
-    #                     difficulty="easy", 
-    #                     pace="fast"))
+    list_of_jumptypes.append(JumpType(name="Parkour Checkpoint Structure standard up", structure_type="Checkpoint", 
+                        rel_start_block=Block(block_type, (3, 1, 0)), 
+                        rel_finish_block=Block(block_type, (2, 0, 0)),
+                        blocks=[Block(block_type, (0, 0, -1)), Block(block_type, (0, 0, 1)), 
+                                Block("minecraft:diamond_block", (1, 0, 0)), Block(block_type, (1, 0, -1)), Block(block_type, (1, 0, 1)), 
+                                Block(block_type, (2, 0, 1)), Block(block_type, (2, 0, -1)), 
+                                Block("minecraft:command_block", (1, -1, 0)), Block("minecraft:stone_pressure_plate", (1, 1, 0))
+                                ],
+                        difficulty="easy", 
+                        pace="fast"))
+    list_of_jumptypes.append(JumpType(name="Parkour Checkpoint Structure standard down", structure_type="Checkpoint", 
+                        rel_start_block=Block(block_type, (3, -1, 0)), 
+                        rel_finish_block=Block(block_type, (2, 0, 0)),
+                        blocks=[Block(block_type, (0, 0, -1)), Block(block_type, (0, 0, 1)), 
+                                Block("minecraft:diamond_block", (1, 0, 0)), Block(block_type, (1, 0, -1)), Block(block_type, (1, 0, 1)), 
+                                Block(block_type, (2, 0, 1)), Block(block_type, (2, 0, -1)), 
+                                Block("minecraft:command_block", (1, -1, 0)), Block("minecraft:stone_pressure_plate", (1, 1, 0))
+                                ],
+                        difficulty="easy", 
+                        pace="fast"))
     # list_of_jumptypes.append(JumpType(name="Parkour Checkpoint Structure SingleBlock", structure_type="Checkpoint", 
     #                     rel_start_block=Block(block_type, (3, 0, 0)), 
     #                     rel_finish_block=Block(block_type, (0, 0, 0)),

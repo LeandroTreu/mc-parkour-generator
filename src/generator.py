@@ -294,7 +294,6 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
     spiral_turn_counter = 0
     try_again_counter = 0
     backtrack_counter = 0
-    try_to_place_cp_here = checkpoints_period
 
     backtrack_depth = 1
     jump_to_fix = -1
@@ -324,7 +323,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                 print(len(list_of_placed_jumps), "Finish")
             else:
                 no_placeable_jumps_found = True
-        elif checkpoints_enabled and try_to_place_cp_here == len(list_of_placed_jumps):
+        elif checkpoints_enabled and len(list_of_placed_jumps) % checkpoints_period == 0:
             no_placeable_jumps_found = True
             checkpoint_instances = jumptypes.init_checkpointblocks(block_type)
 
@@ -362,7 +361,6 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                     list_of_placed_jumps.append(cp_instance)
                     no_placeable_jumps_found = False
                     print(len(list_of_placed_jumps), "Checkpoint", cp_instance.name)
-                    try_to_place_cp_here = try_to_place_cp_here + checkpoints_period
                     break
         else:
             list_of_candidates = deepcopy(list_of_jumptypes_filtered)
@@ -399,9 +397,12 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                     backtrack_depth = max(backtrack_depth-2, 1)
                     try_again_counter = 0
                 bt_len = max(len(list_of_placed_jumps) - backtrack_depth, 1)
-                for replaced_jump in list_of_placed_jumps[bt_len:len(list_of_placed_jumps)]:
+                for i_cp, replaced_jump in enumerate(list_of_placed_jumps[bt_len:len(list_of_placed_jumps)]):
                     if replaced_jump.structure_type == "Checkpoint":
-                        try_to_place_cp_here = try_to_place_cp_here - checkpoints_period
+                        checkpoint_distance = max(len(list_of_placed_jumps) - bt_len - i_cp - 1, 1)
+                        backtrack_depth = min(backtrack_depth, checkpoint_distance)
+
+                bt_len = max(len(list_of_placed_jumps) - backtrack_depth, 1)
 
                 list_of_placed_jumps = list_of_placed_jumps[0:bt_len]
                 # Set new absolute coordinates for next iteration

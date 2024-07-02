@@ -38,31 +38,34 @@ def compute_abs_coordinates_of_start_block(jumptype: JumpType, absolut_pos_of_la
     return (x, y, z)
 
 
-def shortcut_possible_checker(old_X: int, old_Y: int, old_Z: int, new_X: int, new_Y: int, new_Z: int):
+def shortcut_possible_checker(old_X: int, old_Y: int, old_Z: int, new_X: int, new_Y: int, new_Z: int, check_below: bool, check_same_h: bool, check_above: bool):
 
-    # 3 y-levels below (against obstruction of earlier jumps)
-    if old_Y == new_Y - 3 and (old_X <= new_X + 3 and old_X >= new_X - 3) and (old_Z <= new_Z + 3 and old_Z >= new_Z - 3):
-        return True
+    if check_below:            
+        # 3 y-levels below (against obstruction of earlier jumps)
+        if old_Y == new_Y - 3 and (old_X <= new_X + 3 and old_X >= new_X - 3) and (old_Z <= new_Z + 3 and old_Z >= new_Z - 3):
+            return True
 
-    # 2 y-levels below (against obstruction of earlier jumps)
-    if old_Y == new_Y - 2 and (old_X <= new_X + 3 and old_X >= new_X - 3) and (old_Z <= new_Z + 3 and old_Z >= new_Z - 3):
-        return True
+        # 2 y-levels below (against obstruction of earlier jumps)
+        if old_Y == new_Y - 2 and (old_X <= new_X + 3 and old_X >= new_X - 3) and (old_Z <= new_Z + 3 and old_Z >= new_Z - 3):
+            return True
 
-    # One y-level below
-    if old_Y == new_Y - 1 and (old_X <= new_X + 4 and old_X >= new_X - 4) and (old_Z <= new_Z + 4 and old_Z >= new_Z - 4):
-        return True
+        # One y-level below
+        if old_Y == new_Y - 1 and (old_X <= new_X + 4 and old_X >= new_X - 4) and (old_Z <= new_Z + 4 and old_Z >= new_Z - 4):
+            return True
 
-    # Same height
-    if old_Y == new_Y and (old_X <= new_X + 5 and old_X >= new_X - 5) and (old_Z <= new_Z + 5 and old_Z >= new_Z - 5):
-        return True
+    if check_same_h:
+        # Same height
+        if old_Y == new_Y and (old_X <= new_X + 5 and old_X >= new_X - 5) and (old_Z <= new_Z + 5 and old_Z >= new_Z - 5):
+            return True
 
-    # One y-level up
-    if old_Y == new_Y + 1 and (old_X <= new_X + 6 and old_X >= new_X - 6) and (old_Z <= new_Z + 6 and old_Z >= new_Z - 6):
-        return True
+    if check_above:
+        # One y-level up
+        if old_Y == new_Y + 1 and (old_X <= new_X + 6 and old_X >= new_X - 6) and (old_Z <= new_Z + 6 and old_Z >= new_Z - 6):
+            return True
 
-    # Rest of the volume above the block in a 16x10x16 volume
-    if (old_Y >= new_Y + 2 and old_Y <= new_Y + 12) and (old_X <= new_X + 8 and old_X >= new_X - 8) and (old_Z <= new_Z + 8 and old_Z >= new_Z - 8):
-        return True
+        # Rest of the volume above the block in a 16x10x16 volume
+        if (old_Y >= new_Y + 2 and old_Y <= new_Y + 12) and (old_X <= new_X + 8 and old_X >= new_X - 8) and (old_Z <= new_Z + 8 and old_Z >= new_Z - 8):
+            return True
 
     return False
 
@@ -80,16 +83,24 @@ def shortcut_possible(new_block: Block, earlier_structure: JumpType):
     old_Y = earlier_structure.rel_start_block.abs_position[1]
     old_Z = earlier_structure.rel_start_block.abs_position[2]
 
-    if shortcut_possible_checker(old_X, old_Y, old_Z, new_X, new_Y, new_Z):
-        return True
+    if "command_block" in new_block.name:
+        if shortcut_possible_checker(old_X, old_Y, old_Z, new_X, new_Y, new_Z, check_below=True, check_same_h=False, check_above=False):
+            return True
+    else:
+        if shortcut_possible_checker(old_X, old_Y, old_Z, new_X, new_Y, new_Z, check_below=True, check_same_h=True, check_above=True):
+            return True
 
     # Check for the rel finish block
     old_X = earlier_structure.rel_finish_block.abs_position[0]
     old_Y = earlier_structure.rel_finish_block.abs_position[1]
     old_Z = earlier_structure.rel_finish_block.abs_position[2]
 
-    if shortcut_possible_checker(old_X, old_Y, old_Z, new_X, new_Y, new_Z):
-        return True
+    if "command_block" in new_block.name:
+        if shortcut_possible_checker(old_X, old_Y, old_Z, new_X, new_Y, new_Z, check_below=True, check_same_h=False, check_above=False):
+            return True
+    else:
+        if shortcut_possible_checker(old_X, old_Y, old_Z, new_X, new_Y, new_Z, check_below=True, check_same_h=True, check_above=True):
+            return True
 
     for block in earlier_structure.blocks:
 
@@ -97,8 +108,12 @@ def shortcut_possible(new_block: Block, earlier_structure: JumpType):
         old_Y = block.abs_position[1]
         old_Z = block.abs_position[2]
 
-        if shortcut_possible_checker(old_X, old_Y, old_Z, new_X, new_Y, new_Z):
-            return True
+        if "command_block" in new_block.name:
+            if shortcut_possible_checker(old_X, old_Y, old_Z, new_X, new_Y, new_Z, check_below=True, check_same_h=False, check_above=False):
+                return True
+        else:
+            if shortcut_possible_checker(old_X, old_Y, old_Z, new_X, new_Y, new_Z, check_below=True, check_same_h=True, check_above=True):
+                return True
 
     return False
 
@@ -157,11 +172,17 @@ def can_be_placed(jumptype: JumpType,
 
     # Check if new Structure is in bounds of the minecraft world and parkour volume (if enforced)
     if not in_bounds(jumptype.rel_start_block, parkour_volume, enforce_parkour_volume):
+        if jumptype.structure_type == "Checkpoint":
+            print("rel_start_block not in bounds")
         return False
     if not in_bounds(jumptype.rel_finish_block, parkour_volume, enforce_parkour_volume):
+        if jumptype.structure_type == "Checkpoint":
+            print("rel_finish_block not in bounds")
         return False
     for block in jumptype.blocks:
         if not in_bounds(block, parkour_volume, enforce_parkour_volume):
+            if jumptype.structure_type == "Checkpoint":
+                print(f"{block.name} not in bounds")
             return False
     
     # Check if shortcut possible
@@ -171,11 +192,17 @@ def can_be_placed(jumptype: JumpType,
             continue
 
         if shortcut_possible(jumptype.rel_start_block, earlier_jump):
+            if jumptype.structure_type == "Checkpoint":
+                print("rel_start_block shortcut")
             return False
         if shortcut_possible(jumptype.rel_finish_block, earlier_jump):
+            if jumptype.structure_type == "Checkpoint":
+                print("rel_finish_block shortcut")
             return False
         for block in jumptype.blocks:
             if shortcut_possible(block, earlier_jump):
+                if jumptype.structure_type == "Checkpoint":
+                    print(f"{block.name} shortcut")
                 return False
 
     return True
