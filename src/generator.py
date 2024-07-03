@@ -294,6 +294,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
     if not gui_enabled:
         print(f"Number of filtered jumptypes: {len(list_of_jumptypes_filtered)}")
 
+    y_level_balance = 0
     curves_direction = 0
     spiral_turn_counter = 0
     try_again_counter = 0
@@ -325,6 +326,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                 print("=", end="", flush=True)
         
         if len(list_of_placed_jumps) == 1:
+            y_level_balance = 0
             curves_direction = 0
             spiral_turn_counter = 0
             try_again_counter = 0
@@ -387,8 +389,20 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                 # Choose randomly from list of allowed jumptypes
                 random_index = rng.integers(low=0, high=len(list_of_candidates)) # type: ignore
                 candidate_instance = deepcopy(list_of_candidates[random_index])
+
+                # Keep a balanced y-level when both ascending and descending JumpTypes are set
+                candidate_y_change = candidate_instance.rel_start_block.rel_position[1] + candidate_instance.rel_finish_block.rel_position[1]
+                if ascending and descending:
+                    if (y_level_balance > 0 and candidate_y_change > 0) or (y_level_balance < 0 and candidate_y_change < 0):
+                        random_nr = rng.integers(low=0, high=abs(y_level_balance)+1)
+                        if random_nr != 0:
+                            list_of_candidates.pop(random_index)
+                            continue
+                
+                # Check if can be placed
                 if util.can_be_placed(candidate_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume):
                     list_of_placed_jumps.append(candidate_instance)
+                    y_level_balance += candidate_y_change
                     no_placeable_jumps_found = False
                     break
                 else:
