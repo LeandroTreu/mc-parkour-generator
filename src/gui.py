@@ -606,6 +606,9 @@ class Gui():
     def generate_parkour(self):
 
         self.generate_button["state"] = "disabled"
+        # Reset loading bar to 0%
+        self.loadingbar["value"] = 0
+        self.window.update_idletasks()
 
         if self.set_config():
             

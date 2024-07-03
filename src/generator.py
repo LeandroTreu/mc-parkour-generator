@@ -297,7 +297,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
     try_again_counter = 0
     backtrack_counter = 0
     try_again_limit = 10
-    backtrack_limit = 100
+    backtrack_limit = 1000
 
     backtrack_depth = 1
     jump_to_fix = -1
@@ -308,7 +308,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
     while len(list_of_placed_jumps) < max_parkour_length + 1:
 
         # Loading bar print
-        if len(list_of_placed_jumps) % max(max_parkour_length//10, 1) == 0:
+        if len(list_of_placed_jumps) % max(max_parkour_length//100, 1) == 0:
             if gui_enabled and gui_loading_bar != None and gui_window != None:
                 # Leave 5% for other gui tasks
                 percentage = min(100 * (len(list_of_placed_jumps) / max(max_parkour_length, 1)), 95)
@@ -316,6 +316,14 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                 gui_window.update_idletasks()
             else:
                 print("=", end="", flush=True)
+        
+        if len(list_of_placed_jumps) == 1:
+            curves_direction = 0
+            spiral_turn_counter = 0
+            try_again_counter = 0
+
+            current_block_position = parkour_start_position
+            current_forward_direction = parkour_start_forward_direction
 
         no_placeable_jumps_found = True
         if len(list_of_placed_jumps) == max_parkour_length:
@@ -390,13 +398,13 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                 print("WARNING: too many backtrack attempts")
                 break
             else:
+                backtrack_counter += 1
                 if jump_to_fix == len(list_of_placed_jumps):
                     backtrack_depth = min(backtrack_depth*2, 32)
                     try_again_counter += 1
-                    backtrack_counter += 1
                 else:
                     jump_to_fix = len(list_of_placed_jumps)
-                    backtrack_depth = max(backtrack_depth-2, 1)
+                    backtrack_depth = max(backtrack_depth//2, 1)
                     try_again_counter = 0
 
                 bt_len = max(len(list_of_placed_jumps) - backtrack_depth, 1)
@@ -410,31 +418,27 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
 
                 bt_len = max(len(list_of_placed_jumps) - backtrack_depth, 1)
 
-                # TODO: fix bug where jump_to_fix==1
                 list_of_placed_jumps = list_of_placed_jumps[0:bt_len]
-                # Set new absolute coordinates for next iteration
-                current_block_position = list_of_placed_jumps[-1].rel_finish_block.abs_position
-                continue
-        else:
-            # Set new absolute coordinates for next iteration
-            current_block_position = list_of_placed_jumps[-1].rel_finish_block.abs_position
 
-            # Change direction for next iteration
-            current_forward_direction, \
-            curves_direction, \
-            spiral_turn_counter = change_direction( current_forward_direction, 
-                                                    rng, 
-                                                    parkour_type, 
-                                                    curves_size, 
-                                                    curves_direction,
-                                                    spiral_type, 
-                                                    spiral_turn_rate, 
-                                                    spiral_turn_prob, 
-                                                    spiral_rotation,
-                                                    spiral_turn_counter)
-            
-            if len(list_of_placed_jumps) > len(best_parkour_generated):
-                best_parkour_generated = deepcopy(list_of_placed_jumps)
+        # Set new absolute coordinates for next iteration
+        current_block_position = list_of_placed_jumps[-1].rel_finish_block.abs_position
+
+        # Change direction for next iteration
+        current_forward_direction, \
+        curves_direction, \
+        spiral_turn_counter = change_direction( current_forward_direction, 
+                                                rng, 
+                                                parkour_type, 
+                                                curves_size, 
+                                                curves_direction,
+                                                spiral_type, 
+                                                spiral_turn_rate, 
+                                                spiral_turn_prob, 
+                                                spiral_rotation,
+                                                spiral_turn_counter)
+        
+        if len(list_of_placed_jumps) > len(best_parkour_generated):
+            best_parkour_generated = deepcopy(list_of_placed_jumps)
 
     if not gui_enabled:
         print(f"] {len(best_parkour_generated)-1}/{max_parkour_length}")

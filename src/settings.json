@@ -13,7 +13,7 @@
    100
   ]
  ],
- "enforceParkourVolume": true,
+ "enforceParkourVolume": false,
  "fillParkourVolumeWithAir": false,
  "maxParkourLength": 500,
  "startPosition": [
@@ -24,7 +24,7 @@
  "startForwardDirection": "Xpos",
  "blockType": "minecraft:quartz_block",
  "randomSeed": true,
- "seed": 9650861441834522490,
+ "seed": 6896212386951135472,
  "checkpointsEnabled": true,
  "checkpointsPeriod": 10,
  "useAllBlocks": false,
@@ -35,9 +35,9 @@
  ],
  "difficulty": "medium",
  "pace": "medium",
- "parkourType": "Curves",
+ "parkourType": "Straight",
  "parkourAscending": true,
- "parkourDescending": true,
+ "parkourDescending": false,
  "curvesSize": 0.5,
  "spiralRotation": "counterclockwise",
  "spiralType": "Even",
