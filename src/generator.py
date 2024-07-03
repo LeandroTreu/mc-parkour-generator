@@ -307,6 +307,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
     if not gui_enabled:
         print("[", end="")
     
+    # TODO: keep y-level balanced when ascending & descending are True
     while len(list_of_placed_jumps) < max_parkour_length + 1:
         
         if t_stop_event != None and t_stop_event.is_set():
@@ -397,7 +398,8 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
         # No placable JumpTypes found
         if no_placeable_jumps_found:
             if try_again_counter > try_again_limit or backtrack_counter > backtrack_limit:
-                print("WARNING: too many backtrack attempts")
+                if not gui_enabled:
+                    print("WARNING: too many backtrack attempts")
                 break
             else:
                 backtrack_counter += 1

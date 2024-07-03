@@ -33,7 +33,7 @@ class Gui():
         self.stop_thread_event = threading.Event()
 
         self.window = tk.Tk()
-        self.window.title(f"Minecraft Parkour Generator - Version {config.MPG_VERSION}")
+        self.window.title(f"Minecraft Parkour Generator (MPG) - Version {config.MPG_VERSION}")
         # TODO: create .ico file
         try:
             mpg_icon = Image.open("mpg_icon_256.png")
@@ -690,6 +690,13 @@ class Gui():
 
                 self.loadingbar["value"] = 100
                 self.window.update_idletasks()
+
+                if nr_jumptypes_filtered == 0:
+                    messagebox.showwarning("Warning", f"Zero JumpTypes were allowed for generating the parkour!\nAdjust the JumpType settings to allow for more JumpTypes to be used.")
+                elif self.settings["checkpointsEnabled"] and len(self.list_of_placed_jumps) - 3 < self.settings["maxParkourLength"]:
+                    messagebox.showwarning("Warning", f"Not all jumps were able to be placed: {len(self.list_of_placed_jumps)-3}/{self.settings["maxParkourLength"]}")
+                elif len(self.list_of_placed_jumps) - 1 < self.settings["maxParkourLength"]:
+                    messagebox.showwarning("Warning", f"Not all jumps were able to be placed: {len(self.list_of_placed_jumps)-1}/{self.settings["maxParkourLength"]}")
             else:
                 self.loadingbar["value"] = 0
                 self.window.update_idletasks()
