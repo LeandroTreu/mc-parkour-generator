@@ -33,7 +33,7 @@ class Gui():
         self.stop_thread_event = threading.Event()
 
         self.window = tk.Tk()
-        self.window.title("Minecraft Parkour Generator")
+        self.window.title(f"Minecraft Parkour Generator - Version {config.MPG_VERSION}")
         # TODO: create .ico file
         try:
             mpg_icon = Image.open("mpg_icon_256.png")
@@ -41,7 +41,7 @@ class Gui():
             mpg_icon = ImageTk.PhotoImage(mpg_icon)
             self.window.iconphoto(False, mpg_icon) # type: ignore
         except:
-            print("Info: mpg_icon.png not found")
+            print("INFO: mpg_icon.png not found")
 
         default_font = font.nametofont("TkDefaultFont")
         text_font = font.nametofont("TkTextFont")

@@ -13,6 +13,7 @@ from tkinter import messagebox
 from typing import Any
 
 # Constants
+MPG_VERSION = "0.1.0"
 MC_WORLD_MAX_X = 29999984
 MC_WORLD_MIN_X = -29999984
 MC_WORLD_MAX_Z = MC_WORLD_MAX_X

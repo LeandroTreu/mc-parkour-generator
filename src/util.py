@@ -172,17 +172,11 @@ def can_be_placed(jumptype: JumpType,
 
     # Check if new Structure is in bounds of the minecraft world and parkour volume (if enforced)
     if not in_bounds(jumptype.rel_start_block, parkour_volume, enforce_parkour_volume):
-        if jumptype.structure_type == "Checkpoint":
-            print("rel_start_block not in bounds")
         return False
     if not in_bounds(jumptype.rel_finish_block, parkour_volume, enforce_parkour_volume):
-        if jumptype.structure_type == "Checkpoint":
-            print("rel_finish_block not in bounds")
         return False
     for block in jumptype.blocks:
         if not in_bounds(block, parkour_volume, enforce_parkour_volume):
-            if jumptype.structure_type == "Checkpoint":
-                print(f"{block.name} not in bounds")
             return False
     
     # Check if shortcut possible
@@ -192,17 +186,11 @@ def can_be_placed(jumptype: JumpType,
             continue
 
         if shortcut_possible(jumptype.rel_start_block, earlier_jump):
-            if jumptype.structure_type == "Checkpoint":
-                print("rel_start_block shortcut")
             return False
         if shortcut_possible(jumptype.rel_finish_block, earlier_jump):
-            if jumptype.structure_type == "Checkpoint":
-                print("rel_finish_block shortcut")
             return False
         for block in jumptype.blocks:
             if shortcut_possible(block, earlier_jump):
-                if jumptype.structure_type == "Checkpoint":
-                    print(f"{block.name} shortcut")
                 return False
 
     return True

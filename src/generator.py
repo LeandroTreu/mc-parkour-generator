@@ -316,8 +316,9 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
         if len(list_of_placed_jumps) % max(max_parkour_length//100, 1) == 0:
             if gui_enabled and gui_loading_bar != None and gui_window != None:
                 # Leave 5% for other gui tasks
-                percentage = min(100 * (len(list_of_placed_jumps) / max(max_parkour_length, 1)), 95)
-                gui_loading_bar["value"] = percentage
+                real_percentage = len(list_of_placed_jumps) / max(max_parkour_length, 1)
+                bar_value = min(95*real_percentage, 95)
+                gui_loading_bar["value"] = bar_value
                 gui_window.update_idletasks()
             else:
                 print("=", end="", flush=True)
@@ -337,7 +338,6 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
             if util.can_be_placed(finishblock_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume):
                 list_of_placed_jumps.append(finishblock_instance)
                 no_placeable_jumps_found = False
-                print(len(list_of_placed_jumps), "Finish")
             else:
                 no_placeable_jumps_found = True
         elif checkpoints_enabled and len(list_of_placed_jumps) % checkpoints_period == 0:
@@ -377,7 +377,6 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
 
                     list_of_placed_jumps.append(cp_instance)
                     no_placeable_jumps_found = False
-                    print(len(list_of_placed_jumps), "Checkpoint", cp_instance.name)
                     break
         else:
             list_of_candidates = deepcopy(list_of_jumptypes_filtered)
@@ -390,7 +389,6 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                 if util.can_be_placed(candidate_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume):
                     list_of_placed_jumps.append(candidate_instance)
                     no_placeable_jumps_found = False
-                    print(len(list_of_placed_jumps), "Normal")
                     break
                 else:
                     list_of_candidates.pop(random_index)
@@ -398,7 +396,6 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
 
         # No placable JumpTypes found
         if no_placeable_jumps_found:
-            print(f"{len(list_of_placed_jumps)} jump_to_fix={jump_to_fix}, backtrack_depth={backtrack_depth}, try_again_counter={try_again_counter}")
             if try_again_counter > try_again_limit or backtrack_counter > backtrack_limit:
                 print("WARNING: too many backtrack attempts")
                 break

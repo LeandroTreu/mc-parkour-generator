@@ -20,7 +20,7 @@ if __name__ == "__main__":
     use_gui = True
 
     if use_gui:
-        print("Minecraft Parkour Generator (MPG) - Version 0.1.0\n")
+        print(f"Minecraft Parkour Generator (MPG) - Version {config.MPG_VERSION}\n")
 
         try:
             gui = gui.Gui()
