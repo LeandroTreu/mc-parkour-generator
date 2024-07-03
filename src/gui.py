@@ -18,6 +18,7 @@ import generator
 import plotting
 import datapack
 from classes import JumpType, Block
+import threading
 
 class Gui():
 
@@ -29,6 +30,7 @@ class Gui():
     def __init__(self) -> None:
 
         self.list_of_placed_jumps: list[JumpType] = []
+        self.stop_thread_event = threading.Event()
 
         self.window = tk.Tk()
         self.window.title("Minecraft Parkour Generator")
@@ -366,7 +368,7 @@ class Gui():
         self.generate_frame.grid(row=1000, column=100, columnspan=200, sticky="EW", padx=5, pady=5)
 
         # Generate Button
-        self.generate_button = ttk.Button(master=self.generate_frame, text="Generate Parkour", padding=8, command=self.generate_parkour)
+        self.generate_button = ttk.Button(master=self.generate_frame, text="Generate Parkour", padding=8, command=self.start_generator)
         self.generate_button.pack(fill=tk.BOTH, expand=False, side=tk.TOP)
 
         # Loading Bar
@@ -602,11 +604,19 @@ class Gui():
         if answer is True:
             self.settings = config.set_default_config()
             self.refresh_variables()
+    
+    def cancel_generator(self):
+        self.stop_thread_event.set()
+
+    def start_generator(self):
+        self.stop_thread_event.clear()
+        self.generator_thread = threading.Thread(target=self.generate_parkour)
+        self.generator_thread.start()
+
+        self.generate_button.configure(text="Cancel", command=self.cancel_generator)
 
     def generate_parkour(self):
 
-        self.generate_button["state"] = "disabled"
-        # Reset loading bar to 0%
         self.loadingbar["value"] = 0
         self.window.update_idletasks()
 
@@ -639,44 +649,52 @@ class Gui():
                                     gui_enabled=True,
                                     gui_loading_bar=self.loadingbar,
                                     gui_window=self.window,
-                                    block_type=self.settings["blockType"])
+                                    block_type=self.settings["blockType"],
+                                    t_stop_event=self.stop_thread_event)
             end_time = time.time()
             generation_time = round(end_time-start_time, 3)
-            
-            start_time = time.time()
-            if self.settings["writeDatapackFiles"]:
-                datapack.write_function_files(list_of_placed_jumps=self.list_of_placed_jumps, 
-                                        parkour_volume=self.settings["parkourVolume"], 
-                                        enforce_parkour_volume=self.settings["enforceParkourVolume"], 
-                                        fill_volume_with_air=self.settings["fillParkourVolumeWithAir"],
-                                        gui_enabled=True,
-                                        minecraft_version=self.settings["mcVersion"])
-            end_time = time.time()
-            datapack_time = round(end_time-start_time, 3)
 
-            start_time = time.time()
-            plotting.plot_parkour(list_of_placed_jumps=self.list_of_placed_jumps, 
-                        parkour_volume=self.settings["parkourVolume"], 
-                        enforce_parkour_volume=self.settings["enforceParkourVolume"], 
-                        plot_command_blocks=self.settings["plotCommandBlocks"],
-                        plot_color_scheme=self.settings["plotColorScheme"],
-                        plot_file_type=self.settings["plotFileType"],
-                        checkpoints_enabled=self.settings["checkpointsEnabled"])
-            end_time = time.time()
-            self.refresh_image()
-            plot_time = round(end_time-start_time, 3)
-            self.task_info_label["text"] = f"Generation: {generation_time}s    Datapack: {datapack_time}s    Plot: {plot_time}s"
-            if self.settings["checkpointsEnabled"]:
-                self.jumps_placed_l["text"] = f"JumpTypes used: {nr_jumptypes_filtered}/{nr_total_jumptypes}    Jumps placed: {len(self.list_of_placed_jumps)-3}/{self.settings["maxParkourLength"]}"
+            # If list_of_placed_jumps is empty, then the parkour generator was canceled by the stop_thread_event
+            if len(self.list_of_placed_jumps) > 0:
+                
+                start_time = time.time()
+                if self.settings["writeDatapackFiles"]:
+                    datapack.write_function_files(list_of_placed_jumps=self.list_of_placed_jumps, 
+                                            parkour_volume=self.settings["parkourVolume"], 
+                                            enforce_parkour_volume=self.settings["enforceParkourVolume"], 
+                                            fill_volume_with_air=self.settings["fillParkourVolumeWithAir"],
+                                            gui_enabled=True,
+                                            minecraft_version=self.settings["mcVersion"])
+                end_time = time.time()
+                datapack_time = round(end_time-start_time, 3)
+
+                start_time = time.time()
+                plotting.plot_parkour(list_of_placed_jumps=self.list_of_placed_jumps, 
+                            parkour_volume=self.settings["parkourVolume"], 
+                            enforce_parkour_volume=self.settings["enforceParkourVolume"], 
+                            plot_command_blocks=self.settings["plotCommandBlocks"],
+                            plot_color_scheme=self.settings["plotColorScheme"],
+                            plot_file_type=self.settings["plotFileType"],
+                            checkpoints_enabled=self.settings["checkpointsEnabled"])
+                end_time = time.time()
+                self.refresh_image()
+                plot_time = round(end_time-start_time, 3)
+
+                self.task_info_label["text"] = f"Generation: {generation_time}s    Datapack: {datapack_time}s    Plot: {plot_time}s"
+                if self.settings["checkpointsEnabled"]:
+                    self.jumps_placed_l["text"] = f"JumpTypes used: {nr_jumptypes_filtered}/{nr_total_jumptypes}    Jumps placed: {len(self.list_of_placed_jumps)-3}/{self.settings["maxParkourLength"]}"
+                else:
+                    self.jumps_placed_l["text"] = f"JumpTypes used: {nr_jumptypes_filtered}/{nr_total_jumptypes}    Jumps placed: {len(self.list_of_placed_jumps)-1}/{self.settings["maxParkourLength"]}"
+
+                self.variables["seed"].set(seed)
+
+                self.loadingbar["value"] = 100
+                self.window.update_idletasks()
             else:
-                self.jumps_placed_l["text"] = f"JumpTypes used: {nr_jumptypes_filtered}/{nr_total_jumptypes}    Jumps placed: {len(self.list_of_placed_jumps)-1}/{self.settings["maxParkourLength"]}"
+                self.loadingbar["value"] = 0
+                self.window.update_idletasks()
 
-            self.variables["seed"].set(seed)
-            # Update loading bar to 100%
-            self.loadingbar["value"] = 100
-            self.window.update_idletasks()
-
-        self.generate_button["state"] = "normal"
+        self.generate_button.configure(text="Generate Parkour", command=self.start_generator)
 
     def run(self) -> None:
         self.window.mainloop()

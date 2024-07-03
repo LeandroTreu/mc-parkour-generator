@@ -18,6 +18,7 @@ from numpy.random import Generator
 from numpy.random import default_rng
 from numpy import uint64
 import config
+import threading
 
 def place_control_command_blocks(command_blocks_instance: JumpType, 
                                  dispenser_instance: JumpType,
@@ -249,7 +250,8 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                      gui_enabled: bool,
                      gui_loading_bar: ttk.Progressbar | None,
                      gui_window: tk.Tk | None,
-                     block_type: str) -> tuple[int, int, int, list[JumpType]]:
+                     block_type: str,
+                     t_stop_event: threading.Event | None) -> tuple[int, int, int, list[JumpType]]:
 
     best_parkour_generated: list[JumpType] = []
 
@@ -306,6 +308,9 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
         print("[", end="")
     
     while len(list_of_placed_jumps) < max_parkour_length + 1:
+        
+        if t_stop_event != None and t_stop_event.is_set():
+            return seed, nr_jumptypes_filtered, nr_total_jumptypes, []
 
         # Loading bar print
         if len(list_of_placed_jumps) % max(max_parkour_length//100, 1) == 0:

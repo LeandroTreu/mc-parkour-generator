@@ -64,7 +64,8 @@ if __name__ == "__main__":
                                 gui_enabled=False,
                                 gui_loading_bar=None,
                                 gui_window=None,
-                                block_type=settings["blockType"])
+                                block_type=settings["blockType"],
+                                t_stop_event=None)
         end_time_generation = time.time()
         print(f"seed: {seed}")
         print(f"Generation time: {round(end_time_generation-start_time_generation, 3)} s")

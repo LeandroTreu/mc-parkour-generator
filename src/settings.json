@@ -15,7 +15,7 @@
  ],
  "enforceParkourVolume": false,
  "fillParkourVolumeWithAir": false,
- "maxParkourLength": 500,
+ "maxParkourLength": 50,
  "startPosition": [
   0,
   150,
@@ -24,7 +24,7 @@
  "startForwardDirection": "Xpos",
  "blockType": "minecraft:quartz_block",
  "randomSeed": true,
- "seed": 6896212386951135472,
+ "seed": 7687180691610832513,
  "checkpointsEnabled": true,
  "checkpointsPeriod": 10,
  "useAllBlocks": false,
