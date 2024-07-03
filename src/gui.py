@@ -22,7 +22,7 @@ import threading
 
 class Gui():
 
-    image_size = (800, 800)
+    image_size = (1000, 800)
     font_title = ("Segoe UI", 10, "bold")
     font_general = ("Segoe UI", 9, "normal")
     label_pad_y = 3
@@ -66,11 +66,11 @@ class Gui():
         self.variables = {}
         self.set_variables()
 
-        self.settings_frame = ttk.Frame(master=self.window, relief="flat", borderwidth=5)
+        self.settings_frame = ttk.Frame(master=self.window, relief="flat", borderwidth=20)
         self.settings_frame.pack(expand=False, side=tk.LEFT)
 
         # Image frame and label
-        self.image_frame = ttk.Frame(master=self.window, relief="flat", borderwidth=5)
+        self.image_frame = ttk.Frame(master=self.window, relief="flat", borderwidth=20)
         self.image_frame.pack(fill=tk.BOTH, expand=True, side=tk.RIGHT)
         try:
             if self.settings["plotFileType"] == "png":

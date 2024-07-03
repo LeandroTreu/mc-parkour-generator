@@ -308,7 +308,6 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
     if not gui_enabled:
         print("[", end="")
     
-    # TODO: keep y-level balanced when ascending & descending are True
     while len(list_of_placed_jumps) < max_parkour_length + 1:
         
         if t_stop_event != None and t_stop_event.is_set():

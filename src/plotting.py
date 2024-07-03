@@ -20,7 +20,7 @@ def plot_parkour(list_of_placed_jumps: list[JumpType],
                  plot_file_type: str,
                  checkpoints_enabled: bool) -> None:
 
-    fig = plt.figure(figsize=(8, 8)) # type: ignore
+    fig = plt.figure(figsize=(10, 8)) # type: ignore
     ax = fig.add_subplot(projection='3d') # type: ignore
 
     x_axis: list[int] = []
