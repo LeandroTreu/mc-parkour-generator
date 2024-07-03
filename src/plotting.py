@@ -9,6 +9,8 @@ You should have received a copy of the GNU General Public License along with MPG
 """
 from classes import JumpType, Block
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use("agg")
 
 def plot_parkour(list_of_placed_jumps: list[JumpType], 
                  parkour_volume: list[tuple[int, int]], 
