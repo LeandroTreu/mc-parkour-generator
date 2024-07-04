@@ -39,34 +39,34 @@ PACE = ["slow", "medium", "fast"]
 def set_default_config() -> dict[str, Any]:
 
     config = {}
-    config["parkourVolume"] = [[0, 100], [100, 300], [0, 100]]
+    config["allowedStructureTypes"] = ALLOWED_STRUCTURE_TYPES_NAMES
+    config["blockType"] = "minecraft:quartz_block"
+    config["checkpointsEnabled"] = True
+    config["checkpointsPeriod"] = 10
+    config["curvesSize"] = 0.5
+    config["difficulty"] = "medium"
     config["enforceParkourVolume"] = False
     config["fillParkourVolumeWithAir"] = False
     config["maxParkourLength"] = 50
-    config["startPosition"] = [0, 150, 0]
-    config["startForwardDirection"] = "Xpos"
-    config["blockType"] = "minecraft:quartz_block"
-    config["randomSeed"] = True
-    config["seed"] = 0
-    config["checkpointsEnabled"] = True
-    config["checkpointsPeriod"] = 10
-    config["useAllBlocks"] = False
-    config["allowedStructureTypes"] = ALLOWED_STRUCTURE_TYPES_NAMES
-    config["difficulty"] = "medium"
+    config["mcVersion"] = "1.21+"
     config["pace"] = "medium"
-    config["parkourType"] = "Spiral"
     config["parkourAscending"] = True
     config["parkourDescending"] = False
-    config["curvesSize"] = 0.5
-    config["spiralRotation"] = "counterclockwise"
-    config["spiralType"] = "Even"
-    config["spiralTurnRate"] = 10
-    config["spiralTurnProbability"] = 0.2
-    config["plotFileType"] = "jpg"
+    config["parkourType"] = "Spiral"
+    config["parkourVolume"] = [[0, 100], [100, 300], [0, 100]]
     config["plotColorScheme"] = "winter"
     config["plotCommandBlocks"] = True
+    config["plotFileType"] = "jpg"
+    config["randomSeed"] = True
+    config["seed"] = 0
+    config["spiralRotation"] = "counterclockwise"
+    config["spiralTurnProbability"] = 0.2
+    config["spiralTurnRate"] = 10
+    config["spiralType"] = "Even"
+    config["startForwardDirection"] = "Xpos"
+    config["startPosition"] = [0, 150, 0]
+    config["useAllBlocks"] = False
     config["writeDatapackFiles"] = True
-    config["mcVersion"] = "1.21+"
 
     return config
 
