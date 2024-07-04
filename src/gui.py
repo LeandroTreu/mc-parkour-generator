@@ -664,7 +664,8 @@ class Gui():
                                             enforce_parkour_volume=self.settings["enforceParkourVolume"], 
                                             fill_volume_with_air=self.settings["fillParkourVolumeWithAir"],
                                             gui_enabled=True,
-                                            minecraft_version=self.settings["mcVersion"])
+                                            minecraft_version=self.settings["mcVersion"],
+                                            settings_config=self.settings)
                 end_time = time.time()
                 datapack_time = round(end_time-start_time, 3)
 

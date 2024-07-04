@@ -78,7 +78,8 @@ if __name__ == "__main__":
                                     enforce_parkour_volume=settings["enforceParkourVolume"], 
                                     fill_volume_with_air=settings["fillParkourVolumeWithAir"],
                                     gui_enabled=False,
-                                    minecraft_version=settings["mcVersion"])
+                                    minecraft_version=settings["mcVersion"],
+                                    settings_config=settings)
         end_time = time.time()
         print(f"Datapack time: {round(end_time-start_time, 3)} s")
 
