@@ -1,5 +1,5 @@
 
-### Settings Documentation
+### Settings Documentation TODO: update
 name|values|description
 -|-|-
 parkourVolume|[[int, int], [int, int], [int, int]]|Absolute X, Y, Z coordinate ranges in the Minecraft world.
