@@ -1,5 +1,5 @@
 
-### Settings Documentation TODO: update
+### Settings Documentation
 name|values|description
 -|-|-
 allowedStructureTypes|SingleBlock, TwoBlock, FourBlock| Sets which JumpTypes are allowed.

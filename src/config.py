@@ -55,7 +55,7 @@ def set_default_config() -> dict[str, Any]:
     config["parkourAscending"] = True
     config["parkourDescending"] = False
     config["parkourType"] = "Spiral"
-    config["parkourVolume"] = [[0, 100], [100, 300], [0, 100]]
+    config["parkourVolume"] = [[0, 100], [100, 255], [0, 100]]
     config["plotColorScheme"] = "winter"
     config["plotCommandBlocks"] = True
     config["plotFileType"] = "jpg"
@@ -171,6 +171,7 @@ def check_config(config: dict[str, Any]) -> str:
     
     if type(config["enforceParkourVolume"]) is not bool:
         error_string += "enforceParkourVolume: wrong input format. Only true or false are allowed.\n"
+        return error_string
     if type(config["fillParkourVolumeWithAir"]) is not bool:
         error_string += "fillParkourVolumeWithAir: wrong input format. Only true or false are allowed.\n"
 
@@ -196,7 +197,7 @@ def check_config(config: dict[str, Any]) -> str:
             error_string += f"startPosition: Y: {y} not in allowed range of [{MC_WORLD_MIN_Y_OLD}, {MC_WORLD_MAX_Y_OLD}]\n"
         if mc_version != "1.13 - 1.17.1" and (y < MC_WORLD_MIN_Y or y > MC_WORLD_MAX_Y):
             error_string += f"startPosition: Y: {y} not in allowed range of [{MC_WORLD_MIN_Y}, {MC_WORLD_MAX_Y}]\n"
-        if type(config["enforceParkourVolume"]) is bool and config["enforceParkourVolume"] is True:
+        if config["enforceParkourVolume"] is True:
             if x > config["parkourVolume"][0][1] or x < config["parkourVolume"][0][0]:
                 error_string += f"startPosition: X:{x} is not inside the parkour volume\n"
             if y > config["parkourVolume"][1][1] or y < config["parkourVolume"][1][0]:

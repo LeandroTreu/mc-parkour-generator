@@ -96,6 +96,7 @@ def write_function_files(list_of_placed_jumps: list[JumpType],
             lines_list.append(f"tp @a {world_spawn[0]} {world_spawn[1]+1} {world_spawn[2]}\n")
             lines_list.append(f"gamerule keepInventory true\n")
             lines_list.append(f"gamerule commandBlockOutput false\n")
+            lines_list.append(f"give @a minecraft:fishing_rod\n")
 
             # lines_list.append(f"gamemode adventure @a\n")
             # lines_list.append(f"effect clear @a minecraft:saturation\n")  # fails when no effect present -> function file doesn't work
