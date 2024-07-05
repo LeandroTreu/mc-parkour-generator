@@ -9,10 +9,10 @@
  "checkpointsPeriod": 10,
  "curvesSize": 0.5,
  "difficulty": "medium",
- "enforceParkourVolume": true,
- "fillParkourVolumeWithAir": true,
- "maxParkourLength": 1000,
- "mcVersion": "1.13 - 1.17.1",
+ "enforceParkourVolume": false,
+ "fillParkourVolumeWithAir": false,
+ "maxParkourLength": 50,
+ "mcVersion": "1.21",
  "pace": "medium",
  "parkourAscending": true,
  "parkourDescending": false,
@@ -23,7 +23,7 @@
    100
   ],
   [
-   0,
+   100,
    255
   ],
   [
@@ -34,16 +34,16 @@
  "plotColorScheme": "winter",
  "plotCommandBlocks": true,
  "plotFileType": "jpg",
- "randomSeed": false,
- "seed": 15667380281910208393,
+ "randomSeed": true,
+ "seed": 0,
  "spiralRotation": "counterclockwise",
  "spiralTurnProbability": 0.2,
  "spiralTurnRate": 10,
- "spiralType": "Random",
+ "spiralType": "Even",
  "startForwardDirection": "Xpos",
  "startPosition": [
   0,
-  0,
+  150,
   0
  ],
  "useAllBlocks": false,

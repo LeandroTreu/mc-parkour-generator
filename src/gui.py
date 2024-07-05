@@ -382,7 +382,7 @@ class Gui():
         self.jumps_placed_l = ttk.Label(master=self.generate_frame, text="JumpTypes used: ...    Jumps Placed: ...")
         self.jumps_placed_l.pack(side=tk.TOP, padx=5, pady=5)
 
-        self.update_vis("")
+        self.update_vis()
     
     def update_vis(self, string=""):
 
@@ -494,8 +494,6 @@ class Gui():
                 self.spiral_turnrate["state"] = "disabled"
                 self.spiral_turn_prob_l["state"] = "normal"
                 self.spiral_turn_prob["state"] = "normal"
-
-
     
     def show_spiral_prob(self, string):
         string = ((float(string)*10)//1) / 10
@@ -605,6 +603,7 @@ class Gui():
         if answer is True:
             self.settings = config.set_default_config()
             self.refresh_variables()
+            self.update_vis()
     
     def cancel_generator(self):
         self.stop_thread_event.set()
