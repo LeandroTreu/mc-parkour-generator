@@ -18,8 +18,10 @@ MC_WORLD_MAX_X = 29999984
 MC_WORLD_MIN_X = -29999984
 MC_WORLD_MAX_Z = MC_WORLD_MAX_X
 MC_WORLD_MIN_Z = MC_WORLD_MIN_X
-MC_WORLD_MAX_Y = 320  # TODO: Minecraft versions differences
+MC_WORLD_MAX_Y = 319
 MC_WORLD_MIN_Y = -64
+MC_WORLD_MAX_Y_OLD = 255
+MC_WORLD_MIN_Y_OLD = 0
 MC_MAX_COMMANDCHAIN_LENGTH = 65536
 MC_MAX_FILL_VOLUME = 32768
 MC_MAX_FILL_VOLUME_CUBE_WIDTH = 32
@@ -30,7 +32,7 @@ ALLOWED_STRUCTURE_TYPES_NAMES = ["SingleBlock", "TwoBlock", "FourBlock"]
 PARKOUR_TYPE_NAMES = ["Straight", "Curves", "Spiral", "Random"]
 PLOT_COLORSCHEMES = ["winter", "viridis", "plasma", "gray", "hot", "summer", "hsv", "copper"]
 PLOT_FILE_TYPES = ["jpg", "png"]
-MC_VERSIONS = ["1.21+", "1.13 - 1.20.6"]  # TODO: test 1.13 - 1.18
+MC_VERSIONS = ["1.21", "1.18 - 1.20.6", "1.13 - 1.17.1"]
 SPIRAL_TYPES = ["Even", "Random"]
 SPIRAL_ROTATIONS = ["counterclockwise", "clockwise"]
 DIFFICULTIES = ["easy", "medium", "hard"]
@@ -48,7 +50,7 @@ def set_default_config() -> dict[str, Any]:
     config["enforceParkourVolume"] = False
     config["fillParkourVolumeWithAir"] = False
     config["maxParkourLength"] = 50
-    config["mcVersion"] = "1.21+"
+    config["mcVersion"] = "1.21"
     config["pace"] = "medium"
     config["parkourAscending"] = True
     config["parkourDescending"] = False
@@ -113,6 +115,11 @@ def check_config(config: dict[str, Any]) -> str:
 
     error_string = ""
 
+    mc_version = config["mcVersion"]
+    if mc_version not in MC_VERSIONS:
+        error_string += f"mcVersion: wrong input format. Allowed values are: {MC_VERSIONS}\n"
+        return error_string
+
     try:
         x_min = int(config["parkourVolume"][0][0])
         x_max = int(config["parkourVolume"][0][1])
@@ -142,9 +149,15 @@ def check_config(config: dict[str, Any]) -> str:
             for c in l:
                 if c > MC_WORLD_MAX_X or c < MC_WORLD_MIN_X:
                     error_string += f"parkourVolume: coordinate {c} is not within the range [{MC_WORLD_MIN_X}, {MC_WORLD_MAX_X}]\n"
-        if y_min < MC_WORLD_MIN_Y or y_max < MC_WORLD_MIN_Y:
+        mc_version = config["mcVersion"]
+        if mc_version == "1.13 - 1.17.1" and (y_min < MC_WORLD_MIN_Y_OLD or y_max < MC_WORLD_MIN_Y_OLD):
+            error_string += f"parkourVolume: minimum build height is Y: {MC_WORLD_MIN_Y_OLD}\n"
+        if mc_version != "1.13 - 1.17.1" and (y_min < MC_WORLD_MIN_Y or y_max < MC_WORLD_MIN_Y):
             error_string += f"parkourVolume: minimum build height is Y: {MC_WORLD_MIN_Y}\n"
-        if y_min > MC_WORLD_MAX_Y or y_max > MC_WORLD_MAX_Y:
+
+        if mc_version == "1.13 - 1.17.1" and (y_min > MC_WORLD_MAX_Y_OLD or y_max > MC_WORLD_MAX_Y_OLD):
+            error_string += f"parkourVolume: maximum build height is Y: {MC_WORLD_MAX_Y_OLD}\n"
+        if mc_version != "1.13 - 1.17.1" and (y_min > MC_WORLD_MAX_Y or y_max > MC_WORLD_MAX_Y):
             error_string += f"parkourVolume: maximum build height is Y: {MC_WORLD_MAX_Y}\n"
         
         x_len = abs(x_max - x_min)
@@ -177,7 +190,11 @@ def check_config(config: dict[str, Any]) -> str:
             error_string += f"startPosition: X: {x} not in allowed range of [{MC_WORLD_MIN_X}, {MC_WORLD_MAX_X}]\n"
         if z < MC_WORLD_MIN_Z or z > MC_WORLD_MAX_Z:
             error_string += f"startPosition: Z: {z} not in allowed range of [{MC_WORLD_MIN_Z}, {MC_WORLD_MAX_Z}]\n"
-        if y < MC_WORLD_MIN_Y or y > MC_WORLD_MAX_Y:
+        
+        mc_version = config["mcVersion"]
+        if mc_version == "1.13 - 1.17.1" and (y < MC_WORLD_MIN_Y_OLD or y > MC_WORLD_MAX_Y_OLD):
+            error_string += f"startPosition: Y: {y} not in allowed range of [{MC_WORLD_MIN_Y_OLD}, {MC_WORLD_MAX_Y_OLD}]\n"
+        if mc_version != "1.13 - 1.17.1" and (y < MC_WORLD_MIN_Y or y > MC_WORLD_MAX_Y):
             error_string += f"startPosition: Y: {y} not in allowed range of [{MC_WORLD_MIN_Y}, {MC_WORLD_MAX_Y}]\n"
         if type(config["enforceParkourVolume"]) is bool and config["enforceParkourVolume"] is True:
             if x > config["parkourVolume"][0][1] or x < config["parkourVolume"][0][0]:
@@ -283,8 +300,4 @@ def check_config(config: dict[str, Any]) -> str:
     if type(config["writeDatapackFiles"]) is not bool:
         error_string += "writeDatapackFiles: wrong input format. Only true or false are allowed.\n"
     
-    mc_version = config["mcVersion"]
-    if mc_version not in MC_VERSIONS:
-        error_string += f"mcVersion: wrong input format. Allowed values are: {MC_VERSIONS}"
-
     return error_string

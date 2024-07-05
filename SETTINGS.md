@@ -11,7 +11,7 @@ difficulty|easy, medium, hard|Choose parkour difficulty.
 enforceParkourVolume|true/false|If true then the parkour will generate only inside the above defined Parkour Volume. If false it will generate to arbitrary coordinates.
 fillParkourVolumeWithAir|true/false|Fills the parkour volume with Minecraft air blocks before placing the parkour. Only works when enforceParkourVolume is set to true.
 maxParkourLength|int|Maximum length of the parkour including the Checkpoint and Finish structures.
-mcVersion|1.21+, 1.13 - 1.20.6|Minecraft version used for compatibility of the datapack.
+mcVersion|1.21, 1.18 - 1.20.6, 1.13 - 1.17.1|Minecraft version used for compatibility of the datapack and world build height.
 pace|slow, medium, fast|Choose how fast/fluent the parkour is to traverse.
 parkourAscending|true/false|If true then JumpTypes which are ascending (relative y-level > 0) will be used.
 parkourDescending|true/false|If true then JumpTypes which are descending (relative y-level < 0) will be used.

@@ -28,9 +28,9 @@ def split_volume(volume: list[tuple[int, int]]) -> list[str]:
     v_y_max = volume[1][1]
     v_z_max = volume[2][1]
 
-    v_x_len = abs(v_x_max - v_x_min)
-    v_y_len = abs(v_y_max - v_y_min)
-    v_z_len = abs(v_z_max - v_z_min)
+    v_x_len = abs(v_x_max - v_x_min) + 1
+    v_y_len = abs(v_y_max - v_y_min) + 1
+    v_z_len = abs(v_z_max - v_z_min) + 1
 
     n_x_fill = int(ceil(v_x_len / cube_width))
     n_y_fill = int(ceil(v_y_len / cube_width))
@@ -40,15 +40,15 @@ def split_volume(volume: list[tuple[int, int]]) -> list[str]:
     if n_z_fill <= 0: n_z_fill = 1
     for i in range(n_x_fill):
         x_min = v_x_min + i * cube_width
-        x_max = x_min + cube_width
+        x_max = x_min + cube_width - 1
         if x_max > v_x_max: x_max = v_x_max
         for j in range(n_y_fill):
             y_min = v_y_min + j * cube_width
-            y_max = y_min + cube_width
+            y_max = y_min + cube_width - 1
             if y_max > v_y_max: y_max = v_y_max
             for k in range(n_z_fill):
                 z_min = v_z_min + k * cube_width
-                z_max = z_min + cube_width
+                z_max = z_min + cube_width - 1
                 if z_max > v_z_max: z_max = v_z_max
                 commands.append(f"fill {x_min} {y_min} {z_min} {x_max} {y_max} {z_max} minecraft:air replace\n")
     
@@ -65,7 +65,7 @@ def write_function_files(list_of_placed_jumps: list[JumpType],
     try:
         cwd = Path.cwd()
         datapack_dir = cwd / "parkour_generator_datapack"
-        if minecraft_version == "1.21+":
+        if minecraft_version == "1.21":
             functions_dir = cwd / "parkour_generator_datapack/data/parkour_generator/function"
         else:
             functions_dir = cwd / "parkour_generator_datapack/data/parkour_generator/functions"

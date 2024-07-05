@@ -651,7 +651,8 @@ class Gui():
                                     gui_loading_bar=self.loadingbar,
                                     gui_window=self.window,
                                     block_type=self.settings["blockType"],
-                                    t_stop_event=self.stop_thread_event)
+                                    t_stop_event=self.stop_thread_event,
+                                    mc_version=self.settings["mcVersion"])
             end_time = time.time()
             generation_time = round(end_time-start_time, 3)
 

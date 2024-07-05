@@ -120,15 +120,22 @@ def shortcut_possible(new_block: Block, earlier_structure: JumpType):
 
 # Returns True only if the Block is inside the minecraft world bounds and the config defined Parkour bounds, else False.
 # Also considers the height of the player hitbox, leaving 4 blocks headroom below the maximum y value of the volume.
-def in_bounds(block: Block, parkour_volume: list[tuple[int, int]], enforce_parkour_volume: bool):
+def in_bounds(block: Block, parkour_volume: list[tuple[int, int]], enforce_parkour_volume: bool, mc_version: str):
 
     x = block.abs_position[0]
     y = block.abs_position[1]
     z = block.abs_position[2]
 
+    if mc_version == "1.13 - 1.17.1":
+        max_y = config.MC_WORLD_MAX_Y_OLD
+        min_y = config.MC_WORLD_MIN_Y_OLD
+    else:
+        max_y = config.MC_WORLD_MAX_Y
+        min_y = config.MC_WORLD_MIN_Y
+
     if x < config.MC_WORLD_MIN_X or x > config.MC_WORLD_MAX_X:
         return False
-    if y < config.MC_WORLD_MIN_Y or y > config.MC_WORLD_MAX_Y:
+    if y < min_y or y > max_y:
         return False
     if z < config.MC_WORLD_MIN_Z or z > config.MC_WORLD_MAX_Z:
         return False
@@ -163,7 +170,8 @@ def can_be_placed(jumptype: JumpType,
                   current_forward_direction: str, 
                   list_of_placed_jumps: list[JumpType],
                   enforce_parkour_volume: bool,
-                  parkour_volume: list[tuple[int, int]]):
+                  parkour_volume: list[tuple[int, int]],
+                  mc_version: str):
 
     abs_position = compute_abs_coordinates_of_start_block(
         jumptype, current_block_position, current_forward_direction)
@@ -171,12 +179,12 @@ def can_be_placed(jumptype: JumpType,
     jumptype.set_absolut_coordinates(abs_position, current_forward_direction)
 
     # Check if new Structure is in bounds of the minecraft world and parkour volume (if enforced)
-    if not in_bounds(jumptype.rel_start_block, parkour_volume, enforce_parkour_volume):
+    if not in_bounds(jumptype.rel_start_block, parkour_volume, enforce_parkour_volume, mc_version):
         return False
-    if not in_bounds(jumptype.rel_finish_block, parkour_volume, enforce_parkour_volume):
+    if not in_bounds(jumptype.rel_finish_block, parkour_volume, enforce_parkour_volume, mc_version):
         return False
     for block in jumptype.blocks:
-        if not in_bounds(block, parkour_volume, enforce_parkour_volume):
+        if not in_bounds(block, parkour_volume, enforce_parkour_volume, mc_version):
             return False
     
     # Check if shortcut possible

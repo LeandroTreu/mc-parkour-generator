@@ -251,7 +251,8 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                      gui_loading_bar: ttk.Progressbar | None,
                      gui_window: tk.Tk | None,
                      block_type: str,
-                     t_stop_event: threading.Event | None) -> tuple[int, int, int, list[JumpType]]:
+                     t_stop_event: threading.Event | None,
+                     mc_version: str) -> tuple[int, int, int, list[JumpType]]:
 
     best_parkour_generated: list[JumpType] = []
 
@@ -337,7 +338,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
         if len(list_of_placed_jumps) == max_parkour_length:
             # Place Finish Structure of the Parkour
             finishblock_instance = jumptypes.init_finishblock(block_type)
-            if util.can_be_placed(finishblock_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume):
+            if util.can_be_placed(finishblock_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume, mc_version):
                 list_of_placed_jumps.append(finishblock_instance)
                 no_placeable_jumps_found = False
             else:
@@ -347,7 +348,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
             checkpoint_instances = jumptypes.init_checkpointblocks(block_type)
 
             for cp_instance in checkpoint_instances:
-                if util.can_be_placed(cp_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume):
+                if util.can_be_placed(cp_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume, mc_version):
 
                     c_block_abs = command_blocks_instance.blocks[5].abs_position
 
@@ -399,7 +400,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                             continue
                 
                 # Check if can be placed
-                if util.can_be_placed(candidate_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume):
+                if util.can_be_placed(candidate_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume, mc_version):
                     list_of_placed_jumps.append(candidate_instance)
                     y_level_balance += candidate_y_change
                     no_placeable_jumps_found = False
