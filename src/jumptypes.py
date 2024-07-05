@@ -18,42 +18,87 @@ def init_startblock(block_type: str) -> JumpType:
                                 Block(block_type, (1, 0, -1)), Block(block_type, (1, 0, 1)), 
                                 Block(block_type, (-1, 0, 1)), Block(block_type, (-1, 0, -1)), 
                                 Block(block_type, (-1, 0, 0))],
-                        difficulty=0.0, 
-                        flow=1.0)
+                        difficulty="easy", 
+                        pace="fast")
     return b
 
 def init_finishblock(block_type: str) -> JumpType:
     b = JumpType(name="Parkour Finish Structure", structure_type="Finish", 
-                        rel_start_block=Block(block_type, (0, 0, 0)), 
+                        rel_start_block=Block(block_type, (2, 0, 0)), 
                         rel_finish_block=Block(block_type, (1, 0, 0)),
                         blocks=[Block(block_type, (0, 0, -1)), Block(block_type, (0, 0, 1)), 
                                 Block(block_type, (1, 0, -1)), Block(block_type, (1, 0, 1)), 
-                                Block(block_type, (-1, 0, 1)), Block(block_type, (-1, 0, -1)), 
-                                Block(block_type, (-1, 0, 0))],
-                        difficulty=0.0, 
-                        flow=1.0)
+                                Block(block_type, (2, 0, 1)), Block(block_type, (2, 0, -1)), 
+                                Block(block_type, (2, 0, 0))],
+                        difficulty="easy", 
+                        pace="fast")
     return b
 
-def init_checkpointblock(block_type: str) -> JumpType:
-    b = JumpType(name="Parkour Checkpoint Structure", structure_type="Checkpoint", 
-                        rel_start_block=Block(block_type, (2, 0, 0)), 
+def init_checkpointblocks(block_type: str) -> list[JumpType]:
+    list_of_jumptypes: list[JumpType] = []
+    list_of_jumptypes.append(JumpType(name="Parkour Checkpoint Structure standard", structure_type="Checkpoint", 
+                        rel_start_block=Block(block_type, (3, 0, 0)), 
                         rel_finish_block=Block(block_type, (2, 0, 0)),
                         blocks=[Block(block_type, (0, 0, -1)), Block(block_type, (0, 0, 1)), 
                                 Block("minecraft:diamond_block", (1, 0, 0)), Block(block_type, (1, 0, -1)), Block(block_type, (1, 0, 1)), 
                                 Block(block_type, (2, 0, 1)), Block(block_type, (2, 0, -1)), 
                                 Block("minecraft:command_block", (1, -1, 0)), Block("minecraft:stone_pressure_plate", (1, 1, 0))
                                 ],
-                        difficulty=0.0, 
-                        flow=1.0)
-    return b
+                        difficulty="easy", 
+                        pace="fast"))
+    list_of_jumptypes.append(JumpType(name="Parkour Checkpoint Structure standard up", structure_type="Checkpoint", 
+                        rel_start_block=Block(block_type, (3, 1, 0)), 
+                        rel_finish_block=Block(block_type, (2, 0, 0)),
+                        blocks=[Block(block_type, (0, 0, -1)), Block(block_type, (0, 0, 1)), 
+                                Block("minecraft:diamond_block", (1, 0, 0)), Block(block_type, (1, 0, -1)), Block(block_type, (1, 0, 1)), 
+                                Block(block_type, (2, 0, 1)), Block(block_type, (2, 0, -1)), 
+                                Block("minecraft:command_block", (1, -1, 0)), Block("minecraft:stone_pressure_plate", (1, 1, 0))
+                                ],
+                        difficulty="easy", 
+                        pace="fast"))
+    list_of_jumptypes.append(JumpType(name="Parkour Checkpoint Structure standard down", structure_type="Checkpoint", 
+                        rel_start_block=Block(block_type, (3, -1, 0)), 
+                        rel_finish_block=Block(block_type, (2, 0, 0)),
+                        blocks=[Block(block_type, (0, 0, -1)), Block(block_type, (0, 0, 1)), 
+                                Block("minecraft:diamond_block", (1, 0, 0)), Block(block_type, (1, 0, -1)), Block(block_type, (1, 0, 1)), 
+                                Block(block_type, (2, 0, 1)), Block(block_type, (2, 0, -1)), 
+                                Block("minecraft:command_block", (1, -1, 0)), Block("minecraft:stone_pressure_plate", (1, 1, 0))
+                                ],
+                        difficulty="easy", 
+                        pace="fast"))
+    # list_of_jumptypes.append(JumpType(name="Parkour Checkpoint Structure SingleBlock", structure_type="Checkpoint", 
+    #                     rel_start_block=Block(block_type, (3, 0, 0)), 
+    #                     rel_finish_block=Block(block_type, (0, 0, 0)),
+    #                     blocks=[Block("minecraft:diamond_block", (0, 0, 0)), Block("minecraft:command_block", (0, -1, 0)), 
+    #                             Block("minecraft:stone_pressure_plate", (0, 1, 0))
+    #                             ],
+    #                     difficulty="easy", 
+    #                     pace="fast"))
+    # list_of_jumptypes.append(JumpType(name="Parkour Checkpoint Structure SingleBlock up", structure_type="Checkpoint", 
+    #                     rel_start_block=Block(block_type, (3, 1, 0)), 
+    #                     rel_finish_block=Block(block_type, (0, 0, 0)),
+    #                     blocks=[Block("minecraft:diamond_block", (0, 0, 0)), Block("minecraft:command_block", (0, -1, 0)), 
+    #                             Block("minecraft:stone_pressure_plate", (0, 1, 0))
+    #                             ],
+    #                     difficulty="easy", 
+    #                     pace="fast"))
+    # list_of_jumptypes.append(JumpType(name="Parkour Checkpoint Structure SingleBlock down", structure_type="Checkpoint", 
+    #                     rel_start_block=Block(block_type, (3, -1, 0)), 
+    #                     rel_finish_block=Block(block_type, (0, 0, 0)),
+    #                     blocks=[Block("minecraft:diamond_block", (0, 0, 0)), Block("minecraft:command_block", (0, -1, 0)), 
+    #                             Block("minecraft:stone_pressure_plate", (0, 1, 0))
+    #                             ],
+    #                     difficulty="easy", 
+    #                     pace="fast"))
+    return list_of_jumptypes
 
 def init_commandcontrol(block_type: str) -> JumpType:
     b = JumpType(name="Parkour Checkpoint Command Blocks Structure", structure_type="CommandControl", 
                         rel_start_block=Block("minecraft:air", (0, 0, 0)), 
                         rel_finish_block=Block("minecraft:air", (0, 0, 0)),
                             blocks=[],
-                        difficulty=0.0, 
-                        flow=1.0)
+                        difficulty="easy", 
+                        pace="fast")
     return b
 
 def init_dispenser(block_type: str) -> JumpType:
@@ -61,163 +106,88 @@ def init_dispenser(block_type: str) -> JumpType:
                                         rel_start_block=Block('minecraft:command_block{Command: "give @p minecraft:fishing_rod"}', (0, 0, 0)), 
                                         rel_finish_block=Block("minecraft:stone_button", (0, 1, 0)),
                                         blocks=[],
-                                        difficulty=0.0, 
-                                        flow=1.0)
+                                        difficulty="easy", 
+                                        pace="fast")
     return b
-
-
 
 def init_jumptypes(block_type: str) -> list[JumpType]:
     
     list_of_jumptypes: list[JumpType] = []
 
-    # SingleBlock Structures
-    list_of_jumptypes.append(JumpType(name="1 block gap straight", structure_type="SingleBlock",    #
-                                    rel_start_block=Block(block_type, (2, 0, 0)),                  #
-                                    rel_finish_block=Block(block_type, (0, 0, 0)),                 #  +  +
-                                    blocks=[],                                                    #
-                                    difficulty=0.1, flow=0.2))                                    #
+    for fw_delta in [2, 3, 4, 5]:
+        for y_level in [-3, -2, -1, 0, 1]:
+            for lr_delta in [-3, -2, -1, 0, 1, 2, 3]:
 
-    list_of_jumptypes.append(JumpType(name="2 blocks gap straight", structure_type="SingleBlock",   #
-                                    rel_start_block=Block(block_type, (3, 0, 0)),                  #
-                                    rel_finish_block=Block(block_type, (0, 0, 0)),                 #  +    +
-                                    blocks=[],                                                    #
-                                    difficulty=0.1, flow=0.7))                                    #
+                # Non-possible jumps
+                if y_level == 1:
+                    if fw_delta > 4:
+                        continue
+                    if fw_delta == 4 and abs(lr_delta) == 3:
+                        continue
+                if y_level == 0:
+                    if abs(lr_delta) == 3 and fw_delta == 5:
+                        continue
 
-    list_of_jumptypes.append(JumpType(name="3 blocks gap straight", structure_type="SingleBlock",     #
-                                    rel_start_block=Block(block_type, (4, 0, 0)),                    #
-                                    rel_finish_block=Block(block_type, (0, 0, 0)),                   #  +      +
-                                    blocks=[],                                                      #
-                                    difficulty=0.1, flow=1.0))                                      #
+                # TODO: check difficulty and pace in-game
+                # Set difficulty
+                if fw_delta == 5:
+                    d = "hard"
+                elif y_level == 1 and fw_delta > 3:
+                    d = "hard"
+                elif y_level == 1 and abs(lr_delta) > 2:
+                    d = "hard"
+                elif fw_delta > 3:
+                    d = "medium"
+                elif fw_delta == 3 and abs(lr_delta) > 2:
+                    d = "medium"
+                else:
+                    d = "easy"
 
-    list_of_jumptypes.append(JumpType(name="4 blocks gap straight", structure_type="SingleBlock",     #
-                                    rel_start_block=Block(block_type, (5, 0, 0)),                    #
-                                    rel_finish_block=Block(block_type, (0, 0, 0)),                   #  +        +
-                                    blocks=[],                                                      #
-                                    difficulty=0.8, flow=1.0))                                      #
+                # Set pace
+                if fw_delta > 3:
+                    p = "fast"
+                elif fw_delta == 2:
+                    p = "slow"
+                else:
+                    p = "medium"
+                
+                start_block_tuple = (fw_delta, y_level, lr_delta)
+                name = str(start_block_tuple)
 
-    list_of_jumptypes.append(JumpType(name="2 blocks gap displaced left", structure_type="SingleBlock",    #
-                                    rel_start_block=Block(block_type, (3, 0, -1)),                        #       +
-                                    rel_finish_block=Block(block_type, (0, 0, 0)),                        #  +
-                                    blocks=[],                                                           #
-                                    difficulty=0.3, flow=0.8))                                           #
+                # SingleBlock Structures
+                st = "SingleBlock"
+                finish_block_tuple = (0, 0, 0)
+                blocks = []
+                list_of_jumptypes.append(
+                    JumpType(name=name, structure_type=st,
+                            rel_start_block=Block(block_type, start_block_tuple),
+                            rel_finish_block=Block(block_type, finish_block_tuple),
+                            blocks=blocks,
+                            difficulty=d, pace=p)
+                )
 
-    list_of_jumptypes.append(JumpType(name="2 blocks gap displaced right", structure_type="SingleBlock",    #
-                                    rel_start_block=Block(block_type, (3, 0, 1)),                          #
-                                    rel_finish_block=Block(block_type, (0, 0, 0)),                         #  +
-                                    blocks=[],                                                            #       +
-                                    difficulty=0.3, flow=0.8))                                            #
+                # TwoBlock Structures
+                st = "TwoBlock"
+                finish_block_tuple = (1, 0, 0)
+                blocks = []
+                list_of_jumptypes.append(
+                    JumpType(name=name, structure_type=st,
+                            rel_start_block=Block(block_type, start_block_tuple),
+                            rel_finish_block=Block(block_type, finish_block_tuple),
+                            blocks=blocks,
+                            difficulty=d, pace=p)
+                )
 
-    list_of_jumptypes.append(JumpType(name="2 blocks gap diagonal left", structure_type="SingleBlock",  #       +
-                                    rel_start_block=Block(block_type, (3, 0, -2)),                     #
-                                    rel_finish_block=Block(block_type, (0, 0, 0)),                     #  +
-                                    blocks=[],                                                        #
-                                    difficulty=0.6, flow=0.8))                                        #
+                # FourBlock Structures
+                st = "FourBlock"
+                finish_block_tuple = (1, 0, -1)
+                blocks = [Block(block_type, (0, 0, -1)), Block(block_type, (1, 0, 0))]
+                list_of_jumptypes.append(
+                    JumpType(name=name, structure_type=st,
+                            rel_start_block=Block(block_type, start_block_tuple),
+                            rel_finish_block=Block(block_type, finish_block_tuple),
+                            blocks=blocks,
+                            difficulty=d, pace=p)
+                )
 
-    list_of_jumptypes.append(JumpType(name="2 blocks gap diagonal right", structure_type="SingleBlock",  #
-                                    rel_start_block=Block(block_type, (3, 0, 2)),                       #
-                                    rel_finish_block=Block(block_type, (0, 0, 0)),                      #  +
-                                    blocks=[],                                                         #
-                                    difficulty=0.6, flow=0.8))                                         #       +
-
-    list_of_jumptypes.append(JumpType(name="1 block gap one up", structure_type="SingleBlock",           #
-                                    rel_start_block=Block(block_type, (2, 1, 0)),                       #
-                                    rel_finish_block=Block(block_type, (0, 0, 0)),                      #  +  +
-                                    blocks=[],                                                         #
-                                    difficulty=0.2, flow=0.5))                                         #
-
-    list_of_jumptypes.append(JumpType(name="2 block gap one up", structure_type="SingleBlock",           #
-                                    rel_start_block=Block(block_type, (3, 1, 0)),                       #
-                                    rel_finish_block=Block(block_type, (0, 0, 0)),                      #  +    +
-                                    blocks=[],                                                         #
-                                    difficulty=0.9, flow=0.7))                                         #
-
-    list_of_jumptypes.append(JumpType(name="1 block gap one up displaced left", structure_type="SingleBlock",  #
-                                    rel_start_block=Block(block_type, (2, 1, -1)),                            #     +
-                                    rel_finish_block=Block(block_type, (0, 0, 0)),                            #  +
-                                    blocks=[],                                                               #
-                                    difficulty=0.3, flow=0.5))                                               #
-
-    list_of_jumptypes.append(JumpType(name="1 block gap one up displaced right", structure_type="SingleBlock", #
-                                    rel_start_block=Block(block_type, (2, 1, 1)),                             #
-                                    rel_finish_block=Block(block_type, (0, 0, 0)),                            #  +
-                                    blocks=[],                                                               #     +
-                                    difficulty=0.3, flow=0.5))                                               #
-
-
-
-    # TwoBlock Structures
-    list_of_jumptypes.append(JumpType(name="1 block gap straight", structure_type="TwoBlock",       #
-                                    rel_start_block=Block(block_type, (2, 0, 0)),                  #
-                                    rel_finish_block=Block(block_type, (1, 0, 0)),                 #  +  ++
-                                    blocks=[],                                                    #
-                                    difficulty=0.1, flow=0.4))                                    #
-
-    list_of_jumptypes.append(JumpType(name="2 blocks gap straight", structure_type="TwoBlock",      #
-                                    rel_start_block=Block(block_type, (3, 0, 0)),                  #
-                                    rel_finish_block=Block(block_type, (1, 0, 0)),                 #  +    ++
-                                    blocks=[],                                                    #
-                                    difficulty=0.1, flow=0.8))                                    #
-
-    list_of_jumptypes.append(JumpType(name="3 blocks gap straight", structure_type="TwoBlock",        #
-                                    rel_start_block=Block(block_type, (4, 0, 0)),                    #
-                                    rel_finish_block=Block(block_type, (1, 0, 0)),                   #  +      ++
-                                    blocks=[],                                                      #
-                                    difficulty=0.1, flow=1.0))                                      #
-
-    list_of_jumptypes.append(JumpType(name="4 blocks gap straight", structure_type="TwoBlock",        #
-                                    rel_start_block=Block(block_type, (5, 0, 0)),                    #
-                                    rel_finish_block=Block(block_type, (1, 0, 0)),                   #  +        ++
-                                    blocks=[],                                                      #
-                                    difficulty=0.8, flow=1.0))                                      #
-
-    list_of_jumptypes.append(JumpType(name="2 blocks gap displaced left", structure_type="TwoBlock",       #
-                                    rel_start_block=Block(block_type, (3, 0, -1)),                        #       ++
-                                    rel_finish_block=Block(block_type, (1, 0, 0)),                        #  +
-                                    blocks=[],                                                           #
-                                    difficulty=0.3, flow=0.8))                                           #
-
-    list_of_jumptypes.append(JumpType(name="2 blocks gap displaced right", structure_type="TwoBlock",       #
-                                    rel_start_block=Block(block_type, (3, 0, 1)),                          #
-                                    rel_finish_block=Block(block_type, (1, 0, 0)),                         #  +
-                                    blocks=[],                                                            #       ++
-                                    difficulty=0.3, flow=0.8))                                            #
-
-    list_of_jumptypes.append(JumpType(name="2 blocks gap diagonal left", structure_type="TwoBlock",     #       ++
-                                    rel_start_block=Block(block_type, (3, 0, -2)),                     #
-                                    rel_finish_block=Block(block_type, (1, 0, 0)),                     #  +
-                                    blocks=[],                                                        #
-                                    difficulty=0.6, flow=0.8))                                        #
-
-    list_of_jumptypes.append(JumpType(name="2 blocks gap diagonal right", structure_type="TwoBlock",     #
-                                    rel_start_block=Block(block_type, (3, 0, 2)),                       #
-                                    rel_finish_block=Block(block_type, (1, 0, 0)),                      #  +
-                                    blocks=[],                                                         #
-                                    difficulty=0.6, flow=0.8))                                         #       ++
-
-    list_of_jumptypes.append(JumpType(name="1 block gap one up", structure_type="TwoBlock",              #
-                                    rel_start_block=Block(block_type, (2, 1, 0)),                       #
-                                    rel_finish_block=Block(block_type, (1, 0, 0)),                      #  +  ++
-                                    blocks=[],                                                         #
-                                    difficulty=0.2, flow=0.5))                                         #
-
-    list_of_jumptypes.append(JumpType(name="2 block gap one up", structure_type="TwoBlock",              #
-                                    rel_start_block=Block(block_type, (3, 1, 0)),                       #
-                                    rel_finish_block=Block(block_type, (1, 0, 0)),                      #  +    ++
-                                    blocks=[],                                                         #
-                                    difficulty=0.9, flow=0.7))                                         #
-
-    list_of_jumptypes.append(JumpType(name="1 block gap one up displaced left", structure_type="TwoBlock",     #
-                                    rel_start_block=Block(block_type, (2, 1, -1)),                            #     ++
-                                    rel_finish_block=Block(block_type, (1, 0, 0)),                            #  +
-                                    blocks=[],                                                               #
-                                    difficulty=0.3, flow=0.5))                                               #
-
-    list_of_jumptypes.append(JumpType(name="1 block gap one up displaced right", structure_type="TwoBlock",    #
-                                    rel_start_block=Block(block_type, (2, 1, 1)),                             #
-                                    rel_finish_block=Block(block_type, (1, 0, 0)),                            #  +
-                                    blocks=[],                                                               #     ++
-                                    difficulty=0.3, flow=0.5))                                               #
-    
     return list_of_jumptypes
-

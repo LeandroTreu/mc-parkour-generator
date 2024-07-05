@@ -18,28 +18,31 @@ import generator
 import plotting
 import datapack
 from classes import JumpType, Block
+import threading
 
 class Gui():
 
-    image_size = (800, 800)
-    font_title = ("Segoe UI", 10, "bold")
-    font_general = ("Segoe UI", 9, "normal")
+    # TODO: app settings menu for image_size, font_size, dark mode
+    image_size = (1000, 800)
+    font_title = ("Segoe UI", 9, "bold")
+    font_general = ("Segoe UI", 8, "normal")
     label_pad_y = 3
 
     def __init__(self) -> None:
 
         self.list_of_placed_jumps: list[JumpType] = []
+        self.stop_thread_event = threading.Event()
 
         self.window = tk.Tk()
-        self.window.title("Minecraft Parkour Generator")
+        self.window.title(f"Minecraft Parkour Generator (MPG) - Version {config.MPG_VERSION}")
         # TODO: create .ico file
         try:
-            mpg_icon = Image.open("mpg_icon.png")
+            mpg_icon = Image.open("mpg_icon_256.png")
             # mpg_icon = mpg_icon.resize((50, 50))
             mpg_icon = ImageTk.PhotoImage(mpg_icon)
             self.window.iconphoto(False, mpg_icon) # type: ignore
         except:
-            print("Info: mpg_icon.png not found")
+            print("INFO: mpg_icon.png not found")
 
         default_font = font.nametofont("TkDefaultFont")
         text_font = font.nametofont("TkTextFont")
@@ -64,11 +67,11 @@ class Gui():
         self.variables = {}
         self.set_variables()
 
-        self.settings_frame = ttk.Frame(master=self.window, relief="flat", borderwidth=5)
+        self.settings_frame = ttk.Frame(master=self.window, relief="flat", borderwidth=20)
         self.settings_frame.pack(expand=False, side=tk.LEFT)
 
         # Image frame and label
-        self.image_frame = ttk.Frame(master=self.window, relief="flat", borderwidth=5)
+        self.image_frame = ttk.Frame(master=self.window, relief="flat", borderwidth=20)
         self.image_frame.pack(fill=tk.BOTH, expand=True, side=tk.RIGHT)
         try:
             if self.settings["plotFileType"] == "png":
@@ -108,6 +111,10 @@ class Gui():
                     self.variables["allowedStructureTypes_tb"] = tk.BooleanVar(master=self.window, value=True)
                 else:
                     self.variables["allowedStructureTypes_tb"] = tk.BooleanVar(master=self.window, value=False)
+                if "FourBlock" in value:
+                    self.variables["allowedStructureTypes_fb"] = tk.BooleanVar(master=self.window, value=True)
+                else:
+                    self.variables["allowedStructureTypes_fb"] = tk.BooleanVar(master=self.window, value=False)
             elif type(value) is bool:
                 self.variables[name] = tk.BooleanVar(master=self.window, value=value)
             elif type(value) is str:
@@ -142,6 +149,10 @@ class Gui():
                     self.variables["allowedStructureTypes_tb"].set(True)
                 else:
                     self.variables["allowedStructureTypes_tb"].set(False)
+                if "FourBlock" in value:
+                    self.variables["allowedStructureTypes_fb"].set(True)
+                else:
+                    self.variables["allowedStructureTypes_fb"].set(False)
             elif type(value) is bool:
                 self.variables[name].set(value)
             elif type(value) is str:
@@ -169,7 +180,7 @@ class Gui():
 
         # Settings
         self.minecraft_version_l = ttk.Label(master=self.settings_frame, text="Minecraft Version:")
-        self.minecraft_version = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["mcVersion"], values=config.MC_VERSIONS)
+        self.minecraft_version = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["mcVersion"], values=config.MC_VERSIONS, width=12, state="readonly")
 
         self.enforce_cb = ttk.Checkbutton(master=self.settings_frame, text="Enforce Parkour Volume", variable=self.variables["enforceParkourVolume"], onvalue=True, offvalue=False, command=self.update_vis)
         self.fill_air_cb = ttk.Checkbutton(master=self.settings_frame, text="Fill Volume with Air", variable=self.variables["fillParkourVolumeWithAir"], onvalue=True, offvalue=False, state="disabled", command=self.update_vis)
@@ -200,13 +211,13 @@ class Gui():
         self.start_position_z = ttk.Entry(master=self.settings_frame, textvariable=self.variables["startPosition_z"], width=10)
 
         self.start_forward_dir_l = ttk.Label(master=self.settings_frame, text="Start Forward Direction:")
-        self.start_forward_dir = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["startForwardDirection"], values=config.DIRECTIONS, width=10, state="readonly")
+        self.start_forward_dir = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["startForwardDirection"], values=config.DIRECTIONS, width=7, state="readonly")
 
         self.block_type_l = ttk.Label(master=self.settings_frame, text="Parkour Block Type:")
-        self.block_type = ttk.Entry(master=self.settings_frame, textvariable=self.variables["blockType"], width=25)
+        self.block_type = ttk.Entry(master=self.settings_frame, textvariable=self.variables["blockType"], width=28)
 
         self.random_seed = ttk.Checkbutton(master=self.settings_frame, text="Random Seed", variable=self.variables["randomSeed"], onvalue=True, offvalue=False, command=self.update_vis)
-        self.seed = ttk.Entry(master=self.settings_frame, textvariable=self.variables["seed"], width=25)
+        self.seed = ttk.Entry(master=self.settings_frame, textvariable=self.variables["seed"], width=28)
 
         self.cp_enabled = ttk.Checkbutton(master=self.settings_frame, text="Checkpoints", variable=self.variables["checkpointsEnabled"], onvalue=True, offvalue=False, command=self.update_vis)
         self.cp_period_l = ttk.Label(master=self.settings_frame, text="Checkpoints Period:")
@@ -216,24 +227,26 @@ class Gui():
         self.allowed_str_types_l = ttk.Label(master=self.settings_frame, text="Allowed JumpTypes:")
         self.t_one_block = ttk.Checkbutton(master=self.settings_frame, text="SingleBlock", variable=self.variables["allowedStructureTypes_sb"], onvalue=True, offvalue=False, command=self.update_vis)
         self.t_two_block = ttk.Checkbutton(master=self.settings_frame, text="TwoBlock", variable=self.variables["allowedStructureTypes_tb"], onvalue=True, offvalue=False, command=self.update_vis)
+        self.t_four_block = ttk.Checkbutton(master=self.settings_frame, text="FourBlock", variable=self.variables["allowedStructureTypes_fb"], onvalue=True, offvalue=False, command=self.update_vis)
 
-        self.difficulty_l = ttk.Label(master=self.settings_frame, text=f"Difficulty: {(((self.settings["difficulty"]*10)//1) / 10)}")
-        self.difficulty = ttk.Scale(master=self.settings_frame, variable=self.variables["difficulty"], from_=0, to=1.0, command=self.show_difficulty)
-        self.flow_l = ttk.Label(master=self.settings_frame, text=f"Flow: {(((self.settings["flow"]*10)//1) / 10)}")
-        self.flow = ttk.Scale(master=self.settings_frame, variable=self.variables["flow"], from_=0, to=1.0, command=self.show_flow)
+        self.difficulty_l = ttk.Label(master=self.settings_frame, text=f"Difficulty:")
+        self.difficulty = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["difficulty"], values=config.DIFFICULTIES, width=10, state="readonly")
+        self.pace_l = ttk.Label(master=self.settings_frame, text=f"Pace:")
+        self.pace = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["pace"], values=config.PACE, width=10, state="readonly")
 
         self.parkour_type_l = ttk.Label(master=self.settings_frame, text="Parkour Type:")
         self.parkour_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["parkourType"], values=config.PARKOUR_TYPE_NAMES, width=10, state="readonly")
         self.parkour_type.bind("<<ComboboxSelected>>", self.update_vis) # type: ignore
         self.ascending = ttk.Checkbutton(master=self.settings_frame, text="Ascending Jumps", variable=self.variables["parkourAscending"], onvalue=True, offvalue=False, command=self.update_vis)
+        self.descending = ttk.Checkbutton(master=self.settings_frame, text="Descending Jumps", variable=self.variables["parkourDescending"], onvalue=True, offvalue=False, command=self.update_vis)
 
         self.curves_size_l = ttk.Label(master=self.settings_frame, text=f"Curves Size: {(((self.settings["curvesSize"]*10)//1) / 10)}")
         self.curves_size = ttk.Scale(master=self.settings_frame, variable=self.variables["curvesSize"], from_=0.1, to=1.0, command=self.show_curves_size)
 
         self.spiral_rotation_l = ttk.Label(master=self.settings_frame, text="Spiral Rotation:")
-        self.spiral_rotation = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["spiralRotation"], values=config.SPIRAL_ROTATIONS, width=10)
+        self.spiral_rotation = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["spiralRotation"], values=config.SPIRAL_ROTATIONS, width=15, state="readonly")
         self.spiral_type_l = ttk.Label(master=self.settings_frame, text="Spiral Type:")
-        self.spiral_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["spiralType"], values=config.SPIRAL_TYPES, width=10)
+        self.spiral_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["spiralType"], values=config.SPIRAL_TYPES, width=10, state="readonly")
         self.spiral_type.bind("<<ComboboxSelected>>", self.update_vis) # type: ignore
         self.spiral_turnrate_l = ttk.Label(master=self.settings_frame, text="Spiral Turn Rate:")
         self.spiral_turnrate = ttk.Entry(master=self.settings_frame, textvariable=self.variables["spiralTurnRate"], width=10)
@@ -242,12 +255,12 @@ class Gui():
 
         # File options
         self.plot_file_type_l = ttk.Label(master=self.settings_frame, text="Plot File Type:")
-        self.plot_file_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotFileType"], values=config.PLOT_FILE_TYPES, width=10, state="readonly")
+        self.plot_file_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotFileType"], values=config.PLOT_FILE_TYPES, width=12, state="readonly")
         self.plot_file_type.bind("<<ComboboxSelected>>", self.refresh_plot) # type: ignore
         self.plot_colorscheme_l = ttk.Label(master=self.settings_frame, text="Plot Colorscheme:")
-        self.plot_colorscheme = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotColorScheme"], values=config.PLOT_COLORSCHEMES, width=10, state="readonly")
+        self.plot_colorscheme = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotColorScheme"], values=config.PLOT_COLORSCHEMES, width=12, state="readonly")
         self.plot_colorscheme.bind("<<ComboboxSelected>>", self.refresh_plot) # type: ignore
-        self.plot_commandblocks = ttk.Checkbutton(master=self.settings_frame, text="Plot Commandblocks", variable=self.variables["plotCommandBlocks"], onvalue=True, offvalue=False, command=self.refresh_plot)
+        self.plot_commandblocks = ttk.Checkbutton(master=self.settings_frame, text="Plot Commandblocks", variable=self.variables["plotCommandBlocks"], onvalue=True, offvalue=False, command=self.refresh_plot, width=20)
         self.write_datapack_files = ttk.Checkbutton(master=self.settings_frame, text="Write Datapack Files", variable=self.variables["writeDatapackFiles"], onvalue=True, offvalue=False, command=self.update_vis)
 
         self.mc_settings_l = ttk.Label(master=self.settings_frame, text="Minecraft Settings", font=self.font_title)
@@ -261,38 +274,38 @@ class Gui():
         self.settings_label = ttk.Label(master=self.settings_frame, text="Parkour Settings", font=self.font_title)
         self.settings_label.grid(row=101, column=100, sticky="W", padx=0, pady=0)
 
-        self.enforce_cb.grid(row=110, column=100, sticky="W", padx=0, pady=0)
-        self.fill_air_cb.grid(row=110, column=101, sticky="W", padx=0, pady=0)
-        self.parkour_volume_label.grid(row=110, column=110, sticky="W", padx=0, pady=self.label_pad_y)
-        self.parkour_volume_x1_l.grid(row=111, column=111, sticky="W", padx=0, pady=0)
-        self.parkour_volume_x1.grid(row=111, column=112, sticky="W", padx=0, pady=0)
-        self.parkour_volume_x2_l.grid(row=111, column=113, sticky="W", padx=0, pady=0)
-        self.parkour_volume_x2.grid(row=111, column=114, sticky="W", padx=0, pady=0)
-        self.parkour_volume_y1_l.grid(row=112, column=111, sticky="W", padx=0, pady=0)
-        self.parkour_volume_y1.grid(row=112, column=112, sticky="W", padx=0, pady=0)
-        self.parkour_volume_y2_l.grid(row=112, column=113, sticky="W", padx=0, pady=0)
-        self.parkour_volume_y2.grid(row=112, column=114, sticky="W", padx=0, pady=0)
-        self.parkour_volume_z1_l.grid(row=113, column=111, sticky="W", padx=0, pady=0)
-        self.parkour_volume_z1.grid(row=113, column=112, sticky="W", padx=0, pady=0)
-        self.parkour_volume_z2_l.grid(row=113, column=113, sticky="W", padx=0, pady=0)
-        self.parkour_volume_z2.grid(row=113, column=114, sticky="W", padx=0, pady=0)
-        self.parkour_length_label.grid(row=111, column=100, sticky="W", padx=0, pady=self.label_pad_y)
-        self.parkour_length.grid(row=111, column=101, sticky="W", padx=0, pady=0)
-        self.start_position_label.grid(row=114, column=110, sticky="W", padx=0, pady=self.label_pad_y)
-        self.start_position_x_l.grid(row=115, column=111, sticky="W", padx=0, pady=0)
-        self.start_position_x.grid(row=115, column=112, sticky="W", padx=0, pady=0)
-        self.start_position_y_l.grid(row=115, column=113, sticky="W", padx=0, pady=0)
-        self.start_position_y.grid(row=115, column=114, sticky="W", padx=0, pady=0)
-        self.start_position_z_l.grid(row=115, column=115, sticky="W", padx=0, pady=0)
-        self.start_position_z.grid(row=115, column=116, sticky="W", padx=0, pady=0)
-        self.start_forward_dir_l.grid(row=112, column=100, sticky="W", padx=0, pady=self.label_pad_y)
-        self.start_forward_dir.grid(row=112, column=101, sticky="W", padx=0, pady=0)
-        self.block_type_l.grid(row=113, column=100, sticky="W", padx=0, pady=self.label_pad_y)
-        self.block_type.grid(row=113, column=101, sticky="W", padx=0, pady=0)
-        self.random_seed.grid(row=114, column=100, sticky="W", padx=0, pady=self.label_pad_y)
+        self.enforce_cb.grid(row=110, column=103, sticky="W", padx=0, pady=0)
+        self.fill_air_cb.grid(row=111, column=103, sticky="W", padx=0, pady=0)
+        self.parkour_volume_label.grid(row=112, column=103, sticky="W", padx=0, pady=self.label_pad_y)
+        self.parkour_volume_x1_l.grid(row=112, column=104, sticky="W", padx=0, pady=0)
+        self.parkour_volume_x1.grid(row=113, column=104, sticky="W", padx=0, pady=0)
+        self.parkour_volume_x2_l.grid(row=114, column=104, sticky="W", padx=0, pady=0)
+        self.parkour_volume_x2.grid(row=115, column=104, sticky="W", padx=0, pady=0)
+        self.parkour_volume_y1_l.grid(row=112, column=105, sticky="W", padx=0, pady=0)
+        self.parkour_volume_y1.grid(row=113, column=105, sticky="W", padx=0, pady=0)
+        self.parkour_volume_y2_l.grid(row=114, column=105, sticky="W", padx=0, pady=0)
+        self.parkour_volume_y2.grid(row=115, column=105, sticky="W", padx=0, pady=0)
+        self.parkour_volume_z1_l.grid(row=112, column=106, sticky="W", padx=0, pady=0)
+        self.parkour_volume_z1.grid(row=113, column=106, sticky="W", padx=0, pady=0)
+        self.parkour_volume_z2_l.grid(row=114, column=106, sticky="W", padx=0, pady=0)
+        self.parkour_volume_z2.grid(row=115, column=106, sticky="W", padx=0, pady=0)
+        self.parkour_length_label.grid(row=108, column=100, sticky="W", padx=0, pady=self.label_pad_y)
+        self.parkour_length.grid(row=108, column=101, sticky="W", padx=0, pady=0)
+        self.start_position_label.grid(row=108, column=103, sticky="W", padx=0, pady=self.label_pad_y)
+        self.start_position_x_l.grid(row=108, column=104, sticky="W", padx=0, pady=0)
+        self.start_position_x.grid(row=109, column=104, sticky="W", padx=0, pady=0)
+        self.start_position_y_l.grid(row=108, column=105, sticky="W", padx=0, pady=0)
+        self.start_position_y.grid(row=109, column=105, sticky="W", padx=0, pady=0)
+        self.start_position_z_l.grid(row=108, column=106, sticky="W", padx=0, pady=0)
+        self.start_position_z.grid(row=109, column=106, sticky="W", padx=0, pady=0)
+        self.start_forward_dir_l.grid(row=109, column=100, sticky="W", padx=0, pady=self.label_pad_y)
+        self.start_forward_dir.grid(row=109, column=101, sticky="W", padx=0, pady=0)
+        self.block_type_l.grid(row=110, column=100, sticky="W", padx=0, pady=self.label_pad_y)
+        self.block_type.grid(row=110, column=101, sticky="W", padx=0, pady=0)
+        self.random_seed.grid(row=111, column=100, sticky="W", padx=0, pady=self.label_pad_y)
         # self.seed_label = ttk.Label(master=self.settings_frame, text="Seed:")
         # self.seed_label.grid(row=220, column=101, sticky="W", padx=0, pady=0)
-        self.seed.grid(row=114, column=101, sticky="W", padx=0, pady=0)
+        self.seed.grid(row=111, column=101, sticky="W", padx=0, pady=0)
 
         self.separator_cp = ttk.Separator(master=self.settings_frame, orient="horizontal")
         self.separator_cp.grid(row=250, columns=100, columnspan=1000, sticky="EW", padx=0, pady=10, ipadx=0, ipady=0)
@@ -304,39 +317,37 @@ class Gui():
 
         self.separator_str = ttk.Separator(master=self.settings_frame, orient="horizontal")
         self.separator_str.grid(row=300, columns=100, columnspan=1000, sticky="EW", padx=0, pady=10, ipadx=0, ipady=0)
-        self.jt_label = ttk.Label(master=self.settings_frame, text="Jump Types", font=self.font_title)
+        self.jt_label = ttk.Label(master=self.settings_frame, text="JumpTypes", font=self.font_title)
         self.jt_label.grid(row=301, column=100, sticky="W", padx=0, pady=self.label_pad_y)
         self.use_all_blocks.grid(row=310, column=100, sticky="W", padx=0, pady=0)
-        self.allowed_str_types_l.grid(row=310, column=101, sticky="W", padx=0, pady=0)
-        self.t_one_block.grid(row=310, column=102, sticky="W", padx=0, pady=0)
-        self.t_two_block.grid(row=311, column=102, sticky="W", padx=0, pady=0)
-        self.ascending.grid(row=310, column=103, sticky="W", padx=0, pady=self.label_pad_y)
+        self.allowed_str_types_l.grid(row=310, column=102, sticky="W", padx=0, pady=0)
+        self.t_one_block.grid(row=311, column=103, sticky="W", padx=0, pady=0)
+        self.t_two_block.grid(row=312, column=103, sticky="W", padx=0, pady=0)
+        self.t_four_block.grid(row=313, column=103, sticky="W", padx=0, pady=0)
+        self.ascending.grid(row=311, column=102, sticky="W", padx=0, pady=self.label_pad_y)
+        self.descending.grid(row=312, column=102, sticky="W", padx=0, pady=self.label_pad_y)
 
-        # self.separator_df = ttk.Separator(master=self.settings_frame, orient="horizontal")
-        # self.separator_df.grid(row=400, column=100, columnspan=1000, sticky="EW", padx=0, pady=10, ipadx=0, ipady=0)
-        # self.d_and_f_label = ttk.Label(master=self.settings_frame, text="Difficulty and Flow", font=self.font_title)
-        # self.d_and_f_label.grid(row=401, column=100, sticky="W", padx=0, pady=0)
-        self.difficulty_l.grid(row=410, column=100, sticky="W", padx=0, pady=self.label_pad_y)
-        self.difficulty.grid(row=411, column=100, sticky="W", padx=0, pady=0)
-        self.flow_l.grid(row=410, column=101, sticky="W", padx=0, pady=0)
-        self.flow.grid(row=411, column=101, sticky="W", padx=0, pady=0)
+        self.difficulty_l.grid(row=310, column=101, sticky="W", padx=0, pady=self.label_pad_y)
+        self.difficulty.grid(row=311, column=101, sticky="W", padx=0, pady=0)
+        self.pace_l.grid(row=312, column=101, sticky="W", padx=0, pady=0)
+        self.pace.grid(row=313, column=101, sticky="W", padx=0, pady=0)
 
         self.separator_pktypes = ttk.Separator(master=self.settings_frame, orient="horizontal")
         self.separator_pktypes.grid(row=500, column=100, columnspan=1000, sticky="EW", padx=0, pady=10, ipadx=0, ipady=0)
         self.pt_label = ttk.Label(master=self.settings_frame, text="Parkour Type", font=self.font_title)
         self.pt_label.grid(row=501, column=100, sticky="W", padx=0, pady=0)
         self.parkour_type_l.grid(row=510, column=100, sticky="W", padx=0, pady=self.label_pad_y)
-        self.parkour_type.grid(row=510, column=101, sticky="W", padx=0, pady=0)
-        self.curves_size_l.grid(row=540, column=100, sticky="W", padx=0, pady=self.label_pad_y)
-        self.curves_size.grid(row=540, column=101, sticky="W", padx=0, pady=0)
-        self.spiral_rotation_l.grid(row=550, column=100, sticky="W", padx=0, pady=self.label_pad_y)
-        self.spiral_rotation.grid(row=550, column=101, sticky="W", padx=0, pady=0)
-        self.spiral_type_l.grid(row=560, column=100, sticky="W", padx=0, pady=self.label_pad_y)
-        self.spiral_type.grid(row=560, column=101, sticky="W", padx=0, pady=0)
-        self.spiral_turnrate_l.grid(row=570, column=100, sticky="W", padx=0, pady=self.label_pad_y)
-        self.spiral_turnrate.grid(row=570, column=101, sticky="W", padx=0, pady=0)
-        self.spiral_turn_prob_l.grid(row=580, column=100, sticky="W", padx=0, pady=self.label_pad_y)
-        self.spiral_turn_prob.grid(row=580, column=101, sticky="W", padx=0, pady=0)
+        self.parkour_type.grid(row=511, column=100, sticky="W", padx=0, pady=0)
+        self.curves_size_l.grid(row=510, column=101, sticky="W", padx=0, pady=self.label_pad_y)
+        self.curves_size.grid(row=511, column=101, sticky="W", padx=0, pady=0)
+        self.spiral_rotation_l.grid(row=510, column=102, sticky="W", padx=0, pady=self.label_pad_y)
+        self.spiral_rotation.grid(row=510, column=103, sticky="W", padx=0, pady=0)
+        self.spiral_type_l.grid(row=511, column=102, sticky="W", padx=0, pady=self.label_pad_y)
+        self.spiral_type.grid(row=511, column=103, sticky="W", padx=0, pady=0)
+        self.spiral_turnrate_l.grid(row=512, column=102, sticky="W", padx=0, pady=self.label_pad_y)
+        self.spiral_turnrate.grid(row=512, column=103, sticky="W", padx=0, pady=0)
+        self.spiral_turn_prob_l.grid(row=513, column=102, sticky="W", padx=0, pady=self.label_pad_y)
+        self.spiral_turn_prob.grid(row=513, column=103, sticky="W", padx=0, pady=0)
 
         # File options
         self.separator_file_options = ttk.Separator(master=self.settings_frame, orient="horizontal")
@@ -344,11 +355,11 @@ class Gui():
         self.file_options_label = ttk.Label(master=self.settings_frame, text="File Settings", font=self.font_title)
         self.file_options_label.grid(row=601, column=100, sticky="W", padx=0, pady=0)
         self.write_datapack_files.grid(row=602, column=100, sticky="W", padx=0, pady=self.label_pad_y)
-        self.plot_commandblocks.grid(row=602, column=101, sticky="W", padx=0, pady=0)
-        self.plot_file_type_l.grid(row=610, column=100, sticky="W", padx=0, pady=self.label_pad_y)
-        self.plot_file_type.grid(row=611, column=100, sticky="W", padx=0, pady=0)
-        self.plot_colorscheme_l.grid(row=610, column=101, sticky="W", padx=0, pady=0)
-        self.plot_colorscheme.grid(row=611, column=101, sticky="W", padx=0, pady=0)
+        self.plot_commandblocks.grid(row=603, column=100, sticky="W", padx=0, pady=0)
+        self.plot_file_type_l.grid(row=602, column=101, sticky="W", padx=0, pady=self.label_pad_y)
+        self.plot_file_type.grid(row=603, column=101, sticky="W", padx=0, pady=0)
+        self.plot_colorscheme_l.grid(row=602, column=102, sticky="W", padx=0, pady=0)
+        self.plot_colorscheme.grid(row=603, column=102, sticky="W", padx=0, pady=0)
 
         self.separator_generate = ttk.Separator(master=self.settings_frame, orient="horizontal")
         self.separator_generate.grid(row=999, column=100, columnspan=1000, sticky="EW", padx=0, pady=10, ipadx=0, ipady=0)
@@ -358,7 +369,7 @@ class Gui():
         self.generate_frame.grid(row=1000, column=100, columnspan=200, sticky="EW", padx=5, pady=5)
 
         # Generate Button
-        self.generate_button = ttk.Button(master=self.generate_frame, text="Generate Parkour", padding=8, command=self.generate_parkour)
+        self.generate_button = ttk.Button(master=self.generate_frame, text="Generate Parkour", padding=8, command=self.start_generator)
         self.generate_button.pack(fill=tk.BOTH, expand=False, side=tk.TOP)
 
         # Loading Bar
@@ -371,7 +382,7 @@ class Gui():
         self.jumps_placed_l = ttk.Label(master=self.generate_frame, text="JumpTypes used: ...    Jumps Placed: ...")
         self.jumps_placed_l.pack(side=tk.TOP, padx=5, pady=5)
 
-        self.update_vis("")
+        self.update_vis()
     
     def update_vis(self, string=""):
 
@@ -422,20 +433,24 @@ class Gui():
             self.allowed_str_types_l["state"] = "disabled"
             self.t_one_block["state"] = "disabled"
             self.t_two_block["state"] = "disabled"
+            self.t_four_block["state"] = "disabled"
             self.ascending["state"] = "disabled"
+            self.descending["state"] = "disabled"
             self.difficulty_l["state"] = "disabled"
             self.difficulty["state"] = "disabled"
-            self.flow_l["state"] = "disabled"
-            self.flow["state"] = "disabled"
+            self.pace_l["state"] = "disabled"
+            self.pace["state"] = "disabled"
         else:
             self.allowed_str_types_l["state"] = "normal"
             self.t_one_block["state"] = "normal"
             self.t_two_block["state"] = "normal"
+            self.t_four_block["state"] = "normal"
             self.ascending["state"] = "normal"
+            self.descending["state"] = "normal"
             self.difficulty_l["state"] = "normal"
-            self.difficulty["state"] = "normal"
-            self.flow_l["state"] = "normal"
-            self.flow["state"] = "normal"
+            self.difficulty["state"] = "readonly"
+            self.pace_l["state"] = "normal"
+            self.pace["state"] = "readonly"
 
         p_type = self.variables["parkourType"].get()
         if p_type == "Straight" or p_type == "Random":
@@ -464,9 +479,9 @@ class Gui():
             self.curves_size_l["state"] = "disabled"
             self.curves_size["state"] = "disabled"
             self.spiral_rotation_l["state"] = "normal"
-            self.spiral_rotation["state"] = "normal"
+            self.spiral_rotation["state"] = "readonly"
             self.spiral_type_l["state"] = "normal"
-            self.spiral_type["state"] = "normal"
+            self.spiral_type["state"] = "readonly"
         
             sp_type = self.variables["spiralType"].get()
             if sp_type == "Even":
@@ -479,17 +494,7 @@ class Gui():
                 self.spiral_turnrate["state"] = "disabled"
                 self.spiral_turn_prob_l["state"] = "normal"
                 self.spiral_turn_prob["state"] = "normal"
-
-
     
-    def show_difficulty(self, string):
-        string = ((float(string)*10)//1) / 10
-        self.difficulty_l["text"] = f"Difficulty: {string}"
-
-    def show_flow(self, string):
-        string = ((float(string)*10)//1) / 10
-        self.flow_l["text"] = f"Flow: {string}"
-
     def show_spiral_prob(self, string):
         string = ((float(string)*10)//1) / 10
         self.spiral_turn_prob_l["text"] = f"Spiral Turn Probability: {string}"
@@ -520,7 +525,8 @@ class Gui():
                         enforce_parkour_volume=self.settings["enforceParkourVolume"], 
                         plot_command_blocks=self.settings["plotCommandBlocks"],
                         plot_color_scheme=self.settings["plotColorScheme"],
-                        plot_file_type=self.settings["plotFileType"])
+                        plot_file_type=self.settings["plotFileType"],
+                        checkpoints_enabled=self.settings["checkpointsEnabled"])
         
         self.refresh_image()
     
@@ -560,6 +566,8 @@ class Gui():
                     self.settings[name].append("SingleBlock")
                 if v["allowedStructureTypes_tb"].get():
                     self.settings[name].append("TwoBlock")
+                if v["allowedStructureTypes_fb"].get():
+                    self.settings[name].append("FourBlock")
             else:
                 t = type(self.settings[name])
                 if t is bool or t is str:
@@ -595,16 +603,28 @@ class Gui():
         if answer is True:
             self.settings = config.set_default_config()
             self.refresh_variables()
+            self.update_vis()
+    
+    def cancel_generator(self):
+        self.stop_thread_event.set()
+
+    def start_generator(self):
+        self.stop_thread_event.clear()
+        self.generator_thread = threading.Thread(target=self.generate_parkour)
+        self.generator_thread.start()
+
+        self.generate_button.configure(text="Cancel", command=self.cancel_generator)
 
     def generate_parkour(self):
 
-        self.generate_button["state"] = "disabled"
+        self.loadingbar["value"] = 0
+        self.window.update_idletasks()
 
         if self.set_config():
             
             start_time = time.time()
             self.list_of_placed_jumps: list[JumpType] = []
-            seed, nr_jumptypes_filtered, nr_total_jumptypes = generator.generate_parkour(list_of_placed_jumps=self.list_of_placed_jumps, 
+            seed, nr_jumptypes_filtered, nr_total_jumptypes, self.list_of_placed_jumps = generator.generate_parkour(list_of_placed_jumps=self.list_of_placed_jumps, 
                                     random_seed=self.settings["randomSeed"], 
                                     seed=self.settings["seed"], 
                                     list_of_allowed_structure_types=self.settings["allowedStructureTypes"],
@@ -617,8 +637,9 @@ class Gui():
                                     checkpoints_period=self.settings["checkpointsPeriod"],
                                     use_all_blocks=self.settings["useAllBlocks"],
                                     difficulty=self.settings["difficulty"],
-                                    flow=self.settings["flow"],
+                                    pace=self.settings["pace"],
                                     ascending=self.settings["parkourAscending"],
+                                    descending=self.settings["parkourDescending"],
                                     curves_size=self.settings["curvesSize"],
                                     spiral_type=self.settings["spiralType"],
                                     spiral_turn_rate=self.settings["spiralTurnRate"],
@@ -628,40 +649,61 @@ class Gui():
                                     gui_enabled=True,
                                     gui_loading_bar=self.loadingbar,
                                     gui_window=self.window,
-                                    block_type=self.settings["blockType"])
+                                    block_type=self.settings["blockType"],
+                                    t_stop_event=self.stop_thread_event,
+                                    mc_version=self.settings["mcVersion"])
             end_time = time.time()
             generation_time = round(end_time-start_time, 3)
-            
-            start_time = time.time()
-            if self.settings["writeDatapackFiles"]:
-                datapack.write_function_files(list_of_placed_jumps=self.list_of_placed_jumps, 
-                                        parkour_volume=self.settings["parkourVolume"], 
-                                        enforce_parkour_volume=self.settings["enforceParkourVolume"], 
-                                        fill_volume_with_air=self.settings["fillParkourVolumeWithAir"],
-                                        gui_enabled=True,
-                                        minecraft_version=self.settings["mcVersion"])
-            end_time = time.time()
-            datapack_time = round(end_time-start_time, 3)
 
-            start_time = time.time()
-            plotting.plot_parkour(list_of_placed_jumps=self.list_of_placed_jumps, 
-                        parkour_volume=self.settings["parkourVolume"], 
-                        enforce_parkour_volume=self.settings["enforceParkourVolume"], 
-                        plot_command_blocks=self.settings["plotCommandBlocks"],
-                        plot_color_scheme=self.settings["plotColorScheme"],
-                        plot_file_type=self.settings["plotFileType"])
-            end_time = time.time()
-            self.refresh_image()
-            plot_time = round(end_time-start_time, 3)
-            self.task_info_label["text"] = f"Generation: {generation_time}s    Datapack: {datapack_time}s    Plot: {plot_time}s"
-            self.jumps_placed_l["text"] = f"JumpTypes used: {nr_jumptypes_filtered}/{nr_total_jumptypes}    Jumps placed: {len(self.list_of_placed_jumps)-3}/{self.settings["maxParkourLength"]}"
+            # If list_of_placed_jumps is empty, then the parkour generator was canceled by the stop_thread_event
+            if len(self.list_of_placed_jumps) > 0:
+                
+                start_time = time.time()
+                if self.settings["writeDatapackFiles"]:
+                    datapack.write_function_files(list_of_placed_jumps=self.list_of_placed_jumps, 
+                                            parkour_volume=self.settings["parkourVolume"], 
+                                            enforce_parkour_volume=self.settings["enforceParkourVolume"], 
+                                            fill_volume_with_air=self.settings["fillParkourVolumeWithAir"],
+                                            gui_enabled=True,
+                                            minecraft_version=self.settings["mcVersion"],
+                                            settings_config=self.settings)
+                end_time = time.time()
+                datapack_time = round(end_time-start_time, 3)
 
-            self.variables["seed"].set(seed)
-            # Update loading bar to 100%
-            self.loadingbar["value"] = 100
-            self.window.update_idletasks()
+                start_time = time.time()
+                plotting.plot_parkour(list_of_placed_jumps=self.list_of_placed_jumps, 
+                            parkour_volume=self.settings["parkourVolume"], 
+                            enforce_parkour_volume=self.settings["enforceParkourVolume"], 
+                            plot_command_blocks=self.settings["plotCommandBlocks"],
+                            plot_color_scheme=self.settings["plotColorScheme"],
+                            plot_file_type=self.settings["plotFileType"],
+                            checkpoints_enabled=self.settings["checkpointsEnabled"])
+                end_time = time.time()
+                self.refresh_image()
+                plot_time = round(end_time-start_time, 3)
 
-        self.generate_button["state"] = "normal"
+                self.task_info_label["text"] = f"Generation: {generation_time}s    Datapack: {datapack_time}s    Plot: {plot_time}s"
+                if self.settings["checkpointsEnabled"]:
+                    self.jumps_placed_l["text"] = f"JumpTypes used: {nr_jumptypes_filtered}/{nr_total_jumptypes}    Jumps placed: {len(self.list_of_placed_jumps)-3}/{self.settings["maxParkourLength"]}"
+                else:
+                    self.jumps_placed_l["text"] = f"JumpTypes used: {nr_jumptypes_filtered}/{nr_total_jumptypes}    Jumps placed: {len(self.list_of_placed_jumps)-1}/{self.settings["maxParkourLength"]}"
+
+                self.variables["seed"].set(seed)
+
+                self.loadingbar["value"] = 100
+                self.window.update_idletasks()
+
+                if nr_jumptypes_filtered == 0:
+                    messagebox.showwarning("Warning", f"Zero JumpTypes were allowed for generating the parkour!\nAdjust the JumpType settings to allow for more JumpTypes to be used.")
+                elif self.settings["checkpointsEnabled"] and len(self.list_of_placed_jumps) - 3 < self.settings["maxParkourLength"]:
+                    messagebox.showwarning("Warning", f"Not all jumps were able to be placed: {len(self.list_of_placed_jumps)-3}/{self.settings["maxParkourLength"]}")
+                elif len(self.list_of_placed_jumps) - 1 < self.settings["maxParkourLength"]:
+                    messagebox.showwarning("Warning", f"Not all jumps were able to be placed: {len(self.list_of_placed_jumps)-1}/{self.settings["maxParkourLength"]}")
+            else:
+                self.loadingbar["value"] = 0
+                self.window.update_idletasks()
+
+        self.generate_button.configure(text="Generate Parkour", command=self.start_generator)
 
     def run(self) -> None:
         self.window.mainloop()

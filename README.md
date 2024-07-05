@@ -2,9 +2,21 @@
 <p align="center">
     <img src="src/mpg_icon.png" width="190" height="80">
 </p>
-This is a parkour generator for Minecraft Java Edition (Vanilla). It is based on Minecraft function files which allow to place multiple blocks in a Minecraft world with only one in-game command.
+MPG is a parkour generator for Minecraft Java Edition (Vanilla). It is based on Minecraft function files which allow to place multiple blocks in a Minecraft world with only one in-game command.
 
-Supported Java Edition versions: 1.13 - 1.21
+Supported Java Edition versions: `1.13 - 1.21`
+
+## Features
+* Fast generation for hundreds of blocks
+* Checks for shortcuts and world boundary
+* Specify start location and a volume where the parkour should be generated in
+* Automatic checkpoint system:
+    * Set after how many jumps a checkpoint should be placed
+    * Respawn at a checkpoint by using the fishing rod
+* Many different jump-types:
+    * Ascending and descending jumps
+    * Set difficulty and pace of jumps
+* Different parkour types: Straight, Curves, Spiral, Random
 
 ## How to use
 The app creates a datapack which you can copy and paste into your Minecraft world's datapack folder.
@@ -20,6 +32,8 @@ The app creates a datapack which you can copy and paste into your Minecraft worl
 
 (Optional) You can use `/function parkour_generator:remove` to fill the placed parkour blocks with air. This will not revert any blocks that were destroyed by generating the parkour or filling the parkour volume with air. It will only fill the placed parkour blocks with air.
 
+If you generate a new parkour, you have to copy and paste the datapack into the datapack folder again such that the function files get overwritten. You can stay in the Minecraft world while doing this, but you have to use the `/reload` command to load the new function files.
+
 You can find the explanation for all the parkour settings in [SETTINGS.md](SETTINGS.md)
 
 ## Installation
@@ -32,8 +46,10 @@ You can find the explanation for all the parkour settings in [SETTINGS.md](SETTI
 Python version 3.12.3 was used to develop the application. You can find all needed pip packages in [requirements.txt](requirements.txt). The main imports are NumPy, Matplotlib and Pillow. PyInstaller was used to build the executable.
 
 MPG can also be used as a CLI application. Just disable the GUI by setting use_gui to False in MPG.py . All settings can be set in the `settings.json` file and are documented in [SETTINGS.md](SETTINGS.md).
-### License
+## License
 Minecraft Parkour Generator (MPG) is licensed under GPL-3.0-or-later.
+
+<p xmlns:cc="http://creativecommons.org/ns#" >The MPG logos and icons are licensed under <a href="https://creativecommons.org/licenses/by-nd/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-ND 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/nd.svg?ref=chooser-v1" alt=""></a></p>
 
 ## Credits
 ### Idea for the Checkpoint System

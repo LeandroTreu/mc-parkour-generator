@@ -20,7 +20,7 @@ if __name__ == "__main__":
     use_gui = True
 
     if use_gui:
-        print("Minecraft Parkour Generator (MPG) - Version 0.1.0\n")
+        print(f"Minecraft Parkour Generator (MPG) - Version {config.MPG_VERSION}\n")
 
         try:
             gui = gui.Gui()
@@ -39,7 +39,7 @@ if __name__ == "__main__":
 
         # Generate Parkour
         start_time_generation = time.time()
-        seed, nr_jumptypes_filtered, nr_total_jumptypes = generator.generate_parkour(list_of_placed_jumps=list_of_placed_jumps, 
+        seed, nr_jumptypes_filtered, nr_total_jumptypes, list_of_placed_jumps = generator.generate_parkour(list_of_placed_jumps=list_of_placed_jumps, 
                                 random_seed=settings["randomSeed"], 
                                 seed=settings["seed"], 
                                 list_of_allowed_structure_types=settings["allowedStructureTypes"],
@@ -52,8 +52,9 @@ if __name__ == "__main__":
                                 checkpoints_period=settings["checkpointsPeriod"],
                                 use_all_blocks=settings["useAllBlocks"],
                                 difficulty=settings["difficulty"],
-                                flow=settings["flow"],
+                                pace=settings["pace"],
                                 ascending=settings["parkourAscending"],
+                                descending=settings["parkourDescending"],
                                 curves_size=settings["curvesSize"],
                                 spiral_type=settings["spiralType"],
                                 spiral_turn_rate=settings["spiralTurnRate"],
@@ -63,7 +64,9 @@ if __name__ == "__main__":
                                 gui_enabled=False,
                                 gui_loading_bar=None,
                                 gui_window=None,
-                                block_type=settings["blockType"])
+                                block_type=settings["blockType"],
+                                t_stop_event=None,
+                                mc_version=settings["mcVersion"])
         end_time_generation = time.time()
         print(f"seed: {seed}")
         print(f"Generation time: {round(end_time_generation-start_time_generation, 3)} s")
@@ -76,7 +79,8 @@ if __name__ == "__main__":
                                     enforce_parkour_volume=settings["enforceParkourVolume"], 
                                     fill_volume_with_air=settings["fillParkourVolumeWithAir"],
                                     gui_enabled=False,
-                                    minecraft_version=settings["mcVersion"])
+                                    minecraft_version=settings["mcVersion"],
+                                    settings_config=settings)
         end_time = time.time()
         print(f"Datapack time: {round(end_time-start_time, 3)} s")
 
@@ -87,6 +91,7 @@ if __name__ == "__main__":
                         enforce_parkour_volume=settings["enforceParkourVolume"], 
                         plot_command_blocks=settings["plotCommandBlocks"],
                         plot_color_scheme=settings["plotColorScheme"],
-                        plot_file_type=settings["plotFileType"])
+                        plot_file_type=settings["plotFileType"],
+                        checkpoints_enabled=settings["checkpointsEnabled"])
         end_time = time.time()
         print(f"Plot time: {round(end_time-start_time, 3)} s")
