@@ -64,6 +64,7 @@ def place_control_command_blocks(command_blocks_instance: JumpType,
     command_blocks_instance.blocks = blocks
     command_blocks_instance.set_absolut_coordinates(abs_position, start_forward_direction)
 
+    # TODO: Clearer string formatting
     for b in command_blocks_instance.blocks:
         if b.name == "command_block_1_string":
             t = command_blocks_instance.blocks[7]
