@@ -6,6 +6,13 @@ MPG is a parkour generator for Minecraft Java Edition (Vanilla). It is based on 
 
 Supported Java Edition versions: `1.13 - 1.21`
 
+<p align="center">
+    <img src="img/MPG_showcase.gif" width="569", height="320">
+</p>
+<p align="center">
+    <img src="img/MPG_screenshot.png" width="569", height="320">
+</p>
+
 ## Features
 * Fast generation for hundreds of blocks
 * Checks for shortcuts and world boundary
