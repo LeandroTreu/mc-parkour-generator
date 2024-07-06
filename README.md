@@ -43,9 +43,9 @@ You can find the explanation for all the parkour settings in [SETTINGS.md](SETTI
 
 
 ## Advanced Installation and Usage
-Python version 3.12.3 was used to develop the application. You can find all needed pip packages in [requirements.txt](requirements.txt). The main imports are NumPy, Matplotlib and Pillow. PyInstaller was used to build the executable.
+Python version 3.12.3 was used to develop the application. You can find all needed pip packages in `requirements.txt`. The main imports are NumPy, Matplotlib and Pillow. PyInstaller was used to build the executable.
 
-MPG can also be used as a CLI application. Just disable the GUI by setting use_gui to False in MPG.py . All settings can be set in the `settings.json` file and are documented in [SETTINGS.md](SETTINGS.md).
+MPG can also be used as a CLI application. Just disable the GUI by setting use_gui to False in `MPG.py`. All settings can be set in the `settings.json` file and are documented in [SETTINGS.md](SETTINGS.md).
 ## License
 Minecraft Parkour Generator (MPG) is licensed under GPL-3.0-or-later.
 

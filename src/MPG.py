@@ -17,6 +17,7 @@ import datapack
 
 if __name__ == "__main__":
 
+    # TODO: Better CLI support
     use_gui = True
 
     if use_gui:
