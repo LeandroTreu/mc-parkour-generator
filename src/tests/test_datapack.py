@@ -1,38 +1,15 @@
-"""
-Copyright 2023-2024 Leandro Treu
-
-This file is part of Minecraft Parkour Generator (MPG).
-
-MPG is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
-MPG is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-You should have received a copy of the GNU General Public License along with MPG. If not, see <https://www.gnu.org/licenses/>.
-"""
+import unittest
 import config
 from classes import JumpType
 import generator
-import time
-import gui
-import plotting
 import datapack
 from pathlib import Path
 
-if __name__ == "__main__":
+class TestDatapack(unittest.TestCase):
 
-    # TODO: Better CLI support
-    use_gui = True
-
-    if use_gui:
-        print(f"Minecraft Parkour Generator (MPG) - Version {config.MPG_VERSION}\n")
-
-        try:
-            gui = gui.Gui()
-            gui.run()
-        except Exception as err:
-            print(f"Error: {err}")
-
-        key_press = input("\nYou can close this window now.")
-    else:
-        settings = config.import_config(Path("settings.json"), gui_enabled=False)
+    def test_datapack(self):
+        
+        settings = config.import_config(Path("test_datapack_settings.json"), gui_enabled=False)
         error_str = config.check_config(settings)
         if error_str != "":
             raise Exception(error_str)
@@ -40,7 +17,6 @@ if __name__ == "__main__":
         list_of_placed_jumps: list[JumpType] = []
 
         # Generate Parkour
-        start_time_generation = time.time()
         seed, nr_jumptypes_filtered, nr_total_jumptypes, list_of_placed_jumps = generator.generate_parkour(list_of_placed_jumps=list_of_placed_jumps, 
                                 random_seed=settings["randomSeed"], 
                                 seed=settings["seed"], 
@@ -69,12 +45,8 @@ if __name__ == "__main__":
                                 block_type=settings["blockType"],
                                 t_stop_event=None,
                                 mc_version=settings["mcVersion"])
-        end_time_generation = time.time()
-        print(f"seed: {seed}")
-        print(f"Generation time: {round(end_time_generation-start_time_generation, 3)} s")
 
         # Write datapack files
-        start_time = time.time()
         if settings["writeDatapackFiles"]:
             datapack.write_function_files(list_of_placed_jumps, 
                                     parkour_volume=settings["parkourVolume"], 
@@ -83,17 +55,7 @@ if __name__ == "__main__":
                                     gui_enabled=False,
                                     minecraft_version=settings["mcVersion"],
                                     settings_config=settings)
-        end_time = time.time()
-        print(f"Datapack time: {round(end_time-start_time, 3)} s")
 
-        # Plot parkour to a file
-        start_time = time.time()
-        plotting.plot_parkour(list_of_placed_jumps, 
-                        parkour_volume=settings["parkourVolume"], 
-                        enforce_parkour_volume=settings["enforceParkourVolume"], 
-                        plot_command_blocks=settings["plotCommandBlocks"],
-                        plot_color_scheme=settings["plotColorScheme"],
-                        plot_file_type=settings["plotFileType"],
-                        checkpoints_enabled=settings["checkpointsEnabled"])
-        end_time = time.time()
-        print(f"Plot time: {round(end_time-start_time, 3)} s")
+
+if __name__ == "__main__":
+    unittest.main()

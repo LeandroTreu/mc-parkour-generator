@@ -72,14 +72,13 @@ def set_default_config() -> dict[str, Any]:
 
     return config
 
-def import_config(gui_enabled: bool) -> dict[str, Any]:
+def import_config(settings_file_path: Path, gui_enabled: bool) -> dict[str, Any]:
     
     config = set_default_config()
 
     # Import config from file
-    settings_file = Path("settings.json")
     try:
-        with open(settings_file, "r", encoding="utf-8") as file:
+        with open(settings_file_path, "r", encoding="utf-8") as file:
             file_dict = dict(json.load(file))
 
         for name, value in file_dict.items():
@@ -97,11 +96,10 @@ def import_config(gui_enabled: bool) -> dict[str, Any]:
     
     return config
 
-def export_config(config: dict[str, Any], gui_enabled: bool) -> None:
+def export_config(settings_file_path: Path, config: dict[str, Any], gui_enabled: bool) -> None:
 
-    settings_file = Path("settings.json")
     try:
-        with open(settings_file, "w", encoding="utf-8") as file:
+        with open(settings_file_path, "w", encoding="utf-8") as file:
             json.dump(config, file, indent=1)
     except:
         if gui_enabled:

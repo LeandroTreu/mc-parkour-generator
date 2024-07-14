@@ -19,6 +19,7 @@ import plotting
 import datapack
 from classes import JumpType, Block
 import threading
+from pathlib import Path
 
 class Gui():
 
@@ -56,7 +57,7 @@ class Gui():
         
         self.create_menu()
 
-        self.settings = config.import_config(gui_enabled=True)
+        self.settings = config.import_config(Path("settings.json"), gui_enabled=True)
         error_str = config.check_config(self.settings)
         if error_str != "":
             messagebox.showerror("Error in settings.json", error_str)
@@ -596,7 +597,7 @@ class Gui():
         if self.set_config():
             answer = messagebox.askyesno("Save Settings", "Save current parkour settings as default?")
             if answer is True:
-                config.export_config(self.settings, gui_enabled=True)
+                config.export_config(Path("settings.json"), self.settings, gui_enabled=True)
 
     def reset_settings(self):
         answer = messagebox.askyesno("Reset Settings", "Reset to default settings?")
