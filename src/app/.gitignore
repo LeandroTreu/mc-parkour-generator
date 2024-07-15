@@ -8,4 +8,4 @@ dist
 __pycache__
 *.spec
 
-!mpg_icon.png
+!mpg_icon_256.png
