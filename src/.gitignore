@@ -1,11 +1,12 @@
 *.png
 *.jpg
+!mpg_icon_256.png
 
 parkour_generator_datapack/data/parkour_generator/functions/*
 parkour_generator_datapack/data/parkour_generator/function/*
+
 build
 dist
-__pycache__
 *.spec
 
-!mpg_icon_256.png
+__pycache__

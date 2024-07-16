@@ -7,13 +7,13 @@ MPG is free software: you can redistribute it and/or modify it under the terms o
 MPG is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with MPG. If not, see <https://www.gnu.org/licenses/>.
 """
-import config
-from classes import JumpType
-import generator
+import mpg.config
+from mpg.classes import JumpType
+import mpg.generator
 import time
-import gui
-import plotting
-import datapack
+import mpg.gui
+import mpg.plotting
+import mpg.datapack
 from pathlib import Path
 
 if __name__ == "__main__":
@@ -22,18 +22,18 @@ if __name__ == "__main__":
     use_gui = True
 
     if use_gui:
-        print(f"Minecraft Parkour Generator (MPG) - Version {config.MPG_VERSION}\n")
+        print(f"Minecraft Parkour Generator (MPG) - Version {mpg.config.MPG_VERSION}\n")
 
         try:
-            gui = gui.Gui()
+            gui = mpg.gui.Gui()
             gui.run()
         except Exception as err:
             print(f"Error: {err}")
 
         key_press = input("\nYou can close this window now.")
     else:
-        settings = config.import_config(Path("settings.json"), gui_enabled=False)
-        error_str = config.check_config(settings)
+        settings = mpg.config.import_config(Path("settings.json"), gui_enabled=False)
+        error_str = mpg.config.check_config(settings)
         if error_str != "":
             raise Exception(error_str)
 
@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
         # Generate Parkour
         start_time_generation = time.time()
-        seed, nr_jumptypes_filtered, nr_total_jumptypes, list_of_placed_jumps = generator.generate_parkour(list_of_placed_jumps=list_of_placed_jumps, 
+        seed, nr_jumptypes_filtered, nr_total_jumptypes, list_of_placed_jumps = mpg.generator.generate_parkour(list_of_placed_jumps=list_of_placed_jumps, 
                                 random_seed=settings["randomSeed"], 
                                 seed=settings["seed"], 
                                 list_of_allowed_structure_types=settings["allowedStructureTypes"],
@@ -76,7 +76,7 @@ if __name__ == "__main__":
         # Write datapack files
         start_time = time.time()
         if settings["writeDatapackFiles"]:
-            datapack.write_function_files(list_of_placed_jumps, 
+            mpg.datapack.write_function_files(list_of_placed_jumps, 
                                     parkour_volume=settings["parkourVolume"], 
                                     enforce_parkour_volume=settings["enforceParkourVolume"], 
                                     fill_volume_with_air=settings["fillParkourVolumeWithAir"],
@@ -88,7 +88,7 @@ if __name__ == "__main__":
 
         # Plot parkour to a file
         start_time = time.time()
-        plotting.plot_parkour(list_of_placed_jumps, 
+        mpg.plotting.plot_parkour(list_of_placed_jumps, 
                         parkour_volume=settings["parkourVolume"], 
                         enforce_parkour_volume=settings["enforceParkourVolume"], 
                         plot_command_blocks=settings["plotCommandBlocks"],

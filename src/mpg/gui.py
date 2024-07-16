@@ -7,17 +7,17 @@ MPG is free software: you can redistribute it and/or modify it under the terms o
 MPG is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with MPG. If not, see <https://www.gnu.org/licenses/>.
 """
+import mpg.config
+import mpg.plotting
+import mpg.datapack
+from mpg.classes import JumpType, Block
+import mpg.generator
 import tkinter as tk
 import tkinter.ttk as ttk
 from PIL import ImageTk, Image
-import config
 import time
 from tkinter import font
 from tkinter import messagebox
-import generator
-import plotting
-import datapack
-from classes import JumpType, Block
 import threading
 from pathlib import Path
 
@@ -35,7 +35,7 @@ class Gui():
         self.stop_thread_event = threading.Event()
 
         self.window = tk.Tk()
-        self.window.title(f"Minecraft Parkour Generator (MPG) - Version {config.MPG_VERSION}")
+        self.window.title(f"Minecraft Parkour Generator (MPG) - Version {mpg.config.MPG_VERSION}")
         # TODO: create .ico file
         try:
             mpg_icon = Image.open("mpg_icon_256.png")
@@ -57,11 +57,11 @@ class Gui():
         
         self.create_menu()
 
-        self.settings = config.import_config(Path("settings.json"), gui_enabled=True)
-        error_str = config.check_config(self.settings)
+        self.settings = mpg.config.import_config(Path("settings.json"), gui_enabled=True)
+        error_str = mpg.config.check_config(self.settings)
         if error_str != "":
             messagebox.showerror("Error in settings.json", error_str)
-            self.settings = config.set_default_config()
+            self.settings = mpg.config.set_default_config()
             messagebox.showwarning("Settings Warning", "Reverted to default settings because of an Error")
 
         # Map settings to tkinter Variables
@@ -181,7 +181,7 @@ class Gui():
 
         # Settings
         self.minecraft_version_l = ttk.Label(master=self.settings_frame, text="Minecraft Version:")
-        self.minecraft_version = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["mcVersion"], values=config.MC_VERSIONS, width=12, state="readonly")
+        self.minecraft_version = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["mcVersion"], values=mpg.config.MC_VERSIONS, width=12, state="readonly")
 
         self.enforce_cb = ttk.Checkbutton(master=self.settings_frame, text="Enforce Parkour Volume", variable=self.variables["enforceParkourVolume"], onvalue=True, offvalue=False, command=self.update_vis)
         self.fill_air_cb = ttk.Checkbutton(master=self.settings_frame, text="Fill Volume with Air", variable=self.variables["fillParkourVolumeWithAir"], onvalue=True, offvalue=False, state="disabled", command=self.update_vis)
@@ -212,7 +212,7 @@ class Gui():
         self.start_position_z = ttk.Entry(master=self.settings_frame, textvariable=self.variables["startPosition_z"], width=10)
 
         self.start_forward_dir_l = ttk.Label(master=self.settings_frame, text="Start Forward Direction:")
-        self.start_forward_dir = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["startForwardDirection"], values=config.DIRECTIONS, width=7, state="readonly")
+        self.start_forward_dir = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["startForwardDirection"], values=mpg.config.DIRECTIONS, width=7, state="readonly")
 
         self.block_type_l = ttk.Label(master=self.settings_frame, text="Parkour Block Type:")
         self.block_type = ttk.Entry(master=self.settings_frame, textvariable=self.variables["blockType"], width=28)
@@ -231,12 +231,12 @@ class Gui():
         self.t_four_block = ttk.Checkbutton(master=self.settings_frame, text="FourBlock", variable=self.variables["allowedStructureTypes_fb"], onvalue=True, offvalue=False, command=self.update_vis)
 
         self.difficulty_l = ttk.Label(master=self.settings_frame, text=f"Difficulty:")
-        self.difficulty = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["difficulty"], values=config.DIFFICULTIES, width=10, state="readonly")
+        self.difficulty = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["difficulty"], values=mpg.config.DIFFICULTIES, width=10, state="readonly")
         self.pace_l = ttk.Label(master=self.settings_frame, text=f"Pace:")
-        self.pace = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["pace"], values=config.PACE, width=10, state="readonly")
+        self.pace = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["pace"], values=mpg.config.PACE, width=10, state="readonly")
 
         self.parkour_type_l = ttk.Label(master=self.settings_frame, text="Parkour Type:")
-        self.parkour_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["parkourType"], values=config.PARKOUR_TYPE_NAMES, width=10, state="readonly")
+        self.parkour_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["parkourType"], values=mpg.config.PARKOUR_TYPE_NAMES, width=10, state="readonly")
         self.parkour_type.bind("<<ComboboxSelected>>", self.update_vis) # type: ignore
         self.ascending = ttk.Checkbutton(master=self.settings_frame, text="Ascending Jumps", variable=self.variables["parkourAscending"], onvalue=True, offvalue=False, command=self.update_vis)
         self.descending = ttk.Checkbutton(master=self.settings_frame, text="Descending Jumps", variable=self.variables["parkourDescending"], onvalue=True, offvalue=False, command=self.update_vis)
@@ -245,9 +245,9 @@ class Gui():
         self.curves_size = ttk.Scale(master=self.settings_frame, variable=self.variables["curvesSize"], from_=0.1, to=1.0, command=self.show_curves_size)
 
         self.spiral_rotation_l = ttk.Label(master=self.settings_frame, text="Spiral Rotation:")
-        self.spiral_rotation = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["spiralRotation"], values=config.SPIRAL_ROTATIONS, width=15, state="readonly")
+        self.spiral_rotation = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["spiralRotation"], values=mpg.config.SPIRAL_ROTATIONS, width=15, state="readonly")
         self.spiral_type_l = ttk.Label(master=self.settings_frame, text="Spiral Type:")
-        self.spiral_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["spiralType"], values=config.SPIRAL_TYPES, width=10, state="readonly")
+        self.spiral_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["spiralType"], values=mpg.config.SPIRAL_TYPES, width=10, state="readonly")
         self.spiral_type.bind("<<ComboboxSelected>>", self.update_vis) # type: ignore
         self.spiral_turnrate_l = ttk.Label(master=self.settings_frame, text="Spiral Turn Rate:")
         self.spiral_turnrate = ttk.Entry(master=self.settings_frame, textvariable=self.variables["spiralTurnRate"], width=10)
@@ -256,10 +256,10 @@ class Gui():
 
         # File options
         self.plot_file_type_l = ttk.Label(master=self.settings_frame, text="Plot File Type:")
-        self.plot_file_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotFileType"], values=config.PLOT_FILE_TYPES, width=12, state="readonly")
+        self.plot_file_type = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotFileType"], values=mpg.config.PLOT_FILE_TYPES, width=12, state="readonly")
         self.plot_file_type.bind("<<ComboboxSelected>>", self.refresh_plot) # type: ignore
         self.plot_colorscheme_l = ttk.Label(master=self.settings_frame, text="Plot Colorscheme:")
-        self.plot_colorscheme = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotColorScheme"], values=config.PLOT_COLORSCHEMES, width=12, state="readonly")
+        self.plot_colorscheme = ttk.Combobox(master=self.settings_frame, textvariable=self.variables["plotColorScheme"], values=mpg.config.PLOT_COLORSCHEMES, width=12, state="readonly")
         self.plot_colorscheme.bind("<<ComboboxSelected>>", self.refresh_plot) # type: ignore
         self.plot_commandblocks = ttk.Checkbutton(master=self.settings_frame, text="Plot Commandblocks", variable=self.variables["plotCommandBlocks"], onvalue=True, offvalue=False, command=self.refresh_plot, width=20)
         self.write_datapack_files = ttk.Checkbutton(master=self.settings_frame, text="Write Datapack Files", variable=self.variables["writeDatapackFiles"], onvalue=True, offvalue=False, command=self.update_vis)
@@ -521,7 +521,7 @@ class Gui():
     def refresh_plot(self, string: str = ""):
 
         if self.set_config() and len(self.list_of_placed_jumps) != 0:
-            plotting.plot_parkour(list_of_placed_jumps=self.list_of_placed_jumps, 
+            mpg.plotting.plot_parkour(list_of_placed_jumps=self.list_of_placed_jumps, 
                         parkour_volume=self.settings["parkourVolume"], 
                         enforce_parkour_volume=self.settings["enforceParkourVolume"], 
                         plot_command_blocks=self.settings["plotCommandBlocks"],
@@ -586,7 +586,7 @@ class Gui():
                         messagebox.showerror("Settings Error", f"{name}: wrong input format. Only floats are allowed.")
                         return False
 
-        error_str = config.check_config(self.settings)
+        error_str = mpg.config.check_config(self.settings)
         if error_str != "":
             messagebox.showerror("Settings Error", error_str)
             return False
@@ -597,12 +597,12 @@ class Gui():
         if self.set_config():
             answer = messagebox.askyesno("Save Settings", "Save current parkour settings as default?")
             if answer is True:
-                config.export_config(Path("settings.json"), self.settings, gui_enabled=True)
+                mpg.config.export_config(Path("settings.json"), self.settings, gui_enabled=True)
 
     def reset_settings(self):
         answer = messagebox.askyesno("Reset Settings", "Reset to default settings?")
         if answer is True:
-            self.settings = config.set_default_config()
+            self.settings = mpg.config.set_default_config()
             self.refresh_variables()
             self.update_vis()
     
@@ -625,7 +625,7 @@ class Gui():
             
             start_time = time.time()
             self.list_of_placed_jumps: list[JumpType] = []
-            seed, nr_jumptypes_filtered, nr_total_jumptypes, self.list_of_placed_jumps = generator.generate_parkour(list_of_placed_jumps=self.list_of_placed_jumps, 
+            seed, nr_jumptypes_filtered, nr_total_jumptypes, self.list_of_placed_jumps = mpg.generator.generate_parkour(list_of_placed_jumps=self.list_of_placed_jumps, 
                                     random_seed=self.settings["randomSeed"], 
                                     seed=self.settings["seed"], 
                                     list_of_allowed_structure_types=self.settings["allowedStructureTypes"],
@@ -661,7 +661,7 @@ class Gui():
                 
                 start_time = time.time()
                 if self.settings["writeDatapackFiles"]:
-                    datapack.write_function_files(list_of_placed_jumps=self.list_of_placed_jumps, 
+                    mpg.datapack.write_function_files(list_of_placed_jumps=self.list_of_placed_jumps, 
                                             parkour_volume=self.settings["parkourVolume"], 
                                             enforce_parkour_volume=self.settings["enforceParkourVolume"], 
                                             fill_volume_with_air=self.settings["fillParkourVolumeWithAir"],
@@ -672,7 +672,7 @@ class Gui():
                 datapack_time = round(end_time-start_time, 3)
 
                 start_time = time.time()
-                plotting.plot_parkour(list_of_placed_jumps=self.list_of_placed_jumps, 
+                mpg.plotting.plot_parkour(list_of_placed_jumps=self.list_of_placed_jumps, 
                             parkour_volume=self.settings["parkourVolume"], 
                             enforce_parkour_volume=self.settings["enforceParkourVolume"], 
                             plot_command_blocks=self.settings["plotCommandBlocks"],

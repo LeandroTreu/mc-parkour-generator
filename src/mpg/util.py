@@ -7,8 +7,8 @@ MPG is free software: you can redistribute it and/or modify it under the terms o
 MPG is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with MPG. If not, see <https://www.gnu.org/licenses/>.
 """
-from classes import JumpType, Block
-import config
+from mpg.classes import JumpType, Block
+import mpg.config
 
 def compute_abs_coordinates_of_start_block(jumptype: JumpType, absolut_pos_of_last_block: tuple[int, int, int], forward_direction: str):
 
@@ -127,17 +127,17 @@ def in_bounds(block: Block, parkour_volume: list[tuple[int, int]], enforce_parko
     z = block.abs_position[2]
 
     if mc_version == "1.13 - 1.17.1":
-        max_y = config.MC_WORLD_MAX_Y_OLD
-        min_y = config.MC_WORLD_MIN_Y_OLD
+        max_y = mpg.config.MC_WORLD_MAX_Y_OLD
+        min_y = mpg.config.MC_WORLD_MIN_Y_OLD
     else:
-        max_y = config.MC_WORLD_MAX_Y
-        min_y = config.MC_WORLD_MIN_Y
+        max_y = mpg.config.MC_WORLD_MAX_Y
+        min_y = mpg.config.MC_WORLD_MIN_Y
 
-    if x < config.MC_WORLD_MIN_X or x > config.MC_WORLD_MAX_X:
+    if x < mpg.config.MC_WORLD_MIN_X or x > mpg.config.MC_WORLD_MAX_X:
         return False
     if y < min_y or y > max_y:
         return False
-    if z < config.MC_WORLD_MIN_Z or z > config.MC_WORLD_MAX_Z:
+    if z < mpg.config.MC_WORLD_MIN_Z or z > mpg.config.MC_WORLD_MAX_Z:
         return False
 
     if enforce_parkour_volume:

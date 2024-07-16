@@ -1,23 +1,23 @@
 import unittest
-import config
-from classes import JumpType
-import generator
-import datapack
+import mpg.config
+from mpg.classes import JumpType
+import mpg.generator
+import mpg.datapack
 from pathlib import Path
 
 class TestDatapack(unittest.TestCase):
 
     def test_datapack(self):
         
-        settings = config.import_config(Path("test_datapack_settings.json"), gui_enabled=False)
-        error_str = config.check_config(settings)
+        settings = mpg.config.import_config(Path("tests/test_datapack_settings.json"), gui_enabled=False)
+        error_str = mpg.config.check_config(settings)
         if error_str != "":
             raise Exception(error_str)
 
         list_of_placed_jumps: list[JumpType] = []
 
         # Generate Parkour
-        seed, nr_jumptypes_filtered, nr_total_jumptypes, list_of_placed_jumps = generator.generate_parkour(list_of_placed_jumps=list_of_placed_jumps, 
+        seed, nr_jumptypes_filtered, nr_total_jumptypes, list_of_placed_jumps = mpg.generator.generate_parkour(list_of_placed_jumps=list_of_placed_jumps, 
                                 random_seed=settings["randomSeed"], 
                                 seed=settings["seed"], 
                                 list_of_allowed_structure_types=settings["allowedStructureTypes"],
@@ -48,13 +48,15 @@ class TestDatapack(unittest.TestCase):
 
         # Write datapack files
         if settings["writeDatapackFiles"]:
-            datapack.write_function_files(list_of_placed_jumps, 
+            mpg.datapack.write_function_files(list_of_placed_jumps, 
                                     parkour_volume=settings["parkourVolume"], 
                                     enforce_parkour_volume=settings["enforceParkourVolume"], 
                                     fill_volume_with_air=settings["fillParkourVolumeWithAir"],
                                     gui_enabled=False,
                                     minecraft_version=settings["mcVersion"],
                                     settings_config=settings)
+
+        
 
 
 if __name__ == "__main__":

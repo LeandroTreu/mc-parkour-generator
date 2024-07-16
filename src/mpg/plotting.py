@@ -7,7 +7,7 @@ MPG is free software: you can redistribute it and/or modify it under the terms o
 MPG is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with MPG. If not, see <https://www.gnu.org/licenses/>.
 """
-from classes import JumpType, Block
+from mpg.classes import JumpType, Block
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use("agg")

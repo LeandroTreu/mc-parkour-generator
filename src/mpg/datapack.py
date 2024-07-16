@@ -7,9 +7,9 @@ MPG is free software: you can redistribute it and/or modify it under the terms o
 MPG is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with MPG. If not, see <https://www.gnu.org/licenses/>.
 """
-from classes import JumpType, Block
+from mpg.classes import JumpType, Block
+import mpg.config
 from pathlib import Path
-import config
 from math import ceil
 from tkinter import messagebox
 import json
@@ -18,7 +18,7 @@ from typing import Any
 # 413 x 51 x 127 = 2,675,001
 def split_volume(volume: list[tuple[int, int]]) -> list[str]:
 
-    cube_width = config.MC_MAX_FILL_VOLUME_CUBE_WIDTH
+    cube_width = mpg.config.MC_MAX_FILL_VOLUME_CUBE_WIDTH
     commands = []
 
     v_x_min = volume[0][0]
@@ -128,8 +128,8 @@ def write_function_files(list_of_placed_jumps: list[JumpType],
                     z = block.abs_position[2]
                     lines_list.append(f"fill {x} {y} {z} {x} {y} {z} {block.name} replace\n")
             
-            if len(lines_list) > config.MC_MAX_COMMANDCHAIN_LENGTH:
-                error_string = f"Function file {generate_file} has too many commands! Limit is {config.MC_MAX_COMMANDCHAIN_LENGTH}. Function files not written.\n"
+            if len(lines_list) > mpg.config.MC_MAX_COMMANDCHAIN_LENGTH:
+                error_string = f"Function file {generate_file} has too many commands! Limit is {mpg.config.MC_MAX_COMMANDCHAIN_LENGTH}. Function files not written.\n"
                 if gui_enabled:
                     messagebox.showerror("Datapack Error", error_string)
                 else:
@@ -162,8 +162,8 @@ def write_function_files(list_of_placed_jumps: list[JumpType],
                             z = block.abs_position[2]
                             lines_list.append(f"fill {x} {y} {z} {x} {y} {z} minecraft:air replace\n")
                     
-                    if len(lines_list) > config.MC_MAX_COMMANDCHAIN_LENGTH:
-                        error_string = f"Function file {remove_file} has too many commands! Limit is {config.MC_MAX_COMMANDCHAIN_LENGTH}. Function files not written.\n"
+                    if len(lines_list) > mpg.config.MC_MAX_COMMANDCHAIN_LENGTH:
+                        error_string = f"Function file {remove_file} has too many commands! Limit is {mpg.config.MC_MAX_COMMANDCHAIN_LENGTH}. Function files not written.\n"
                         if gui_enabled:
                             messagebox.showerror("Datapack Error", error_string)
                         else:
