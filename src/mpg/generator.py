@@ -15,9 +15,7 @@ import mpg.config
 import tkinter as tk
 import tkinter.ttk as ttk
 from copy import deepcopy
-from numpy.random import Generator
-from numpy.random import default_rng
-from numpy import uint64
+import random
 import threading
 
 def place_control_command_blocks(command_blocks_instance: JumpType, 
@@ -127,7 +125,7 @@ def filter_jumptypes(list_of_allowed_structure_types: list[str], use_all_blocks:
 
 
 def change_direction(current_forward_direction: str,
-                     rng: Generator, parkour_type: str,
+                     parkour_type: str,
                      curves_size: float,
                      curves_direction: int,
                      spiral_type: str,
@@ -138,7 +136,7 @@ def change_direction(current_forward_direction: str,
 
     if parkour_type == "Random":
         # Choose possible other directions at random
-        random_bit = rng.integers(low=0, high=2) # type: ignore
+        random_bit = random.randint(0, 1)
         old_direction_index = mpg.config.DIRECTIONS.index(
             current_forward_direction)
 
@@ -160,7 +158,7 @@ def change_direction(current_forward_direction: str,
         curves_size = int((curves_size * 10) // 1)
         if curves_size < 1:
             curves_size = 1
-        random_nr = rng.integers(low=0, high=curves_size) # type: ignore
+        random_nr = random.randint(0, curves_size-1)
 
         if random_nr == 0:
 
@@ -171,7 +169,7 @@ def change_direction(current_forward_direction: str,
                 curves_direction = 0
                 new_direction_index = (old_direction_index + 1) % 4
             elif curves_direction == 0:
-                random_bit = rng.integers(low=0, high=2) # type: ignore
+                random_bit = random.randint(0, 1)
                 if random_bit == 0:
                     curves_direction = -1
                     new_direction_index = (old_direction_index - 1)
@@ -204,7 +202,7 @@ def change_direction(current_forward_direction: str,
             if spiral_turn_prob < 0:
                 spiral_turn_prob = 0
 
-        random_nr = rng.integers(low=0, high=101) # type: ignore
+        random_nr = random.randint(0, 100)
         if random_nr <= spiral_turn_prob:
 
             old_direction_index = mpg.config.DIRECTIONS.index(
@@ -259,9 +257,8 @@ def generate_parkour(random_seed: bool,
 
     # Set seed for the RNG
     if random_seed:
-        rng_for_rng = default_rng()
-        seed = rng_for_rng.integers(low=0, high=(2**64), dtype=uint64)
-    rng = default_rng(seed)
+        seed = random.randint(0, (2**64)-1)
+    random.seed(seed)
 
     current_block_position = parkour_start_position
     current_forward_direction = parkour_start_forward_direction
@@ -388,14 +385,14 @@ def generate_parkour(random_seed: bool,
             while len(list_of_candidates) > 0:
 
                 # Choose randomly from list of allowed jumptypes
-                random_index = rng.integers(low=0, high=len(list_of_candidates)) # type: ignore
+                random_index = random.randint(0, len(list_of_candidates)-1)
                 candidate_instance = deepcopy(list_of_candidates[random_index])
 
                 # Keep a balanced y-level when both ascending and descending JumpTypes are set
                 candidate_y_change = candidate_instance.rel_start_block.rel_position[1] + candidate_instance.rel_finish_block.rel_position[1]
                 if ascending and descending:
                     if (y_level_balance > 0 and candidate_y_change > 0) or (y_level_balance < 0 and candidate_y_change < 0):
-                        random_nr = rng.integers(low=0, high=abs(y_level_balance)+1)
+                        random_nr = random.randint(0, abs(y_level_balance))
                         if random_nr != 0:
                             list_of_candidates.pop(random_index)
                             continue
@@ -446,7 +443,6 @@ def generate_parkour(random_seed: bool,
         current_forward_direction, \
         curves_direction, \
         spiral_turn_counter = change_direction( current_forward_direction, 
-                                                rng, 
                                                 parkour_type, 
                                                 curves_size, 
                                                 curves_direction,
