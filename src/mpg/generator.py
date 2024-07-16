@@ -226,8 +226,7 @@ def change_direction(current_forward_direction: str,
     # Default case
     return current_forward_direction, curves_direction, spiral_turn_counter
 
-def generate_parkour(list_of_placed_jumps: list[JumpType],
-                     random_seed: bool,
+def generate_parkour(random_seed: bool,
                      seed: int,
                      list_of_allowed_structure_types: list[str],
                      parkour_start_position: tuple[int, int, int],
@@ -256,6 +255,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                      mc_version: str) -> tuple[int, int, int, list[JumpType]]:
 
     best_parkour_generated: list[JumpType] = []
+    list_of_placed_jumps: list[JumpType] = []
 
     # Set seed for the RNG
     if random_seed:

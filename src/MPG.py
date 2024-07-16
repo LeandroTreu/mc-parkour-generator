@@ -37,11 +37,9 @@ if __name__ == "__main__":
         if error_str != "":
             raise Exception(error_str)
 
-        list_of_placed_jumps: list[JumpType] = []
-
         # Generate Parkour
         start_time_generation = time.time()
-        seed, nr_jumptypes_filtered, nr_total_jumptypes, list_of_placed_jumps = mpg.generator.generate_parkour(list_of_placed_jumps=list_of_placed_jumps, 
+        seed, nr_jumptypes_filtered, nr_total_jumptypes, list_of_placed_jumps = mpg.generator.generate_parkour(
                                 random_seed=settings["randomSeed"], 
                                 seed=settings["seed"], 
                                 list_of_allowed_structure_types=settings["allowedStructureTypes"],
