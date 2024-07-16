@@ -667,7 +667,8 @@ class Gui():
                                             fill_volume_with_air=self.settings["fillParkourVolumeWithAir"],
                                             gui_enabled=True,
                                             minecraft_version=self.settings["mcVersion"],
-                                            settings_config=self.settings)
+                                            settings_config=self.settings,
+                                            directory_path=Path.cwd())
                 end_time = time.time()
                 datapack_time = round(end_time-start_time, 3)
 

@@ -60,15 +60,15 @@ def write_function_files(list_of_placed_jumps: list[JumpType],
                          fill_volume_with_air: bool,
                          gui_enabled: bool,
                          minecraft_version: str,
-                         settings_config: dict[str, Any]) -> None:
+                         settings_config: dict[str, Any],
+                         directory_path: Path) -> None:
 
     try:
-        cwd = Path.cwd()
-        datapack_dir = cwd / "parkour_generator_datapack"
+        datapack_dir = directory_path / "parkour_generator_datapack"
         if minecraft_version == "1.21":
-            functions_dir = cwd / "parkour_generator_datapack/data/parkour_generator/function"
+            functions_dir = directory_path / "parkour_generator_datapack/data/parkour_generator/function"
         else:
-            functions_dir = cwd / "parkour_generator_datapack/data/parkour_generator/functions"
+            functions_dir = directory_path / "parkour_generator_datapack/data/parkour_generator/functions"
 
         functions_dir.mkdir(parents=True, exist_ok=True)
 
