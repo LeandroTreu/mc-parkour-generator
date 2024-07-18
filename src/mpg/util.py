@@ -7,7 +7,7 @@ MPG is free software: you can redistribute it and/or modify it under the terms o
 MPG is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with MPG. If not, see <https://www.gnu.org/licenses/>.
 """
-from mpg.classes import JumpType, Block
+from mpg.classes import JumpType, Block, Cluster
 import mpg.config
 
 def compute_abs_coordinates_of_start_block(jumptype: JumpType, absolut_pos_of_last_block: tuple[int, int, int], forward_direction: str):
@@ -171,7 +171,8 @@ def can_be_placed(jumptype: JumpType,
                   list_of_placed_jumps: list[JumpType],
                   enforce_parkour_volume: bool,
                   parkour_volume: list[tuple[int, int]],
-                  mc_version: str):
+                  mc_version: str,
+                  list_of_clusters: list[Cluster]):
 
     abs_position = compute_abs_coordinates_of_start_block(
         jumptype, current_block_position, current_forward_direction)
@@ -188,18 +189,21 @@ def can_be_placed(jumptype: JumpType,
             return False
     
     # Check if shortcut possible
-    for earlier_jump in list_of_placed_jumps[:len(list_of_placed_jumps)-1]:
-        # If start block not near earlier jump the no detailed checks necessary
-        if not near_jump(jumptype.rel_start_block, earlier_jump):
-            continue
+    for cluster in list_of_clusters:
+        if intersects_cluster_volume(jumptype, cluster):
+            # TODO: ignore newest jump
+            for earlier_jump in list_of_placed_jumps[:len(list_of_placed_jumps)-1]:
+                # If start block not near earlier jump the no detailed checks necessary
+                if not near_jump(jumptype.rel_start_block, earlier_jump):
+                    continue
 
-        if shortcut_possible(jumptype.rel_start_block, earlier_jump):
-            return False
-        if shortcut_possible(jumptype.rel_finish_block, earlier_jump):
-            return False
-        for block in jumptype.blocks:
-            if shortcut_possible(block, earlier_jump):
-                return False
+                if shortcut_possible(jumptype.rel_start_block, earlier_jump):
+                    return False
+                if shortcut_possible(jumptype.rel_finish_block, earlier_jump):
+                    return False
+                for block in jumptype.blocks:
+                    if shortcut_possible(block, earlier_jump):
+                        return False
 
     return True
 
@@ -215,5 +219,60 @@ def is_descending(jumptype: JumpType) -> bool:
 
     if jumptype.rel_start_block.rel_position[1] + jumptype.rel_finish_block.rel_position[1] < 0:
         return True
+
+    return False
+
+def append_to_clusters(jump: JumpType, list_of_clusters: list[Cluster]) -> list[Cluster]:
+
+    if len(list_of_clusters) == 0:
+        list_of_clusters = [Cluster([jump])]
+    else:
+        newest_cluster = list_of_clusters[-1]
+        if len(newest_cluster.jumps) >= mpg.config.CLUSTER_SIZE:
+            list_of_clusters.append(Cluster([jump]))
+        else:
+            newest_cluster.insert_jump(jump)
+    
+    return list_of_clusters
+
+def pop_from_clusters(n_jumps_to_remove: int, list_of_clusters: list[Cluster]) -> list[Cluster]:
+
+    if n_jumps_to_remove <= 0:
+        return list_of_clusters
+    
+    cluster_size = mpg.config.CLUSTER_SIZE
+    if len(list_of_clusters) * cluster_size <= n_jumps_to_remove:
+        list_of_clusters = []
+        return list_of_clusters
+    else:
+        for i in range(len(list_of_clusters)):
+            index = len(list_of_clusters) - 1 - i
+            newest_cluster = list_of_clusters[index]
+
+            start = max(0, len(newest_cluster.jumps) - n_jumps_to_remove)
+            end = len(newest_cluster.jumps)
+            newest_cluster.remove_jumps(start, end)
+            n_jumps_to_remove = n_jumps_to_remove - (end - start)
+
+            if n_jumps_to_remove <= 0:
+                break
+        
+        new_list_of_clusters = []
+        for cluster in list_of_clusters:
+            if len(cluster.jumps) > 0:
+                new_list_of_clusters.append(cluster)
+        
+        return new_list_of_clusters
+
+def intersects_cluster_volume(jump: JumpType, cluster: Cluster) -> bool:
+
+    blocks_to_check = [jump.rel_start_block, jump.rel_finish_block]
+    blocks_to_check.extend(jump.blocks)
+
+    for block in blocks_to_check:
+        if ((cluster.volume[0][0] <= block.abs_position[0] <= cluster.volume[0][1]) and
+            (cluster.volume[1][0] <= block.abs_position[1] <= cluster.volume[1][1]) and
+            (cluster.volume[2][0] <= block.abs_position[2] <= cluster.volume[2][1])):
+            return True
 
     return False

@@ -7,6 +7,8 @@ MPG is free software: you can redistribute it and/or modify it under the terms o
 MPG is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with MPG. If not, see <https://www.gnu.org/licenses/>.
 """
+import mpg.config
+
 class Block:
 
     def __init__(self, name: str, rel_position: tuple[int, int, int]) -> None:
@@ -82,4 +84,69 @@ class JumpType:
             z = abs_start_block[2] - relative_block.rel_position[0]
         
         return (x, y, z)
+
+class Cluster():
+
+    def __init__(self, jumps: list[JumpType]):
+
+        self.jumps: list[JumpType] = jumps
+        self.volume = self.calculate_volume()
+    
+    def calculate_volume(self) -> tuple[tuple[int, int], tuple[int, int], tuple[int, int]]:
+
+        x_min = mpg.config.MC_WORLD_MAX_X
+        x_max = mpg.config.MC_WORLD_MIN_X
+        y_min = mpg.config.MC_WORLD_MAX_Y
+        y_max = mpg.config.MC_WORLD_MIN_Y
+        z_min = mpg.config.MC_WORLD_MAX_Z
+        z_max = mpg.config.MC_WORLD_MIN_Z
+
+        if len(self.jumps) == 0:
+            return ((x_min, x_max), (y_min, y_max), (z_min, z_max))
+
+        for jump in self.jumps:
+            if len(jump.blocks) > 0:
+                blocks_x_min = min([b.abs_position[0] for b in jump.blocks])
+                blocks_y_min = min([b.abs_position[1] for b in jump.blocks])
+                blocks_z_min = min([b.abs_position[2] for b in jump.blocks])
+                blocks_x_max = max([b.abs_position[0] for b in jump.blocks])
+                blocks_y_max = max([b.abs_position[1] for b in jump.blocks])
+                blocks_z_max = max([b.abs_position[2] for b in jump.blocks])
+            else:
+                blocks_x_min = mpg.config.MC_WORLD_MAX_X
+                blocks_y_min = mpg.config.MC_WORLD_MAX_Y
+                blocks_z_min = mpg.config.MC_WORLD_MAX_Z
+                blocks_x_max = mpg.config.MC_WORLD_MIN_X
+                blocks_y_max = mpg.config.MC_WORLD_MIN_Y
+                blocks_z_max = mpg.config.MC_WORLD_MIN_Z
+                
+            jump_x_min = min([jump.rel_start_block.abs_position[0], jump.rel_finish_block.abs_position[0], blocks_x_min])
+            jump_y_min = min([jump.rel_start_block.abs_position[1], jump.rel_finish_block.abs_position[1], blocks_y_min])
+            jump_z_min = min([jump.rel_start_block.abs_position[2], jump.rel_finish_block.abs_position[2], blocks_z_min])
+            jump_x_max = max([jump.rel_start_block.abs_position[0], jump.rel_finish_block.abs_position[0], blocks_x_max])
+            jump_y_max = max([jump.rel_start_block.abs_position[1], jump.rel_finish_block.abs_position[1], blocks_y_max])
+            jump_z_max = max([jump.rel_start_block.abs_position[2], jump.rel_finish_block.abs_position[2], blocks_z_max])
+
+            x_min = min(x_min, jump_x_min)
+            y_min = min(y_min, jump_y_min)
+            z_min = min(z_min, jump_z_min)
+            x_max = max(x_max, jump_x_max)
+            y_max = max(y_max, jump_y_max)
+            z_max = max(z_max, jump_z_max)
         
+        # Add margins because of the shortcut checker
+        x_min = x_min - 6
+        y_min = y_min - 3
+        z_min = z_min - 6
+        x_max = x_max + 6
+        y_max = y_max + 7
+        z_max = z_max + 6
+
+        return ((x_min, x_max), (y_min, y_max), (z_min, z_max))
+    
+    def insert_jump(self, jump: JumpType):
+        self.jumps.append(jump)
+        self.volume = self.calculate_volume()
+    
+    def remove_jumps(self, start_index: int, end_index: int):
+        del self.jumps[start_index:end_index]

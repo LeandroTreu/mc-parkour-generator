@@ -37,6 +37,7 @@ SPIRAL_TYPES = ["Even", "Random"]
 SPIRAL_ROTATIONS = ["counterclockwise", "clockwise"]
 DIFFICULTIES = ["easy", "medium", "hard"]
 PACE = ["slow", "medium", "fast"]
+CLUSTER_SIZE = 16
 
 def set_default_config() -> dict[str, Any]:
 

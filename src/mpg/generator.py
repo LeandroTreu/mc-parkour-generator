@@ -10,6 +10,7 @@ You should have received a copy of the GNU General Public License along with MPG
 import mpg.util
 from mpg.classes import JumpType
 from mpg.classes import Block
+from mpg.classes import Cluster
 import mpg.jumptypes
 import mpg.config
 import tkinter as tk
@@ -254,6 +255,7 @@ def generate_parkour(random_seed: bool,
 
     best_parkour_generated: list[JumpType] = []
     list_of_placed_jumps: list[JumpType] = []
+    list_of_clusters: list[Cluster] = []
 
     # Set seed for the RNG
     if random_seed:
@@ -267,6 +269,7 @@ def generate_parkour(random_seed: bool,
     startblock_instance = mpg.jumptypes.init_startblock(block_type)
     startblock_instance.set_absolut_coordinates(current_block_position, current_forward_direction)
     list_of_placed_jumps.append(startblock_instance)
+    list_of_clusters = mpg.util.append_to_clusters(startblock_instance, list_of_clusters)
 
     # Place the Control and Dispenser structures
     command_blocks_instance = mpg.jumptypes.init_commandcontrol(block_type)
@@ -338,6 +341,7 @@ def generate_parkour(random_seed: bool,
             finishblock_instance = mpg.jumptypes.init_finishblock(block_type)
             if mpg.util.can_be_placed(finishblock_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume, mc_version):
                 list_of_placed_jumps.append(finishblock_instance)
+                list_of_clusters = mpg.util.append_to_clusters(finishblock_instance, list_of_clusters)
                 no_placeable_jumps_found = False
             else:
                 no_placeable_jumps_found = True
@@ -377,6 +381,7 @@ def generate_parkour(random_seed: bool,
                             block.name = checkpoint_command_string
 
                     list_of_placed_jumps.append(cp_instance)
+                    list_of_clusters = mpg.util.append_to_clusters(cp_instance, list_of_clusters)
                     no_placeable_jumps_found = False
                     break
         else:
@@ -400,6 +405,7 @@ def generate_parkour(random_seed: bool,
                 # Check if can be placed
                 if mpg.util.can_be_placed(candidate_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume, mc_version):
                     list_of_placed_jumps.append(candidate_instance)
+                    list_of_clusters = mpg.util.append_to_clusters(candidate_instance, list_of_clusters)
                     y_level_balance += candidate_y_change
                     no_placeable_jumps_found = False
                     break
@@ -434,6 +440,7 @@ def generate_parkour(random_seed: bool,
 
                 bt_len = max(len(list_of_placed_jumps) - backtrack_depth, 1)
 
+                list_of_clusters = mpg.util.pop_from_clusters(backtrack_depth, list_of_clusters)
                 list_of_placed_jumps = list_of_placed_jumps[0:bt_len]
 
         # Set new absolute coordinates for next iteration
