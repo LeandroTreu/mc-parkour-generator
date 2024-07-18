@@ -1,0 +1,51 @@
+{
+ "allowedStructureTypes": [
+  "SingleBlock",
+  "TwoBlock",
+  "FourBlock"
+ ],
+ "blockType": "minecraft:quartz_block",
+ "checkpointsEnabled": true,
+ "checkpointsPeriod": 10,
+ "curvesSize": 0.5,
+ "difficulty": "medium",
+ "enforceParkourVolume": false,
+ "fillParkourVolumeWithAir": false,
+ "maxParkourLength": 1000,
+ "mcVersion": "1.21",
+ "pace": "medium",
+ "parkourAscending": true,
+ "parkourDescending": false,
+ "parkourType": "Straight",
+ "parkourVolume": [
+  [
+   0,
+   100
+  ],
+  [
+   100,
+   255
+  ],
+  [
+   0,
+   100
+  ]
+ ],
+ "plotColorScheme": "winter",
+ "plotCommandBlocks": true,
+ "plotFileType": "jpg",
+ "randomSeed": false,
+ "seed": 1730513968662242603,
+ "spiralRotation": "counterclockwise",
+ "spiralTurnProbability": 0.2,
+ "spiralTurnRate": 10,
+ "spiralType": "Even",
+ "startForwardDirection": "Xpos",
+ "startPosition": [
+  0,
+  150,
+  0
+ ],
+ "useAllBlocks": true,
+ "writeDatapackFiles": true
+}
