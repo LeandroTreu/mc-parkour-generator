@@ -8,7 +8,6 @@ MPG is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 You should have received a copy of the GNU General Public License along with MPG. If not, see <https://www.gnu.org/licenses/>.
 """
 import mpg.config
-from mpg.classes import JumpType
 import mpg.generator
 import time
 import mpg.gui
@@ -39,7 +38,7 @@ if __name__ == "__main__":
 
         # Generate Parkour
         start_time_generation = time.time()
-        seed, nr_jumptypes_filtered, nr_total_jumptypes, list_of_placed_jumps = mpg.generator.generate_parkour(
+        seed, nr_jumptypes_filtered, nr_total_jumptypes, list_of_placed_jumps, list_of_clusters = mpg.generator.generate_parkour(
                                 random_seed=settings["randomSeed"], 
                                 seed=settings["seed"], 
                                 list_of_allowed_structure_types=settings["allowedStructureTypes"],
@@ -93,6 +92,7 @@ if __name__ == "__main__":
                         plot_command_blocks=settings["plotCommandBlocks"],
                         plot_color_scheme=settings["plotColorScheme"],
                         plot_file_type=settings["plotFileType"],
-                        checkpoints_enabled=settings["checkpointsEnabled"])
+                        checkpoints_enabled=settings["checkpointsEnabled"],
+                        list_of_clusters=list_of_clusters)
         end_time = time.time()
         print(f"Plot time: {round(end_time-start_time, 3)} s")

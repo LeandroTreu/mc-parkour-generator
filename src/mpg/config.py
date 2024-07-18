@@ -37,7 +37,7 @@ SPIRAL_TYPES = ["Even", "Random"]
 SPIRAL_ROTATIONS = ["counterclockwise", "clockwise"]
 DIFFICULTIES = ["easy", "medium", "hard"]
 PACE = ["slow", "medium", "fast"]
-CLUSTER_SIZE = 16
+CLUSTER_SIZE = 8  # TODO: check if same parkour generated with different sizes, dynamic size depending on parkour type
 
 def set_default_config() -> dict[str, Any]:
 

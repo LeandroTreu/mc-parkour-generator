@@ -189,10 +189,14 @@ def can_be_placed(jumptype: JumpType,
             return False
     
     # Check if shortcut possible
-    for cluster in list_of_clusters:
+    for cluster_index, cluster in enumerate(list_of_clusters):
         if intersects_cluster_volume(jumptype, cluster):
-            # TODO: ignore newest jump
-            for earlier_jump in list_of_placed_jumps[:len(list_of_placed_jumps)-1]:
+            for earlier_jump_index, earlier_jump in enumerate(cluster.jumps):
+
+                # Don't check the last placed jump
+                if (cluster_index == len(list_of_clusters) - 1) and (earlier_jump_index == len(cluster.jumps) - 1):
+                    continue
+
                 # If start block not near earlier jump the no detailed checks necessary
                 if not near_jump(jumptype.rel_start_block, earlier_jump):
                     continue
@@ -225,11 +229,11 @@ def is_descending(jumptype: JumpType) -> bool:
 def append_to_clusters(jump: JumpType, list_of_clusters: list[Cluster]) -> list[Cluster]:
 
     if len(list_of_clusters) == 0:
-        list_of_clusters = [Cluster([jump])]
+        list_of_clusters = [Cluster(jump)]
     else:
         newest_cluster = list_of_clusters[-1]
         if len(newest_cluster.jumps) >= mpg.config.CLUSTER_SIZE:
-            list_of_clusters.append(Cluster([jump]))
+            list_of_clusters.append(Cluster(jump))
         else:
             newest_cluster.insert_jump(jump)
     

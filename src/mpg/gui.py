@@ -527,7 +527,8 @@ class Gui():
                         plot_command_blocks=self.settings["plotCommandBlocks"],
                         plot_color_scheme=self.settings["plotColorScheme"],
                         plot_file_type=self.settings["plotFileType"],
-                        checkpoints_enabled=self.settings["checkpointsEnabled"])
+                        checkpoints_enabled=self.settings["checkpointsEnabled"],
+                        list_of_clusters=self.list_of_clusters)
         
         self.refresh_image()
     
@@ -624,7 +625,7 @@ class Gui():
         if self.set_config():
             
             start_time = time.time()
-            seed, nr_jumptypes_filtered, nr_total_jumptypes, self.list_of_placed_jumps = mpg.generator.generate_parkour( 
+            seed, nr_jumptypes_filtered, nr_total_jumptypes, self.list_of_placed_jumps, self.list_of_clusters = mpg.generator.generate_parkour( 
                                     random_seed=self.settings["randomSeed"], 
                                     seed=self.settings["seed"], 
                                     list_of_allowed_structure_types=self.settings["allowedStructureTypes"],
@@ -678,7 +679,8 @@ class Gui():
                             plot_command_blocks=self.settings["plotCommandBlocks"],
                             plot_color_scheme=self.settings["plotColorScheme"],
                             plot_file_type=self.settings["plotFileType"],
-                            checkpoints_enabled=self.settings["checkpointsEnabled"])
+                            checkpoints_enabled=self.settings["checkpointsEnabled"],
+                            list_of_clusters=self.list_of_clusters)
                 end_time = time.time()
                 self.refresh_image()
                 plot_time = round(end_time-start_time, 3)

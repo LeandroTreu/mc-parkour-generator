@@ -251,7 +251,7 @@ def generate_parkour(random_seed: bool,
                      gui_window: tk.Tk | None,
                      block_type: str,
                      t_stop_event: threading.Event | None,
-                     mc_version: str) -> tuple[int, int, int, list[JumpType]]:
+                     mc_version: str) -> tuple[int, int, int, list[JumpType], list[Cluster]]:
 
     best_parkour_generated: list[JumpType] = []
     list_of_placed_jumps: list[JumpType] = []
@@ -313,7 +313,7 @@ def generate_parkour(random_seed: bool,
     while len(list_of_placed_jumps) < max_parkour_length + 1:
         
         if t_stop_event != None and t_stop_event.is_set():
-            return seed, nr_jumptypes_filtered, nr_total_jumptypes, []
+            return seed, nr_jumptypes_filtered, nr_total_jumptypes, [], []
 
         # Loading bar print
         if len(list_of_placed_jumps) % max(max_parkour_length//100, 1) == 0:
@@ -339,7 +339,7 @@ def generate_parkour(random_seed: bool,
         if len(list_of_placed_jumps) == max_parkour_length:
             # Place Finish Structure of the Parkour
             finishblock_instance = mpg.jumptypes.init_finishblock(block_type)
-            if mpg.util.can_be_placed(finishblock_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume, mc_version):
+            if mpg.util.can_be_placed(finishblock_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume, mc_version, list_of_clusters):
                 list_of_placed_jumps.append(finishblock_instance)
                 list_of_clusters = mpg.util.append_to_clusters(finishblock_instance, list_of_clusters)
                 no_placeable_jumps_found = False
@@ -350,7 +350,7 @@ def generate_parkour(random_seed: bool,
             checkpoint_instances = mpg.jumptypes.init_checkpointblocks(block_type)
 
             for cp_instance in checkpoint_instances:
-                if mpg.util.can_be_placed(cp_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume, mc_version):
+                if mpg.util.can_be_placed(cp_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume, mc_version, list_of_clusters):
 
                     c_block_abs = command_blocks_instance.blocks[5].abs_position
 
@@ -385,32 +385,33 @@ def generate_parkour(random_seed: bool,
                     no_placeable_jumps_found = False
                     break
         else:
-            list_of_candidates = deepcopy(list_of_jumptypes_filtered)
+            list_of_candidates = list_of_jumptypes_filtered
+            list_of_indexes = list(range(len(list_of_candidates)))
             no_placeable_jumps_found = True
-            while len(list_of_candidates) > 0:
+            while len(list_of_indexes) > 0:
 
                 # Choose randomly from list of allowed jumptypes
-                random_index = random.randint(0, len(list_of_candidates)-1)
+                random_index = random.choice(list_of_indexes)
                 candidate_instance = deepcopy(list_of_candidates[random_index])
 
                 # Keep a balanced y-level when both ascending and descending JumpTypes are set
                 candidate_y_change = candidate_instance.rel_start_block.rel_position[1] + candidate_instance.rel_finish_block.rel_position[1]
-                if ascending and descending:
+                if (ascending and descending) or use_all_blocks:
                     if (y_level_balance > 0 and candidate_y_change > 0) or (y_level_balance < 0 and candidate_y_change < 0):
                         random_nr = random.randint(0, abs(y_level_balance))
                         if random_nr != 0:
-                            list_of_candidates.pop(random_index)
+                            list_of_indexes.remove(random_index)
                             continue
                 
                 # Check if can be placed
-                if mpg.util.can_be_placed(candidate_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume, mc_version):
+                if mpg.util.can_be_placed(candidate_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume, mc_version, list_of_clusters):
                     list_of_placed_jumps.append(candidate_instance)
                     list_of_clusters = mpg.util.append_to_clusters(candidate_instance, list_of_clusters)
                     y_level_balance += candidate_y_change
                     no_placeable_jumps_found = False
                     break
                 else:
-                    list_of_candidates.pop(random_index)
+                    list_of_indexes.remove(random_index)
                     continue
 
         # No placable JumpTypes found
@@ -439,9 +440,13 @@ def generate_parkour(random_seed: bool,
                             backtrack_depth = min(backtrack_depth, checkpoint_distance)
 
                 bt_len = max(len(list_of_placed_jumps) - backtrack_depth, 1)
+                
+                # Save current placed jumps if longest so far
+                if len(list_of_placed_jumps) > len(best_parkour_generated):
+                    best_parkour_generated = list_of_placed_jumps[:]
 
                 list_of_clusters = mpg.util.pop_from_clusters(backtrack_depth, list_of_clusters)
-                list_of_placed_jumps = list_of_placed_jumps[0:bt_len]
+                del list_of_placed_jumps[bt_len:]
 
         # Set new absolute coordinates for next iteration
         current_block_position = list_of_placed_jumps[-1].rel_finish_block.abs_position
@@ -458,9 +463,9 @@ def generate_parkour(random_seed: bool,
                                                 spiral_turn_prob, 
                                                 spiral_rotation,
                                                 spiral_turn_counter)
-        
-        if len(list_of_placed_jumps) > len(best_parkour_generated):
-            best_parkour_generated = deepcopy(list_of_placed_jumps)
+
+    if len(best_parkour_generated) < len(list_of_placed_jumps):
+        best_parkour_generated = list_of_placed_jumps
 
     if not gui_enabled:
         print(f"] {len(best_parkour_generated)-1}/{max_parkour_length}")
@@ -470,4 +475,4 @@ def generate_parkour(random_seed: bool,
         best_parkour_generated.append(command_blocks_instance)
         best_parkour_generated.append(dispenser_instance)
 
-    return seed, nr_jumptypes_filtered, nr_total_jumptypes, best_parkour_generated
+    return seed, nr_jumptypes_filtered, nr_total_jumptypes, best_parkour_generated, list_of_clusters

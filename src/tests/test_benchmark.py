@@ -12,7 +12,7 @@ class TestDatapack(unittest.TestCase):
 
         directory_path = Path("tests")
 
-        test_configs = ["test_benchmark_straight_1000_settings.json"]
+        test_configs = ["test_benchmark_straight_10000_settings.json"]
 
         for test_config in test_configs:
             print(f"Running: {test_config}")
@@ -24,7 +24,7 @@ class TestDatapack(unittest.TestCase):
 
             # Generate Parkour
             start_time = time.time()
-            seed, nr_jumptypes_filtered, nr_total_jumptypes, list_of_placed_jumps = mpg.generator.generate_parkour(
+            seed, nr_jumptypes_filtered, nr_total_jumptypes, list_of_placed_jumps, list_of_clusters = mpg.generator.generate_parkour(
                                     random_seed=settings["randomSeed"], 
                                     seed=settings["seed"], 
                                     list_of_allowed_structure_types=settings["allowedStructureTypes"],

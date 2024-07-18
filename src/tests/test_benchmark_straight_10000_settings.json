@@ -11,7 +11,7 @@
  "difficulty": "medium",
  "enforceParkourVolume": false,
  "fillParkourVolumeWithAir": false,
- "maxParkourLength": 1000,
+ "maxParkourLength": 10000,
  "mcVersion": "1.21",
  "pace": "medium",
  "parkourAscending": true,
