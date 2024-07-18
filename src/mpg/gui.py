@@ -654,7 +654,7 @@ class Gui():
                                     t_stop_event=self.stop_thread_event,
                                     mc_version=self.settings["mcVersion"])
             end_time = time.time()
-            generation_time = round(end_time-start_time, 3)
+            generation_time = end_time-start_time
 
             # If list_of_placed_jumps is empty, then the parkour generator was canceled by the stop_thread_event
             if len(self.list_of_placed_jumps) > 0:
@@ -670,7 +670,7 @@ class Gui():
                                             settings_config=self.settings,
                                             directory_path=Path.cwd())
                 end_time = time.time()
-                datapack_time = round(end_time-start_time, 3)
+                datapack_time = end_time-start_time
 
                 start_time = time.time()
                 mpg.plotting.plot_parkour(list_of_placed_jumps=self.list_of_placed_jumps, 
@@ -683,9 +683,9 @@ class Gui():
                             list_of_clusters=self.list_of_clusters)
                 end_time = time.time()
                 self.refresh_image()
-                plot_time = round(end_time-start_time, 3)
+                plot_time = end_time-start_time
 
-                self.task_info_label["text"] = f"Generation: {generation_time}s    Datapack: {datapack_time}s    Plot: {plot_time}s"
+                self.task_info_label["text"] = f"Generation: {generation_time:0.3f}s    Datapack: {datapack_time:0.3f}s    Plot: {plot_time:0.3f}s"
                 if self.settings["checkpointsEnabled"]:
                     self.jumps_placed_l["text"] = f"JumpTypes used: {nr_jumptypes_filtered}/{nr_total_jumptypes}    Jumps placed: {len(self.list_of_placed_jumps)-3}/{self.settings["maxParkourLength"]}"
                 else:
