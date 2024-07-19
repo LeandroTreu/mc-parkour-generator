@@ -46,7 +46,7 @@ def set_default_config() -> dict[str, Any]:
     config["blockType"] = "minecraft:quartz_block"
     config["checkpointsEnabled"] = True
     config["checkpointsPeriod"] = 10
-    config["curvesSize"] = 0.5
+    config["curvesSize"] = 0.1
     config["difficulty"] = "medium"
     config["enforceParkourVolume"] = False
     config["fillParkourVolumeWithAir"] = False

@@ -7,7 +7,7 @@
  "blockType": "minecraft:quartz_block",
  "checkpointsEnabled": true,
  "checkpointsPeriod": 10,
- "curvesSize": 0.5,
+ "curvesSize": 0.1,
  "difficulty": "medium",
  "enforceParkourVolume": false,
  "fillParkourVolumeWithAir": false,

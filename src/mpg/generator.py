@@ -124,6 +124,17 @@ def filter_jumptypes(list_of_allowed_structure_types: list[str], use_all_blocks:
 
     return list_of_jumptypes_filtered, len(list_of_jumptypes_filtered), len(list_of_jumptypes)
 
+def turn(direction: str, current_index: int) -> int:
+
+    if direction == "left":
+        new_index = current_index - 1
+        if new_index < 0:
+            new_index = 3
+    else:
+        new_index = (current_index + 1) % 4
+    
+    return new_index
+
 
 def change_direction(current_forward_direction: str,
                      parkour_type: str,
@@ -135,58 +146,47 @@ def change_direction(current_forward_direction: str,
                      spiral_rotation: str,
                      spiral_turn_counter: int) -> tuple[str, int, int]:
 
+    old_direction_index = mpg.config.DIRECTIONS.index(current_forward_direction)
+    new_direction_index = old_direction_index
+
     if parkour_type == "Random":
-        # Choose possible other directions at random
         random_bit = random.randint(0, 1)
-        old_direction_index = mpg.config.DIRECTIONS.index(
-            current_forward_direction)
-
         if random_bit == 0:
-            if old_direction_index == 0:
-                new_direction_index = 3
-            else:
-                new_direction_index = old_direction_index - 1
+            new_direction_index = old_direction_index
         else:
-            new_direction_index = (old_direction_index + 1) % 4
-
-        return mpg.config.DIRECTIONS[new_direction_index], curves_direction, spiral_turn_counter
+            random_bit = random.randint(0, 1)
+            if random_bit == 0:
+                new_direction_index = turn("left", old_direction_index)
+            else: 
+                new_direction_index = turn("right", old_direction_index)
 
     elif parkour_type == "Straight":
-        return current_forward_direction, curves_direction, spiral_turn_counter  # Keep same direction
+        new_direction_index = old_direction_index
 
     elif parkour_type == "Curves":
 
-        curves_size = int((curves_size * 10) // 1)
+        curves_size = int((curves_size * 50) // 1)
         if curves_size < 1:
             curves_size = 1
         random_nr = random.randint(0, curves_size-1)
 
         if random_nr == 0:
-
-            old_direction_index = mpg.config.DIRECTIONS.index(
-                current_forward_direction)
-
             if curves_direction == -1:
                 curves_direction = 0
-                new_direction_index = (old_direction_index + 1) % 4
+                new_direction_index = turn("right", old_direction_index)
             elif curves_direction == 0:
                 random_bit = random.randint(0, 1)
                 if random_bit == 0:
                     curves_direction = -1
-                    new_direction_index = (old_direction_index - 1)
+                    new_direction_index = turn("left", old_direction_index)
                 else:
                     curves_direction = 1
-                    new_direction_index = (old_direction_index + 1) % 4
+                    new_direction_index = turn("right", old_direction_index)
             else:
                 curves_direction = 0
-                new_direction_index = (old_direction_index - 1)
-
-            if new_direction_index < 0:
-                new_direction_index = 3
-
-            return mpg.config.DIRECTIONS[new_direction_index], curves_direction, spiral_turn_counter
+                new_direction_index = turn("left", old_direction_index)
         else:
-            return current_forward_direction, curves_direction, spiral_turn_counter
+            new_direction_index = old_direction_index
 
     elif parkour_type == "Spiral":
         if spiral_type == "Even":
@@ -197,33 +197,22 @@ def change_direction(current_forward_direction: str,
                 spiral_turn_prob = 0
                 spiral_turn_counter += 1
         else:
-            spiral_turn_prob = int(spiral_turn_prob * 100)
+            spiral_turn_prob = ((spiral_turn_prob * 10) // 1) * 10
             if spiral_turn_prob > 100:
                 spiral_turn_prob = 100
             if spiral_turn_prob < 0:
                 spiral_turn_prob = 0
 
-        random_nr = random.randint(0, 100)
-        if random_nr <= spiral_turn_prob:
-
-            old_direction_index = mpg.config.DIRECTIONS.index(
-                current_forward_direction)
-
+        random_nr = random.randint(0, 99)
+        if random_nr < spiral_turn_prob:
             if spiral_rotation == "clockwise":
-
-                new_direction_index = (old_direction_index + 1) % 4
+                new_direction_index = turn("right", old_direction_index)
             else:
-                new_direction_index = old_direction_index - 1
-
-            if new_direction_index < 0:
-                new_direction_index = 3
-
-            return mpg.config.DIRECTIONS[new_direction_index], curves_direction, spiral_turn_counter
+                new_direction_index = turn("left", old_direction_index)
         else:
-            return current_forward_direction, curves_direction, spiral_turn_counter
+            new_direction_index = old_direction_index
 
-    # Default case
-    return current_forward_direction, curves_direction, spiral_turn_counter
+    return mpg.config.DIRECTIONS[new_direction_index], curves_direction, spiral_turn_counter
 
 def generate_parkour(random_seed: bool,
                      seed: int,
