@@ -105,7 +105,7 @@ def place_control_command_blocks(command_blocks_instance: JumpType,
     dispenser_instance.rel_finish_block.name = f"minecraft:stone_button[face=floor, facing={button_facing_direction}]"
 
 
-def filter_jumptypes(list_of_allowed_structure_types: list[str], use_all_blocks: bool, difficulty: str, pace: str, ascending: bool, descending: bool, block_type: str) -> tuple[list[JumpType], int , int]:
+def filter_jumptypes(dict_of_allowed_structure_types: dict[str, bool], use_all_blocks: bool, ascending: bool, descending: bool, block_type: str) -> tuple[list[JumpType], int , int]:
 
     list_of_jumptypes = mpg.jumptypes.init_jumptypes(block_type=block_type)
     list_of_jumptypes_filtered: list[JumpType] = []
@@ -113,9 +113,9 @@ def filter_jumptypes(list_of_allowed_structure_types: list[str], use_all_blocks:
         list_of_jumptypes_filtered = list_of_jumptypes
     else:
         for jumptype in list_of_jumptypes:
-            if jumptype.structure_type in list_of_allowed_structure_types:
-                if (pace == "fast" and jumptype.pace in ["fast", "medium"]) or (pace == "medium" and jumptype.pace in ["medium", "slow"]) or (pace == "slow" and jumptype.pace == "slow"):
-                    if difficulty == "hard" or (difficulty == "medium" and (jumptype.difficulty in ["easy", "medium"])) or (difficulty == "easy" and jumptype.difficulty == "easy"):
+            if dict_of_allowed_structure_types[jumptype.structure_type] is True:
+                if dict_of_allowed_structure_types[jumptype.pace] is True:
+                    if dict_of_allowed_structure_types[jumptype.difficulty] is True:
                         if not ascending and mpg.util.is_ascending(jumptype):
                             continue
                         if not descending and mpg.util.is_descending(jumptype):
@@ -216,7 +216,7 @@ def change_direction(current_forward_direction: str,
 
 def generate_parkour(random_seed: bool,
                      seed: int,
-                     list_of_allowed_structure_types: list[str],
+                     dict_of_allowed_structure_types: dict[str, bool],
                      parkour_start_position: tuple[int, int, int],
                      parkour_start_forward_direction: str,
                      parkour_type: str,
@@ -225,8 +225,6 @@ def generate_parkour(random_seed: bool,
                      checkpoints_enabled: bool,
                      checkpoints_period: int,
                      use_all_blocks: bool,
-                     difficulty: str,
-                     pace: str,
                      ascending: bool,
                      descending: bool,
                      curves_size: float,
@@ -274,16 +272,17 @@ def generate_parkour(random_seed: bool,
 
     # Pre-filter allowed jumptypes
     list_of_jumptypes_filtered, nr_jumptypes_filtered, nr_total_jumptypes = filter_jumptypes(
-        list_of_allowed_structure_types,
+        dict_of_allowed_structure_types,
         use_all_blocks,
-        difficulty,
-        pace,
         ascending,
         descending,
         block_type)
 
     if not gui_enabled:
         print(f"Number of filtered jumptypes: {len(list_of_jumptypes_filtered)}")
+    
+    if nr_jumptypes_filtered == 0:
+        return seed, nr_jumptypes_filtered, nr_total_jumptypes, [], []
 
     y_level_balance = 0
     curves_direction = 0

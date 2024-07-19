@@ -129,28 +129,29 @@ def init_jumptypes(block_type: str) -> list[JumpType]:
                         continue
 
                 # TODO: check difficulty and pace in-game
-                # Set difficulty
+                # Set difficulty and pace
                 if fw_delta == 5:
                     d = "hard"
+                    p = "fast"
                 elif y_level == 1 and fw_delta > 3:
                     d = "hard"
+                    p = "fast"
                 elif y_level == 1 and abs(lr_delta) > 2:
                     d = "hard"
+                    p = "fast"
                 elif fw_delta > 3:
                     d = "medium"
+                    p = "fast"
                 elif fw_delta == 3 and abs(lr_delta) > 2:
                     d = "medium"
-                else:
-                    d = "easy"
-
-                # Set pace
-                if fw_delta > 3:
                     p = "fast"
-                elif fw_delta == 2:
+                elif fw_delta == 2 and abs(lr_delta) <= 2:
+                    d = "easy"
                     p = "slow"
                 else:
-                    p = "medium"
-                
+                    d = "easy"
+                    p = "fast"
+
                 start_block_tuple = (fw_delta, y_level, lr_delta)
                 name = str(start_block_tuple)
 

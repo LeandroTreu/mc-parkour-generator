@@ -1,19 +1,22 @@
 {
- "allowedStructureTypes": [
-  "SingleBlock",
-  "TwoBlock",
-  "FourBlock"
- ],
+ "allowedStructureTypes": {
+  "SingleBlock": true,
+  "TwoBlock": true,
+  "FourBlock": true,
+  "easy": true,
+  "medium": true,
+  "hard": false,
+  "slow": false,
+  "fast": true
+ },
  "blockType": "minecraft:quartz_block",
  "checkpointsEnabled": true,
  "checkpointsPeriod": 10,
  "curvesSize": 0.1,
- "difficulty": "medium",
  "enforceParkourVolume": false,
  "fillParkourVolumeWithAir": false,
  "maxParkourLength": 50,
  "mcVersion": "1.21",
- "pace": "medium",
  "parkourAscending": true,
  "parkourDescending": false,
  "parkourType": "Spiral",

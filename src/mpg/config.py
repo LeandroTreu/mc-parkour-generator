@@ -28,31 +28,29 @@ MC_MAX_FILL_VOLUME_CUBE_WIDTH = 32
 MAX_PARKOUR_LENGTH = 10000
 MAX_VOLUME = 10000 * MC_MAX_FILL_VOLUME
 DIRECTIONS = ["Xpos", "Zneg", "Xneg", "Zpos"]
-ALLOWED_STRUCTURE_TYPES_NAMES = ["SingleBlock", "TwoBlock", "FourBlock"]
+ALLOWED_STRUCTURE_TYPES_DICT = {"SingleBlock": True, "TwoBlock": True, "FourBlock": True, 
+                                "easy": True, "medium": True, "hard": False, 
+                                "slow": False, "fast": True}
 PARKOUR_TYPE_NAMES = ["Straight", "Curves", "Spiral", "Random"]
 PLOT_COLORSCHEMES = ["winter", "viridis", "plasma", "gray", "hot", "summer", "hsv", "copper"]
 PLOT_FILE_TYPES = ["jpg", "png"]
 MC_VERSIONS = ["1.21", "1.18 - 1.20.6", "1.13 - 1.17.1"]
 SPIRAL_TYPES = ["Even", "Random"]
 SPIRAL_ROTATIONS = ["counterclockwise", "clockwise"]
-DIFFICULTIES = ["easy", "medium", "hard"]
-PACE = ["slow", "medium", "fast"]
 CLUSTER_SIZE = 8  # TODO: dynamic size depending on parkour type
 
 def set_default_config() -> dict[str, Any]:
 
     config = {}
-    config["allowedStructureTypes"] = ALLOWED_STRUCTURE_TYPES_NAMES
+    config["allowedStructureTypes"] = ALLOWED_STRUCTURE_TYPES_DICT
     config["blockType"] = "minecraft:quartz_block"
     config["checkpointsEnabled"] = True
     config["checkpointsPeriod"] = 10
     config["curvesSize"] = 0.1
-    config["difficulty"] = "medium"
     config["enforceParkourVolume"] = False
     config["fillParkourVolumeWithAir"] = False
     config["maxParkourLength"] = 50
     config["mcVersion"] = "1.21"
-    config["pace"] = "medium"
     config["parkourAscending"] = True
     config["parkourDescending"] = False
     config["parkourType"] = "Spiral"
@@ -238,16 +236,13 @@ def check_config(config: dict[str, Any]) -> str:
         error_string += "useAllBlocks: wrong input format. Only true or false are allowed.\n"
     
     try:
-        for e in config["allowedStructureTypes"]:
-            if e not in ALLOWED_STRUCTURE_TYPES_NAMES:
-                error_string += f"allowedStructureTypes: {e} is not a valid structure type. Allowed strings are: {ALLOWED_STRUCTURE_TYPES_NAMES}\n"
+        for key, value in config["allowedStructureTypes"].items():
+            if key not in ALLOWED_STRUCTURE_TYPES_DICT.keys():
+                error_string += f"allowedStructureTypes: \"{key}\" is not a valid option. Allowed strings are: {list(ALLOWED_STRUCTURE_TYPES_DICT.keys())}\n"
+            if type(value) is not bool:
+                error_string += f"allowedStructureTypes: wrong input format. Needs to be a dict[str, bool]\n"
     except:
-        error_string += "allowedStructureTypes: wrong input format. Needs to be a list of strings.\n"
-
-    if config["difficulty"] not in DIFFICULTIES:
-        error_string += f"difficulty: wrong input format. Allowed strings are: {DIFFICULTIES}\n"
-    if config["pace"] not in PACE:
-        error_string += f"pace: wrong input format. Allowed strings are: {PACE}\n"
+        error_string += f"allowedStructureTypes: wrong input format. Needs to be a dict[str, bool]\n"
 
     t = config["parkourType"]
     if t not in PARKOUR_TYPE_NAMES:

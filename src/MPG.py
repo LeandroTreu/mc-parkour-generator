@@ -41,7 +41,7 @@ if __name__ == "__main__":
         seed, nr_jumptypes_filtered, nr_total_jumptypes, list_of_placed_jumps, list_of_clusters = mpg.generator.generate_parkour(
                                 random_seed=settings["randomSeed"], 
                                 seed=settings["seed"], 
-                                list_of_allowed_structure_types=settings["allowedStructureTypes"],
+                                dict_of_allowed_structure_types=settings["allowedStructureTypes"],
                                 parkour_start_position=settings["startPosition"],
                                 parkour_start_forward_direction=settings["startForwardDirection"],
                                 parkour_type=settings["parkourType"],
@@ -50,8 +50,6 @@ if __name__ == "__main__":
                                 checkpoints_enabled=settings["checkpointsEnabled"],
                                 checkpoints_period=settings["checkpointsPeriod"],
                                 use_all_blocks=settings["useAllBlocks"],
-                                difficulty=settings["difficulty"],
-                                pace=settings["pace"],
                                 ascending=settings["parkourAscending"],
                                 descending=settings["parkourDescending"],
                                 curves_size=settings["curvesSize"],

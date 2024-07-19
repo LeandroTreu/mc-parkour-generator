@@ -14,16 +14,17 @@ Supported Java Edition versions: `1.13 - 1.21`
 </p>
 
 ## Features
-* Fast generation for hundreds of blocks
+* Fast generation for thousands of jumps
 * Checks for shortcuts and world boundary
-* Specify start location and a volume where the parkour should be generated in
+* Settings for start location and volume where the parkour should be generated
 * Automatic checkpoint system:
     * Set after how many jumps a checkpoint should be placed
     * Respawn at a checkpoint by using the fishing rod
 * Many different jump-types:
     * Ascending and descending jumps
     * Set difficulty and pace of jumps
-* Different parkour types: Straight, Curves, Spiral, Random
+* Different parkour types:
+    * Straight, Curves, Spiral, Random
 
 ## How to use
 The app creates a datapack which you can copy and paste into your Minecraft world's datapack folder.
