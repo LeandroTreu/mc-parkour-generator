@@ -142,7 +142,7 @@ def init_jumptypes(block_type: str) -> list[JumpType]:
                 elif fw_delta > 3:
                     d = "medium"
                     p = "fast"
-                elif fw_delta == 3 and abs(lr_delta) > 2:
+                elif fw_delta == 3 and (abs(lr_delta) > 2 or y_level == 1) and lr_delta != 0:
                     d = "medium"
                     p = "fast"
                 elif fw_delta == 2 and abs(lr_delta) <= 2:
