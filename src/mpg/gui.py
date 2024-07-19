@@ -528,7 +528,8 @@ class Gui():
                         plot_color_scheme=self.settings["plotColorScheme"],
                         plot_file_type=self.settings["plotFileType"],
                         checkpoints_enabled=self.settings["checkpointsEnabled"],
-                        list_of_clusters=self.list_of_clusters)
+                        list_of_clusters=self.list_of_clusters,
+                        draw_clusters=False)
         
         self.refresh_image()
     
@@ -680,7 +681,8 @@ class Gui():
                             plot_color_scheme=self.settings["plotColorScheme"],
                             plot_file_type=self.settings["plotFileType"],
                             checkpoints_enabled=self.settings["checkpointsEnabled"],
-                            list_of_clusters=self.list_of_clusters)
+                            list_of_clusters=self.list_of_clusters,
+                            draw_clusters=False)
                 end_time = time.time()
                 self.refresh_image()
                 plot_time = end_time-start_time

@@ -19,7 +19,8 @@ def plot_parkour(list_of_placed_jumps: list[JumpType],
                  plot_color_scheme: str,
                  plot_file_type: str,
                  checkpoints_enabled: bool,
-                 list_of_clusters: list[Cluster]) -> None:
+                 list_of_clusters: list[Cluster],
+                 draw_clusters: bool) -> None:
 
     fig = plt.figure(figsize=(10, 8)) # type: ignore
     ax = fig.add_subplot(projection='3d') # type: ignore
@@ -94,27 +95,27 @@ def plot_parkour(list_of_placed_jumps: list[JumpType],
     ax.scatter(x_axis, y_axis, z_axis, c=z_axis, # type: ignore
                cmap=plot_color_scheme, marker="s", s=2, alpha=1) # type: ignore
 
-    # TODO: only in debug mode
     # Plot the clusters
-    box_colors = ["red", "orange", "green", "blue", "purple"]
-    for i, cluster in enumerate(list_of_clusters):
-        x_axis = []
-        y_axis = []
-        z_axis = []
-        x_min = cluster.volume[0][0]
-        y_min = cluster.volume[2][0]
-        z_min = cluster.volume[1][0]
-        x_max = cluster.volume[0][1]
-        y_max = cluster.volume[2][1]
-        z_max = cluster.volume[1][1]
+    if draw_clusters:
+        box_colors = ["red", "orange", "green", "blue", "purple"]
+        for i, cluster in enumerate(list_of_clusters):
+            x_axis = []
+            y_axis = []
+            z_axis = []
+            x_min = cluster.volume[0][0]
+            y_min = cluster.volume[2][0]
+            z_min = cluster.volume[1][0]
+            x_max = cluster.volume[0][1]
+            y_max = cluster.volume[2][1]
+            z_max = cluster.volume[1][1]
 
-        x_axis.extend([x_min, x_min, x_min, x_min, x_min, x_max, x_max, x_min, x_max, x_max, x_min, x_max, x_max, x_min, x_max, x_max])
-        y_axis.extend([y_min, y_min, y_max, y_max, y_min, y_min, y_min, y_min, y_min, y_max, y_max, y_max, y_max, y_max, y_max, y_min])
-        z_axis.extend([z_min, z_max, z_max, z_min, z_min, z_min, z_max, z_max, z_max, z_max, z_max, z_max, z_min, z_min, z_min, z_min])
-        color = box_colors[i % len(box_colors)]
-        ax.plot(x_axis, y_axis, z_axis, # type: ignore
-                linestyle="-", linewidth=0.75,
-                c=color, marker="s", markersize=0)
+            x_axis.extend([x_min, x_min, x_min, x_min, x_min, x_max, x_max, x_min, x_max, x_max, x_min, x_max, x_max, x_min, x_max, x_max])
+            y_axis.extend([y_min, y_min, y_max, y_max, y_min, y_min, y_min, y_min, y_min, y_max, y_max, y_max, y_max, y_max, y_max, y_min])
+            z_axis.extend([z_min, z_max, z_max, z_min, z_min, z_min, z_max, z_max, z_max, z_max, z_max, z_max, z_min, z_min, z_min, z_min])
+            color = box_colors[i % len(box_colors)]
+            ax.plot(x_axis, y_axis, z_axis, # type: ignore
+                    linestyle="-", linewidth=0.75,
+                    c=color, marker="s", markersize=0)
     
     # Axis calculations
     if enforce_parkour_volume:

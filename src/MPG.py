@@ -93,6 +93,7 @@ if __name__ == "__main__":
                         plot_color_scheme=settings["plotColorScheme"],
                         plot_file_type=settings["plotFileType"],
                         checkpoints_enabled=settings["checkpointsEnabled"],
-                        list_of_clusters=list_of_clusters)
+                        list_of_clusters=list_of_clusters,
+                        draw_clusters=False)
         end_time = time.time()
         print(f"Plot time: {round(end_time-start_time, 3)} s")

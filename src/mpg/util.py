@@ -189,25 +189,42 @@ def can_be_placed(jumptype: JumpType,
             return False
     
     # Check if shortcut possible
-    for cluster_index, cluster in enumerate(list_of_clusters):
-        if intersects_cluster_volume(jumptype, cluster):
-            for earlier_jump_index, earlier_jump in enumerate(cluster.jumps):
+    use_clusters = True
+    if use_clusters:
+        for cluster_index, cluster in enumerate(list_of_clusters):
+            if intersects_cluster_volume(jumptype, cluster):
+                for earlier_jump_index, earlier_jump in enumerate(cluster.jumps):
 
-                # Don't check the last placed jump
-                if (cluster_index == len(list_of_clusters) - 1) and (earlier_jump_index == len(cluster.jumps) - 1):
-                    continue
+                    # Don't check the last placed jump
+                    if (cluster_index == len(list_of_clusters) - 1) and (earlier_jump_index == len(cluster.jumps) - 1):
+                        continue
 
-                # If start block not near earlier jump the no detailed checks necessary
-                if not near_jump(jumptype.rel_start_block, earlier_jump):
-                    continue
+                    # If start block not near earlier jump the no detailed checks necessary
+                    if not near_jump(jumptype.rel_start_block, earlier_jump):
+                        continue
 
-                if shortcut_possible(jumptype.rel_start_block, earlier_jump):
-                    return False
-                if shortcut_possible(jumptype.rel_finish_block, earlier_jump):
-                    return False
-                for block in jumptype.blocks:
-                    if shortcut_possible(block, earlier_jump):
+                    if shortcut_possible(jumptype.rel_start_block, earlier_jump):
                         return False
+                    if shortcut_possible(jumptype.rel_finish_block, earlier_jump):
+                        return False
+                    for block in jumptype.blocks:
+                        if shortcut_possible(block, earlier_jump):
+                            return False
+    else:
+        # Old version without clusters for debug
+        for earlier_jump in list_of_placed_jumps[0:len(list_of_placed_jumps)-1]:
+
+            # If start block not near earlier jump the no detailed checks necessary
+            if not near_jump(jumptype.rel_start_block, earlier_jump):
+                continue
+
+            if shortcut_possible(jumptype.rel_start_block, earlier_jump):
+                return False
+            if shortcut_possible(jumptype.rel_finish_block, earlier_jump):
+                return False
+            for block in jumptype.blocks:
+                if shortcut_possible(block, earlier_jump):
+                    return False
 
     return True
 
