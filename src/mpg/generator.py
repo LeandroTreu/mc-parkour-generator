@@ -63,25 +63,36 @@ def place_control_command_blocks(command_blocks_instance: JumpType,
     command_blocks_instance.blocks = blocks
     command_blocks_instance.set_absolut_coordinates(abs_position, start_forward_direction)
 
-    # TODO: Clearer string formatting
     for b in command_blocks_instance.blocks:
         if b.name == "command_block_1_string":
             t = command_blocks_instance.blocks[7]
-            b.name = f"minecraft:chain_command_block[facing={cb_facing_direction}]" + "{Command:\"" + f"fill {t.abs_position[0]} {t.abs_position[1]} {
-                t.abs_position[2]} {t.abs_position[0]} {t.abs_position[1]} {t.abs_position[2]} minecraft:redstone_block replace\"" + "}"
+            b.name = "".join([  f"minecraft:chain_command_block[facing={cb_facing_direction}]",
+                                "{",
+                                f"Command:\"fill {t.abs_position[0]} {t.abs_position[1]} {t.abs_position[2]} {t.abs_position[0]} {t.abs_position[1]} {t.abs_position[2]} minecraft:redstone_block replace\"",
+                                "}"
+                            ])
     
         if b.name == "command_block_2_string":
             t = command_blocks_instance.blocks[7]
-            b.name = f"minecraft:repeating_command_block[facing={cb_facing_direction}]" + "{Command:\"" + f"fill {t.abs_position[0]} {
-                t.abs_position[1]} {t.abs_position[2]} {t.abs_position[0]} {t.abs_position[1]} {t.abs_position[2]} minecraft:air replace\"" + "}"
+            b.name = "".join([  f"minecraft:repeating_command_block[facing={cb_facing_direction}]",
+                                "{",
+                                f"Command:\"fill {t.abs_position[0]} {t.abs_position[1]} {t.abs_position[2]} {t.abs_position[0]} {t.abs_position[1]} {t.abs_position[2]} minecraft:air replace\"",
+                                "}"
+                            ])
     
         if b.name == "command_block_3_string":
-            b.name = f"minecraft:repeating_command_block[facing={cb_facing_direction}]" + "{Command:\"" + \
-                f"kill @e[type=minecraft:fishing_bobber]\"" + "}"
+            b.name = "".join([  f"minecraft:repeating_command_block[facing={cb_facing_direction}]",
+                                "{",
+                                f"Command:\"kill @e[type=minecraft:fishing_bobber]\"",
+                                "}"
+                            ])
 
         if b.name == "command_block_4_string":
-            b.name = f"minecraft:repeating_command_block[facing={cb_facing_direction}]" + "{Command:\"" + f"execute at @e[type=minecraft:fishing_bobber] run tp @p {
-                world_spawn[0]} {world_spawn[1]+1} {world_spawn[2]} {rotation_degree} 25\"" + "}"
+            b.name = "".join([  f"minecraft:repeating_command_block[facing={cb_facing_direction}]",
+                                "{",
+                                f"Command:\"execute at @e[type=minecraft:fishing_bobber] run tp @p {world_spawn[0]} {world_spawn[1]+1} {world_spawn[2]} {rotation_degree} 25\"",
+                                "}"
+                            ])
 
 
     # Place command block that gives the player a checkpoint teleporter
