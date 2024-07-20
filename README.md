@@ -45,13 +45,26 @@ If you generate a new parkour, you have to copy and paste the datapack into the 
 You can find the explanation for all the parkour settings in [SETTINGS.md](SETTINGS.md)
 
 ## Installation
+
+### Windows
 1. Download the latest release [here](https://github.com/LeandroTreu/mc-parkour-generator/releases). 
 2. Extract the `zip` file and move the `MPG` folder to your Desktop or where you can find it again. The entire application is inside the folder (no installation needed).
 3. Double-click `MPG.exe`.
 
+### Linux/macOS
+For Linux and macOS it is best to build the app from source:
+
+1. MPG requires Python version 3.12.3. Install `Python 3.12.3`, open a terminal, and make sure you're using the correct version with: `python --version`
+2. Download the `Source code (zip)` [here](https://github.com/LeandroTreu/mc-parkour-generator/releases).
+3. Extract the `zip` and open a terminal in the `mc-parkour-generator-0.2.0` folder.
+4. Create and activate a virtual environment to download all the dependencies: `python -m venv .venv && source .venv/bin/activate`
+5. Install all dependencies with: `python -m pip install -r src/requirements.txt`
+6. Build the app with: `cd src && ./build.sh`
+7. Copy the created MPG folder in `src/dist/MPG` to your Desktop. The entire application is inside the folder.
+8. Double-click `MPG`.
 
 ## Advanced Installation and Usage
-Python version 3.12.3 was used to develop the application. You can find all needed pip packages in `requirements.txt`. The main imports are NumPy, Matplotlib and Pillow. PyInstaller was used to build the executable.
+Python version 3.12.3 was used to develop the application. You can find all needed pip packages in `requirements.txt`. The main imports are Matplotlib and Pillow. PyInstaller was used to build the executable.
 
 MPG can also be used as a CLI application. Just disable the GUI by setting use_gui to False in `MPG.py`. All settings can be set in the `settings.json` file and are documented in [SETTINGS.md](SETTINGS.md).
 ## License
