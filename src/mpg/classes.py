@@ -90,6 +90,10 @@ class Cluster():
     def __init__(self, jump: JumpType):
 
         self.jumps: list[JumpType] = [jump]
+        self.reset_volume()
+        self.update_volume(jump)
+    
+    def reset_volume(self):
         x_min = mpg.config.MC_WORLD_MAX_X
         x_max = mpg.config.MC_WORLD_MIN_X
         y_min = mpg.config.MC_WORLD_MAX_Y
@@ -97,7 +101,6 @@ class Cluster():
         z_min = mpg.config.MC_WORLD_MAX_Z
         z_max = mpg.config.MC_WORLD_MIN_Z
         self.volume = [[x_min, x_max], [y_min, y_max], [z_min, z_max]]
-        self.update_volume(jump)
     
     def update_volume(self, jump: JumpType):
 
@@ -144,3 +147,6 @@ class Cluster():
     
     def remove_jumps(self, start_index: int, end_index: int):
         del self.jumps[start_index:end_index]
+        self.reset_volume()
+        for jump in self.jumps:
+            self.update_volume(jump)
