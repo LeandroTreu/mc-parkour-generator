@@ -22,6 +22,7 @@ if __name__ == "__main__":
 
     if use_gui:
         print(f"Minecraft Parkour Generator (MPG) - Version {mpg.config.MPG_VERSION}\n")
+        print(f"(Keep this window open: Errors and other Info will be shown here)\n")
 
         try:
             gui = mpg.gui.Gui()
