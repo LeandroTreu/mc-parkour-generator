@@ -37,7 +37,7 @@ PLOT_FILE_TYPES = ["jpg", "png"]
 MC_VERSIONS = ["1.21", "1.18 - 1.20.6", "1.13 - 1.17.1"]
 SPIRAL_TYPES = ["Even", "Random"]
 SPIRAL_ROTATIONS = ["counterclockwise", "clockwise"]
-CLUSTER_SIZE = 8  # TODO: dynamic size depending on parkour type
+CLUSTER_SIZE = 8
 
 def set_default_config() -> dict[str, Any]:
 
