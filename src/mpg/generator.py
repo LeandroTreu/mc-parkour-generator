@@ -370,10 +370,18 @@ def generate_parkour(random_seed: bool,
                     else:
                         rotation_degree = -180
 
-                    checkpoint_command_string_recursive = 'minecraft:repeating_command_block[facing=west]{Command:\\"' + f'execute at @e[type=minecraft:fishing_bobber] run tp @p {
-                        checkpoint_respawn[0]} {checkpoint_respawn[1]} {checkpoint_respawn[2]} {rotation_degree} 25' + '\\"} destroy'
-                    checkpoint_command_string = 'minecraft:command_block{Command:"' + f'fill {c_block_abs[0]} {c_block_abs[1]} {
-                        c_block_abs[2]} {c_block_abs[0]} {c_block_abs[1]} {c_block_abs[2]} {checkpoint_command_string_recursive}' + '"}'
+                    checkpoint_command_string_nested = "".join([
+                        "minecraft:repeating_command_block[facing=west]",
+                        '{Command:\\"',
+                        f"execute at @e[type=minecraft:fishing_bobber] run tp @p {checkpoint_respawn[0]} {checkpoint_respawn[1]} {checkpoint_respawn[2]} {rotation_degree} 25",
+                        '\\"} destroy'
+                        ])
+                    checkpoint_command_string = "".join([
+                        "minecraft:command_block",
+                        "{",
+                        f"Command:\"fill {c_block_abs[0]} {c_block_abs[1]} {c_block_abs[2]} {c_block_abs[0]} {c_block_abs[1]} {c_block_abs[2]} {checkpoint_command_string_nested}\"",
+                        "}"
+                        ])
 
                     for block in cp_instance.blocks:
                         if block.name == "minecraft:command_block":
