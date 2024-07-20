@@ -128,7 +128,6 @@ def init_jumptypes(block_type: str) -> list[JumpType]:
                     if abs(lr_delta) == 3 and fw_delta == 5:
                         continue
 
-                # TODO: check difficulty and pace in-game
                 # Set difficulty and pace
                 if fw_delta == 5:
                     d = "hard"

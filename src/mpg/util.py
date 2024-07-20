@@ -199,7 +199,7 @@ def can_be_placed(jumptype: JumpType,
                     if (cluster_index == len(list_of_clusters) - 1) and (earlier_jump_index == len(cluster.jumps) - 1):
                         continue
 
-                    # If start block not near earlier jump the no detailed checks necessary
+                    # If start block not near earlier jump then no detailed checks necessary
                     if not near_jump(jumptype.rel_start_block, earlier_jump):
                         continue
 
@@ -252,7 +252,7 @@ def append_to_clusters(jump: JumpType, list_of_clusters: list[Cluster]) -> list[
         if len(newest_cluster.jumps) >= mpg.config.CLUSTER_SIZE:
             list_of_clusters.append(Cluster(jump))
         else:
-            newest_cluster.insert_jump(jump)
+            newest_cluster.append_jump(jump)
     
     return list_of_clusters
 

@@ -138,7 +138,7 @@ class Cluster():
         self.volume[1][1] = max(self.volume[1][1], jump_y_max)
         self.volume[2][1] = max(self.volume[2][1], jump_z_max)
 
-    def insert_jump(self, jump: JumpType):
+    def append_jump(self, jump: JumpType):
         self.jumps.append(jump)
         self.update_volume(jump)
     
