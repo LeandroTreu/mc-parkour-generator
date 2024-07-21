@@ -59,7 +59,7 @@ For Linux and macOS it is best to build the app from source:
 3. Extract the `zip` and open a terminal in the `mc-parkour-generator-0.2.0` folder.
 4. Create and activate a virtual environment to download all the dependencies: `python -m venv .venv && source .venv/bin/activate`
 5. Install all dependencies with: `python -m pip install -r src/requirements.txt`
-6. Build the app with: `cd src && ./build.sh`
+6. Build the app with: `cd src && chmod 744 build.sh && ./build.sh`
 7. Copy the created MPG folder in `src/dist/MPG` to your Desktop. The entire application is inside the folder.
 8. Double-click `MPG`.
 

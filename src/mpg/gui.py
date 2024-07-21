@@ -43,7 +43,7 @@ class Gui():
             mpg_icon = ImageTk.PhotoImage(mpg_icon)
             self.window.iconphoto(False, mpg_icon) # type: ignore
         except:
-            print("INFO: mpg_icon.png not found")
+            print("INFO: mpg_icon_256.png not found")
 
         default_font = font.nametofont("TkDefaultFont")
         text_font = font.nametofont("TkTextFont")
@@ -522,8 +522,8 @@ class Gui():
             self.img_label["image"] = self.img
             # Prevent GC
             self.img_label.image = self.img # type: ignore
-        except:
-            pass
+        except Exception as err:
+            print(f"ERROR: {err}")
     
     def refresh_plot(self, string: str = ""):
 
