@@ -7,8 +7,8 @@ MPG is free software: you can redistribute it and/or modify it under the terms o
 MPG is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with MPG. If not, see <https://www.gnu.org/licenses/>.
 """
-from classes import JumpType
-from classes import Block
+from mpg.classes import JumpType
+from mpg.classes import Block
 
 def init_startblock(block_type: str) -> JumpType:
     b = JumpType(name="Parkour Start Structure", structure_type="Start", 
@@ -128,29 +128,29 @@ def init_jumptypes(block_type: str) -> list[JumpType]:
                     if abs(lr_delta) == 3 and fw_delta == 5:
                         continue
 
-                # TODO: check difficulty and pace in-game
-                # Set difficulty
+                # Set difficulty and pace
                 if fw_delta == 5:
                     d = "hard"
+                    p = "fast"
                 elif y_level == 1 and fw_delta > 3:
                     d = "hard"
+                    p = "fast"
                 elif y_level == 1 and abs(lr_delta) > 2:
                     d = "hard"
+                    p = "fast"
                 elif fw_delta > 3:
                     d = "medium"
-                elif fw_delta == 3 and abs(lr_delta) > 2:
-                    d = "medium"
-                else:
-                    d = "easy"
-
-                # Set pace
-                if fw_delta > 3:
                     p = "fast"
-                elif fw_delta == 2:
+                elif fw_delta == 3 and (abs(lr_delta) > 2 or y_level == 1) and lr_delta != 0:
+                    d = "medium"
+                    p = "fast"
+                elif fw_delta == 2 and abs(lr_delta) <= 2:
+                    d = "easy"
                     p = "slow"
                 else:
-                    p = "medium"
-                
+                    d = "easy"
+                    p = "fast"
+
                 start_block_tuple = (fw_delta, y_level, lr_delta)
                 name = str(start_block_tuple)
 

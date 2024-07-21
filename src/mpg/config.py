@@ -13,7 +13,7 @@ from tkinter import messagebox
 from typing import Any
 
 # Constants
-MPG_VERSION = "0.1.0"
+MPG_VERSION = "0.2.0"
 MC_WORLD_MAX_X = 29999984
 MC_WORLD_MIN_X = -29999984
 MC_WORLD_MAX_Z = MC_WORLD_MAX_X
@@ -28,30 +28,29 @@ MC_MAX_FILL_VOLUME_CUBE_WIDTH = 32
 MAX_PARKOUR_LENGTH = 10000
 MAX_VOLUME = 10000 * MC_MAX_FILL_VOLUME
 DIRECTIONS = ["Xpos", "Zneg", "Xneg", "Zpos"]
-ALLOWED_STRUCTURE_TYPES_NAMES = ["SingleBlock", "TwoBlock", "FourBlock"]
+ALLOWED_STRUCTURE_TYPES_DICT = {"SingleBlock": True, "TwoBlock": True, "FourBlock": True, 
+                                "easy": True, "medium": True, "hard": False, 
+                                "slow": False, "fast": True}
 PARKOUR_TYPE_NAMES = ["Straight", "Curves", "Spiral", "Random"]
 PLOT_COLORSCHEMES = ["winter", "viridis", "plasma", "gray", "hot", "summer", "hsv", "copper"]
 PLOT_FILE_TYPES = ["jpg", "png"]
 MC_VERSIONS = ["1.21", "1.18 - 1.20.6", "1.13 - 1.17.1"]
 SPIRAL_TYPES = ["Even", "Random"]
 SPIRAL_ROTATIONS = ["counterclockwise", "clockwise"]
-DIFFICULTIES = ["easy", "medium", "hard"]
-PACE = ["slow", "medium", "fast"]
+CLUSTER_SIZE = 8
 
 def set_default_config() -> dict[str, Any]:
 
     config = {}
-    config["allowedStructureTypes"] = ALLOWED_STRUCTURE_TYPES_NAMES
+    config["allowedStructureTypes"] = ALLOWED_STRUCTURE_TYPES_DICT
     config["blockType"] = "minecraft:quartz_block"
     config["checkpointsEnabled"] = True
     config["checkpointsPeriod"] = 10
-    config["curvesSize"] = 0.5
-    config["difficulty"] = "medium"
+    config["curvesSize"] = 0.1
     config["enforceParkourVolume"] = False
     config["fillParkourVolumeWithAir"] = False
     config["maxParkourLength"] = 50
     config["mcVersion"] = "1.21"
-    config["pace"] = "medium"
     config["parkourAscending"] = True
     config["parkourDescending"] = False
     config["parkourType"] = "Spiral"
@@ -72,14 +71,13 @@ def set_default_config() -> dict[str, Any]:
 
     return config
 
-def import_config(gui_enabled: bool) -> dict[str, Any]:
+def import_config(settings_file_path: Path, gui_enabled: bool) -> dict[str, Any]:
     
     config = set_default_config()
 
     # Import config from file
-    settings_file = Path("settings.json")
     try:
-        with open(settings_file, "r", encoding="utf-8") as file:
+        with open(settings_file_path, "r", encoding="utf-8") as file:
             file_dict = dict(json.load(file))
 
         for name, value in file_dict.items():
@@ -97,11 +95,10 @@ def import_config(gui_enabled: bool) -> dict[str, Any]:
     
     return config
 
-def export_config(config: dict[str, Any], gui_enabled: bool) -> None:
+def export_config(settings_file_path: Path, config: dict[str, Any], gui_enabled: bool) -> None:
 
-    settings_file = Path("settings.json")
     try:
-        with open(settings_file, "w", encoding="utf-8") as file:
+        with open(settings_file_path, "w", encoding="utf-8") as file:
             json.dump(config, file, indent=1)
     except:
         if gui_enabled:
@@ -239,16 +236,13 @@ def check_config(config: dict[str, Any]) -> str:
         error_string += "useAllBlocks: wrong input format. Only true or false are allowed.\n"
     
     try:
-        for e in config["allowedStructureTypes"]:
-            if e not in ALLOWED_STRUCTURE_TYPES_NAMES:
-                error_string += f"allowedStructureTypes: {e} is not a valid structure type. Allowed strings are: {ALLOWED_STRUCTURE_TYPES_NAMES}\n"
+        for key, value in config["allowedStructureTypes"].items():
+            if key not in ALLOWED_STRUCTURE_TYPES_DICT.keys():
+                error_string += f"allowedStructureTypes: \"{key}\" is not a valid option. Allowed strings are: {list(ALLOWED_STRUCTURE_TYPES_DICT.keys())}\n"
+            if type(value) is not bool:
+                error_string += f"allowedStructureTypes: wrong input format. Needs to be a dict[str, bool]\n"
     except:
-        error_string += "allowedStructureTypes: wrong input format. Needs to be a list of strings.\n"
-
-    if config["difficulty"] not in DIFFICULTIES:
-        error_string += f"difficulty: wrong input format. Allowed strings are: {DIFFICULTIES}\n"
-    if config["pace"] not in PACE:
-        error_string += f"pace: wrong input format. Allowed strings are: {PACE}\n"
+        error_string += f"allowedStructureTypes: wrong input format. Needs to be a dict[str, bool]\n"
 
     t = config["parkourType"]
     if t not in PARKOUR_TYPE_NAMES:

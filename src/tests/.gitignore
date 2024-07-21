@@ -1,0 +1,6 @@
+*.png
+*.jpg
+
+parkour_generator_datapack
+
+__pycache__

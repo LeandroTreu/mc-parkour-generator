@@ -7,17 +7,16 @@ MPG is free software: you can redistribute it and/or modify it under the terms o
 MPG is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with MPG. If not, see <https://www.gnu.org/licenses/>.
 """
-import util
-from classes import JumpType
-from classes import Block
-import jumptypes
+import mpg.util
+from mpg.classes import JumpType
+from mpg.classes import Block
+from mpg.classes import Cluster
+import mpg.jumptypes
+import mpg.config
 import tkinter as tk
 import tkinter.ttk as ttk
 from copy import deepcopy
-from numpy.random import Generator
-from numpy.random import default_rng
-from numpy import uint64
-import config
+import random
 import threading
 
 def place_control_command_blocks(command_blocks_instance: JumpType, 
@@ -67,21 +66,33 @@ def place_control_command_blocks(command_blocks_instance: JumpType,
     for b in command_blocks_instance.blocks:
         if b.name == "command_block_1_string":
             t = command_blocks_instance.blocks[7]
-            b.name = f"minecraft:chain_command_block[facing={cb_facing_direction}]" + "{Command:\"" + f"fill {t.abs_position[0]} {t.abs_position[1]} {
-                t.abs_position[2]} {t.abs_position[0]} {t.abs_position[1]} {t.abs_position[2]} minecraft:redstone_block replace\"" + "}"
+            b.name = "".join([  f"minecraft:chain_command_block[facing={cb_facing_direction}]",
+                                "{",
+                                f"Command:\"fill {t.abs_position[0]} {t.abs_position[1]} {t.abs_position[2]} {t.abs_position[0]} {t.abs_position[1]} {t.abs_position[2]} minecraft:redstone_block replace\"",
+                                "}"
+                            ])
     
         if b.name == "command_block_2_string":
             t = command_blocks_instance.blocks[7]
-            b.name = f"minecraft:repeating_command_block[facing={cb_facing_direction}]" + "{Command:\"" + f"fill {t.abs_position[0]} {
-                t.abs_position[1]} {t.abs_position[2]} {t.abs_position[0]} {t.abs_position[1]} {t.abs_position[2]} minecraft:air replace\"" + "}"
+            b.name = "".join([  f"minecraft:repeating_command_block[facing={cb_facing_direction}]",
+                                "{",
+                                f"Command:\"fill {t.abs_position[0]} {t.abs_position[1]} {t.abs_position[2]} {t.abs_position[0]} {t.abs_position[1]} {t.abs_position[2]} minecraft:air replace\"",
+                                "}"
+                            ])
     
         if b.name == "command_block_3_string":
-            b.name = f"minecraft:repeating_command_block[facing={cb_facing_direction}]" + "{Command:\"" + \
-                f"kill @e[type=minecraft:fishing_bobber]\"" + "}"
+            b.name = "".join([  f"minecraft:repeating_command_block[facing={cb_facing_direction}]",
+                                "{",
+                                f"Command:\"kill @e[type=minecraft:fishing_bobber]\"",
+                                "}"
+                            ])
 
         if b.name == "command_block_4_string":
-            b.name = f"minecraft:repeating_command_block[facing={cb_facing_direction}]" + "{Command:\"" + f"execute at @e[type=minecraft:fishing_bobber] run tp @p {
-                world_spawn[0]} {world_spawn[1]+1} {world_spawn[2]} {rotation_degree} 25\"" + "}"
+            b.name = "".join([  f"minecraft:repeating_command_block[facing={cb_facing_direction}]",
+                                "{",
+                                f"Command:\"execute at @e[type=minecraft:fishing_bobber] run tp @p {world_spawn[0]} {world_spawn[1]+1} {world_spawn[2]} {rotation_degree} 25\"",
+                                "}"
+                            ])
 
 
     # Place command block that gives the player a checkpoint teleporter
@@ -105,28 +116,39 @@ def place_control_command_blocks(command_blocks_instance: JumpType,
     dispenser_instance.rel_finish_block.name = f"minecraft:stone_button[face=floor, facing={button_facing_direction}]"
 
 
-def filter_jumptypes(list_of_allowed_structure_types: list[str], use_all_blocks: bool, difficulty: str, pace: str, ascending: bool, descending: bool, block_type: str) -> tuple[list[JumpType], int , int]:
+def filter_jumptypes(dict_of_allowed_structure_types: dict[str, bool], use_all_blocks: bool, ascending: bool, descending: bool, block_type: str) -> tuple[list[JumpType], int , int]:
 
-    list_of_jumptypes = jumptypes.init_jumptypes(block_type=block_type)
+    list_of_jumptypes = mpg.jumptypes.init_jumptypes(block_type=block_type)
     list_of_jumptypes_filtered: list[JumpType] = []
     if use_all_blocks:
         list_of_jumptypes_filtered = list_of_jumptypes
     else:
         for jumptype in list_of_jumptypes:
-            if jumptype.structure_type in list_of_allowed_structure_types:
-                if (pace == "fast" and jumptype.pace in ["fast", "medium"]) or (pace == "medium" and jumptype.pace in ["medium", "slow"]) or (pace == "slow" and jumptype.pace == "slow"):
-                    if difficulty == "hard" or (difficulty == "medium" and (jumptype.difficulty in ["easy", "medium"])) or (difficulty == "easy" and jumptype.difficulty == "easy"):
-                        if not ascending and util.is_ascending(jumptype):
+            if dict_of_allowed_structure_types[jumptype.structure_type] is True:
+                if dict_of_allowed_structure_types[jumptype.pace] is True:
+                    if dict_of_allowed_structure_types[jumptype.difficulty] is True:
+                        if not ascending and mpg.util.is_ascending(jumptype):
                             continue
-                        if not descending and util.is_descending(jumptype):
+                        if not descending and mpg.util.is_descending(jumptype):
                             continue
                         list_of_jumptypes_filtered.append(jumptype)
 
     return list_of_jumptypes_filtered, len(list_of_jumptypes_filtered), len(list_of_jumptypes)
 
+def turn(direction: str, current_index: int) -> int:
+
+    if direction == "left":
+        new_index = current_index - 1
+        if new_index < 0:
+            new_index = 3
+    else:
+        new_index = (current_index + 1) % 4
+    
+    return new_index
+
 
 def change_direction(current_forward_direction: str,
-                     rng: Generator, parkour_type: str,
+                     parkour_type: str,
                      curves_size: float,
                      curves_direction: int,
                      spiral_type: str,
@@ -135,58 +157,47 @@ def change_direction(current_forward_direction: str,
                      spiral_rotation: str,
                      spiral_turn_counter: int) -> tuple[str, int, int]:
 
+    old_direction_index = mpg.config.DIRECTIONS.index(current_forward_direction)
+    new_direction_index = old_direction_index
+
     if parkour_type == "Random":
-        # Choose possible other directions at random
-        random_bit = rng.integers(low=0, high=2) # type: ignore
-        old_direction_index = config.DIRECTIONS.index(
-            current_forward_direction)
-
+        random_bit = random.randint(0, 1)
         if random_bit == 0:
-            if old_direction_index == 0:
-                new_direction_index = 3
-            else:
-                new_direction_index = old_direction_index - 1
+            new_direction_index = old_direction_index
         else:
-            new_direction_index = (old_direction_index + 1) % 4
-
-        return config.DIRECTIONS[new_direction_index], curves_direction, spiral_turn_counter
+            random_bit = random.randint(0, 1)
+            if random_bit == 0:
+                new_direction_index = turn("left", old_direction_index)
+            else: 
+                new_direction_index = turn("right", old_direction_index)
 
     elif parkour_type == "Straight":
-        return current_forward_direction, curves_direction, spiral_turn_counter  # Keep same direction
+        new_direction_index = old_direction_index
 
     elif parkour_type == "Curves":
 
-        curves_size = int((curves_size * 10) // 1)
+        curves_size = int((curves_size * 50) // 1)
         if curves_size < 1:
             curves_size = 1
-        random_nr = rng.integers(low=0, high=curves_size) # type: ignore
+        random_nr = random.randint(0, curves_size-1)
 
         if random_nr == 0:
-
-            old_direction_index = config.DIRECTIONS.index(
-                current_forward_direction)
-
             if curves_direction == -1:
                 curves_direction = 0
-                new_direction_index = (old_direction_index + 1) % 4
+                new_direction_index = turn("right", old_direction_index)
             elif curves_direction == 0:
-                random_bit = rng.integers(low=0, high=2) # type: ignore
+                random_bit = random.randint(0, 1)
                 if random_bit == 0:
                     curves_direction = -1
-                    new_direction_index = (old_direction_index - 1)
+                    new_direction_index = turn("left", old_direction_index)
                 else:
                     curves_direction = 1
-                    new_direction_index = (old_direction_index + 1) % 4
+                    new_direction_index = turn("right", old_direction_index)
             else:
                 curves_direction = 0
-                new_direction_index = (old_direction_index - 1)
-
-            if new_direction_index < 0:
-                new_direction_index = 3
-
-            return config.DIRECTIONS[new_direction_index], curves_direction, spiral_turn_counter
+                new_direction_index = turn("left", old_direction_index)
         else:
-            return current_forward_direction, curves_direction, spiral_turn_counter
+            new_direction_index = old_direction_index
 
     elif parkour_type == "Spiral":
         if spiral_type == "Even":
@@ -197,38 +208,26 @@ def change_direction(current_forward_direction: str,
                 spiral_turn_prob = 0
                 spiral_turn_counter += 1
         else:
-            spiral_turn_prob = int(spiral_turn_prob * 100)
+            spiral_turn_prob = ((spiral_turn_prob * 10) // 1) * 10
             if spiral_turn_prob > 100:
                 spiral_turn_prob = 100
             if spiral_turn_prob < 0:
                 spiral_turn_prob = 0
 
-        random_nr = rng.integers(low=0, high=101) # type: ignore
-        if random_nr <= spiral_turn_prob:
-
-            old_direction_index = config.DIRECTIONS.index(
-                current_forward_direction)
-
+        random_nr = random.randint(0, 99)
+        if random_nr < spiral_turn_prob:
             if spiral_rotation == "clockwise":
-
-                new_direction_index = (old_direction_index + 1) % 4
+                new_direction_index = turn("right", old_direction_index)
             else:
-                new_direction_index = old_direction_index - 1
-
-            if new_direction_index < 0:
-                new_direction_index = 3
-
-            return config.DIRECTIONS[new_direction_index], curves_direction, spiral_turn_counter
+                new_direction_index = turn("left", old_direction_index)
         else:
-            return current_forward_direction, curves_direction, spiral_turn_counter
+            new_direction_index = old_direction_index
 
-    # Default case
-    return current_forward_direction, curves_direction, spiral_turn_counter
+    return mpg.config.DIRECTIONS[new_direction_index], curves_direction, spiral_turn_counter
 
-def generate_parkour(list_of_placed_jumps: list[JumpType],
-                     random_seed: bool,
+def generate_parkour(random_seed: bool,
                      seed: int,
-                     list_of_allowed_structure_types: list[str],
+                     dict_of_allowed_structure_types: dict[str, bool],
                      parkour_start_position: tuple[int, int, int],
                      parkour_start_forward_direction: str,
                      parkour_type: str,
@@ -237,8 +236,6 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                      checkpoints_enabled: bool,
                      checkpoints_period: int,
                      use_all_blocks: bool,
-                     difficulty: str,
-                     pace: str,
                      ascending: bool,
                      descending: bool,
                      curves_size: float,
@@ -252,27 +249,29 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                      gui_window: tk.Tk | None,
                      block_type: str,
                      t_stop_event: threading.Event | None,
-                     mc_version: str) -> tuple[int, int, int, list[JumpType]]:
+                     mc_version: str) -> tuple[int, int, int, list[JumpType], list[Cluster]]:
 
     best_parkour_generated: list[JumpType] = []
+    list_of_placed_jumps: list[JumpType] = []
+    list_of_clusters: list[Cluster] = []
 
     # Set seed for the RNG
     if random_seed:
-        rng_for_rng = default_rng()
-        seed = rng_for_rng.integers(low=0, high=(2**64), dtype=uint64)
-    rng = default_rng(seed)
+        seed = random.randint(0, (2**64)-1)
+    random.seed(seed)
 
     current_block_position = parkour_start_position
     current_forward_direction = parkour_start_forward_direction
 
     # Place Start Structure of the Parkour
-    startblock_instance = jumptypes.init_startblock(block_type)
+    startblock_instance = mpg.jumptypes.init_startblock(block_type)
     startblock_instance.set_absolut_coordinates(current_block_position, current_forward_direction)
     list_of_placed_jumps.append(startblock_instance)
+    list_of_clusters = mpg.util.append_to_clusters(startblock_instance, list_of_clusters)
 
     # Place the Control and Dispenser structures
-    command_blocks_instance = jumptypes.init_commandcontrol(block_type)
-    dispenser_instance = jumptypes.init_dispenser(block_type)
+    command_blocks_instance = mpg.jumptypes.init_commandcontrol(block_type)
+    dispenser_instance = mpg.jumptypes.init_dispenser(block_type)
     if checkpoints_enabled:
         place_control_command_blocks(
             command_blocks_instance, 
@@ -284,16 +283,17 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
 
     # Pre-filter allowed jumptypes
     list_of_jumptypes_filtered, nr_jumptypes_filtered, nr_total_jumptypes = filter_jumptypes(
-        list_of_allowed_structure_types,
+        dict_of_allowed_structure_types,
         use_all_blocks,
-        difficulty,
-        pace,
         ascending,
         descending,
         block_type)
 
     if not gui_enabled:
         print(f"Number of filtered jumptypes: {len(list_of_jumptypes_filtered)}")
+    
+    if nr_jumptypes_filtered == 0:
+        return seed, nr_jumptypes_filtered, nr_total_jumptypes, [], []
 
     y_level_balance = 0
     curves_direction = 0
@@ -312,7 +312,7 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
     while len(list_of_placed_jumps) < max_parkour_length + 1:
         
         if t_stop_event != None and t_stop_event.is_set():
-            return seed, nr_jumptypes_filtered, nr_total_jumptypes, []
+            return seed, nr_jumptypes_filtered, nr_total_jumptypes, [], []
 
         # Loading bar print
         if len(list_of_placed_jumps) % max(max_parkour_length//100, 1) == 0:
@@ -337,18 +337,19 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
         no_placeable_jumps_found = True
         if len(list_of_placed_jumps) == max_parkour_length:
             # Place Finish Structure of the Parkour
-            finishblock_instance = jumptypes.init_finishblock(block_type)
-            if util.can_be_placed(finishblock_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume, mc_version):
+            finishblock_instance = mpg.jumptypes.init_finishblock(block_type)
+            if mpg.util.can_be_placed(finishblock_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume, mc_version, list_of_clusters):
                 list_of_placed_jumps.append(finishblock_instance)
+                list_of_clusters = mpg.util.append_to_clusters(finishblock_instance, list_of_clusters)
                 no_placeable_jumps_found = False
             else:
                 no_placeable_jumps_found = True
         elif checkpoints_enabled and len(list_of_placed_jumps) % checkpoints_period == 0:
             no_placeable_jumps_found = True
-            checkpoint_instances = jumptypes.init_checkpointblocks(block_type)
+            checkpoint_instances = mpg.jumptypes.init_checkpointblocks(block_type)
 
             for cp_instance in checkpoint_instances:
-                if util.can_be_placed(cp_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume, mc_version):
+                if mpg.util.can_be_placed(cp_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume, mc_version, list_of_clusters):
 
                     c_block_abs = command_blocks_instance.blocks[5].abs_position
 
@@ -369,44 +370,55 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                     else:
                         rotation_degree = -180
 
-                    checkpoint_command_string_recursive = 'minecraft:repeating_command_block[facing=west]{Command:\\"' + f'execute at @e[type=minecraft:fishing_bobber] run tp @p {
-                        checkpoint_respawn[0]} {checkpoint_respawn[1]} {checkpoint_respawn[2]} {rotation_degree} 25' + '\\"} destroy'
-                    checkpoint_command_string = 'minecraft:command_block{Command:"' + f'fill {c_block_abs[0]} {c_block_abs[1]} {
-                        c_block_abs[2]} {c_block_abs[0]} {c_block_abs[1]} {c_block_abs[2]} {checkpoint_command_string_recursive}' + '"}'
+                    checkpoint_command_string_nested = "".join([
+                        "minecraft:repeating_command_block[facing=west]",
+                        '{Command:\\"',
+                        f"execute at @e[type=minecraft:fishing_bobber] run tp @p {checkpoint_respawn[0]} {checkpoint_respawn[1]} {checkpoint_respawn[2]} {rotation_degree} 25",
+                        '\\"} destroy'
+                        ])
+                    checkpoint_command_string = "".join([
+                        "minecraft:command_block",
+                        "{",
+                        f"Command:\"fill {c_block_abs[0]} {c_block_abs[1]} {c_block_abs[2]} {c_block_abs[0]} {c_block_abs[1]} {c_block_abs[2]} {checkpoint_command_string_nested}\"",
+                        "}"
+                        ])
 
                     for block in cp_instance.blocks:
                         if block.name == "minecraft:command_block":
                             block.name = checkpoint_command_string
 
                     list_of_placed_jumps.append(cp_instance)
+                    list_of_clusters = mpg.util.append_to_clusters(cp_instance, list_of_clusters)
                     no_placeable_jumps_found = False
                     break
         else:
-            list_of_candidates = deepcopy(list_of_jumptypes_filtered)
+            list_of_candidates = list_of_jumptypes_filtered
+            list_of_indexes = list(range(len(list_of_candidates)))
             no_placeable_jumps_found = True
-            while len(list_of_candidates) > 0:
+            while len(list_of_indexes) > 0:
 
                 # Choose randomly from list of allowed jumptypes
-                random_index = rng.integers(low=0, high=len(list_of_candidates)) # type: ignore
+                random_index = random.choice(list_of_indexes)
                 candidate_instance = deepcopy(list_of_candidates[random_index])
 
                 # Keep a balanced y-level when both ascending and descending JumpTypes are set
                 candidate_y_change = candidate_instance.rel_start_block.rel_position[1] + candidate_instance.rel_finish_block.rel_position[1]
-                if ascending and descending:
+                if (ascending and descending) or use_all_blocks:
                     if (y_level_balance > 0 and candidate_y_change > 0) or (y_level_balance < 0 and candidate_y_change < 0):
-                        random_nr = rng.integers(low=0, high=abs(y_level_balance)+1)
+                        random_nr = random.randint(0, abs(y_level_balance))
                         if random_nr != 0:
-                            list_of_candidates.pop(random_index)
+                            list_of_indexes.remove(random_index)
                             continue
                 
                 # Check if can be placed
-                if util.can_be_placed(candidate_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume, mc_version):
+                if mpg.util.can_be_placed(candidate_instance, current_block_position, current_forward_direction, list_of_placed_jumps, enforce_volume, parkour_volume, mc_version, list_of_clusters):
                     list_of_placed_jumps.append(candidate_instance)
+                    list_of_clusters = mpg.util.append_to_clusters(candidate_instance, list_of_clusters)
                     y_level_balance += candidate_y_change
                     no_placeable_jumps_found = False
                     break
                 else:
-                    list_of_candidates.pop(random_index)
+                    list_of_indexes.remove(random_index)
                     continue
 
         # No placable JumpTypes found
@@ -435,8 +447,13 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                             backtrack_depth = min(backtrack_depth, checkpoint_distance)
 
                 bt_len = max(len(list_of_placed_jumps) - backtrack_depth, 1)
+                
+                # Save current placed jumps if longest so far
+                if len(list_of_placed_jumps) > len(best_parkour_generated):
+                    best_parkour_generated = list_of_placed_jumps[:]
 
-                list_of_placed_jumps = list_of_placed_jumps[0:bt_len]
+                list_of_clusters = mpg.util.pop_from_clusters(backtrack_depth, list_of_clusters)
+                del list_of_placed_jumps[bt_len:]
 
         # Set new absolute coordinates for next iteration
         current_block_position = list_of_placed_jumps[-1].rel_finish_block.abs_position
@@ -445,7 +462,6 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
         current_forward_direction, \
         curves_direction, \
         spiral_turn_counter = change_direction( current_forward_direction, 
-                                                rng, 
                                                 parkour_type, 
                                                 curves_size, 
                                                 curves_direction,
@@ -454,9 +470,9 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
                                                 spiral_turn_prob, 
                                                 spiral_rotation,
                                                 spiral_turn_counter)
-        
-        if len(list_of_placed_jumps) > len(best_parkour_generated):
-            best_parkour_generated = deepcopy(list_of_placed_jumps)
+
+    if len(best_parkour_generated) < len(list_of_placed_jumps):
+        best_parkour_generated = list_of_placed_jumps
 
     if not gui_enabled:
         print(f"] {len(best_parkour_generated)-1}/{max_parkour_length}")
@@ -466,4 +482,4 @@ def generate_parkour(list_of_placed_jumps: list[JumpType],
         best_parkour_generated.append(command_blocks_instance)
         best_parkour_generated.append(dispenser_instance)
 
-    return seed, nr_jumptypes_filtered, nr_total_jumptypes, best_parkour_generated
+    return seed, nr_jumptypes_filtered, nr_total_jumptypes, best_parkour_generated, list_of_clusters

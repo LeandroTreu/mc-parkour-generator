@@ -15,11 +15,11 @@
  "curvesSize": 0.1,
  "enforceParkourVolume": false,
  "fillParkourVolumeWithAir": false,
- "maxParkourLength": 50,
+ "maxParkourLength": 10000,
  "mcVersion": "1.21",
  "parkourAscending": true,
  "parkourDescending": false,
- "parkourType": "Spiral",
+ "parkourType": "Straight",
  "parkourVolume": [
   [
    0,
@@ -37,8 +37,8 @@
  "plotColorScheme": "winter",
  "plotCommandBlocks": true,
  "plotFileType": "jpg",
- "randomSeed": true,
- "seed": 0,
+ "randomSeed": false,
+ "seed": 7557587950115877481,
  "spiralRotation": "counterclockwise",
  "spiralTurnProbability": 0.2,
  "spiralTurnRate": 10,
@@ -49,6 +49,6 @@
   150,
   0
  ],
- "useAllBlocks": false,
+ "useAllBlocks": true,
  "writeDatapackFiles": true
 }
