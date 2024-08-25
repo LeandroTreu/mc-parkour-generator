@@ -38,6 +38,8 @@ The app creates a datapack which you can copy and paste into your Minecraft worl
 7. Open the world in Minecraft and use the command `/reload`.
 8. Use the command `/function parkour_generator:generate` to place the parkour.
 
+NOTE: The blocks will only be placed in loaded chunks. For very long parkours you will have to first load the needed world chunks by flying into the direction where the parkour will be placed.
+
 (Optional) You can use `/function parkour_generator:remove` to fill the placed parkour blocks with air. This will not revert any blocks that were destroyed by generating the parkour or filling the parkour volume with air. It will only fill the placed parkour blocks with air.
 
 If you generate a new parkour, you have to copy and paste the datapack into the datapack folder again such that the function files get overwritten. You can stay in the Minecraft world while doing this, but you have to use the `/reload` command to load the new function files.
